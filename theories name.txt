@@ -1,5 +1,4 @@
-make its idea, details, theory, equations, logics about this and send me as theoryname.md
-
+make its idea, details, theory, equations, logics about this and send me as md format
 
  Ideas
 Poly-Resonant Logic (PRL): Logic gates encoded as coupled LC resonators at distinct frequencies.
