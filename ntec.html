@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nano-Thermionic Energy Converters</title>
+
+    <!-- MathJax Configuration -->
+    <script>
+        MathJax = {
+          tex: {
+            inlineMath: [['$', '$'], ['\\(', '\\)']],
+            displayMath: [['$$', '$$'], ['\\[', '\\]'], ['```math', '```']],
+            processEscapes: true,
+            tags: 'ams',
+            macros: { // Define custom macros if needed
+                // No specific macros from content, but can add if needed
+            }
+          },
+          svg: {
+            fontCache: 'global'
+          }
+        };
+    </script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <!-- Mermaid JS for diagrams -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Google Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons|Material+Icons+Outlined|Material+Icons+Round" rel="stylesheet">
+
+    <style>
+        :root {
+            --font-primary: 'Inter', sans-serif;
+            --font-headings: 'Poppins', sans-serif;
+
+            --ease-out-quad: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            --ease-in-out-cubic: cubic-bezier(0.645, 0.045, 0.355, 1);
+
+            /* Light Mode (Default) */
+            --bg-color: #F0F2F5;
+            --text-color: #1d1d1f;
+            --heading-color: #000000;
+            --accent-color: #FF6F00; /* Fiery Orange for Thermo/High Temp */
+            --accent-color-darker: #E65100;
+            --card-bg: rgba(255, 255, 255, 0.6);
+            --card-border: rgba(0, 0, 0, 0.1);
+            --card-shadow-1: rgba(0, 0, 0, 0.05);
+            --card-shadow-2: rgba(0, 0, 0, 0.02);
+            --neumorphic-shadow-light: -6px -6px 12px rgba(255, 255, 255, 0.8), 6px 6px 12px rgba(0, 0, 0, 0.1);
+            --neumorphic-shadow-light-inset: inset -4px -4px 8px rgba(255, 255, 255, 0.7), inset 4px 4px 8px rgba(0, 0, 0, 0.08);
+            --icon-color: #555;
+            --diagram-element-bg: rgba(128,128,128,0.05);
+            --code-bg: #f7f7f7;
+            --code-text: #333;
+            --hr-color: rgba(0,0,0,0.1);
+            --table-header-bg: rgba(0,0,0,0.03);
+            --table-row-hover-bg: rgba(0,0,0,0.02);
+        }
+
+        html.dark-mode {
+            --bg-color: #161616;
+            --text-color: #E0E0E0;
+            --heading-color: #FFFFFF;
+            --accent-color: #FF8F00; /* Lighter Fiery Orange for dark mode */
+            --accent-color-darker: #FF6F00;
+            --card-bg: rgba(35, 35, 35, 0.6);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --card-shadow-1: rgba(255, 255, 255, 0.03);
+            --card-shadow-2: rgba(0, 0, 0, 0.1);
+            --neumorphic-shadow-light: -6px -6px 12px rgba(40, 40, 40, 0.7), 6px 6px 12px rgba(0, 0, 0, 0.3);
+            --neumorphic-shadow-light-inset: inset -4px -4px 8px rgba(40, 40, 40, 0.6), inset 4px 4px 8px rgba(0, 0, 0, 0.25);
+            --icon-color: #bbb;
+            --diagram-element-bg: rgba(200,200,200,0.05);
+            --code-bg: #2a2a2a;
+            --code-text: #ccc;
+            --hr-color: rgba(255,255,255,0.1);
+            --table-header-bg: rgba(255,255,255,0.03);
+            --table-row-hover-bg: rgba(255,255,255,0.02);
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 16px;
+        }
+
+        body {
+            font-family: var(--font-primary);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.7;
+            transition: background-color 0.3s var(--ease-out-quad), color 0.3s var(--ease-out-quad);
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem 0;
+        }
+
+        header {
+            padding: 2rem 0 1rem;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .main-title {
+            font-family: var(--font-headings);
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--heading-color);
+            margin-bottom: 0.5rem;
+            letter-spacing: -1px;
+        }
+
+        .tagline {
+            font-size: 1.1rem;
+            color: var(--text-color);
+            opacity: 0.8;
+            margin-bottom: 1.5rem;
+        }
+        
+        hr {
+            border: none;
+            height: 1px;
+            background-color: var(--hr-color);
+            margin: 2rem auto;
+            width: 80%;
+        }
+
+
+        .theme-switcher {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 0.5rem;
+            border-radius: 50px;
+            box-shadow: 0 4px 15px var(--card-shadow-1);
+            display: flex;
+            align-items: center;
+        }
+
+        .theme-button {
+            background: none;
+            border: none;
+            color: var(--icon-color);
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 50%;
+            transition: background-color 0.2s ease, color 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .theme-button:hover {
+            background-color: rgba(128,128,128,0.1);
+        }
+        .theme-button .material-icons-round {
+            font-size: 24px;
+        }
+
+
+        .content-section {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            padding: 2rem 2.5rem;
+            margin-bottom: 2.5rem;
+            border-radius: 20px;
+            box-shadow: 0 8px 30px var(--card-shadow-1), 0 2px 8px var(--card-shadow-2);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s var(--ease-in-out-cubic), transform 0.6s var(--ease-in-out-cubic);
+        }
+
+        .content-section.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .content-section h2, .content-section h3, .content-section h4 {
+            font-family: var(--font-headings);
+            color: var(--heading-color);
+            margin-bottom: 1.2rem;
+            margin-top: 1.5rem;
+            position: relative;
+            padding-left: 1.5rem;
+        }
+        .content-section h2::before, .content-section h3::before, .content-section h4::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 6px;
+            height: 60%;
+            min-height: 18px;
+            background-color: var(--accent-color);
+            border-radius: 3px;
+        }
+
+
+        .content-section h2 { font-size: 1.8rem; font-weight: 700; }
+        .content-section h3 { font-size: 1.5rem; font-weight: 600; }
+        .content-section h4 { font-size: 1.2rem; font-weight: 600; }
+        .content-section h2:first-child, .content-section h3:first-child, .content-section h4:first-child {
+            margin-top: 0;
+        }
+
+        .content-section p {
+            margin-bottom: 1rem;
+            color: var(--text-color);
+        }
+
+        .content-section ul, .content-section ol {
+            list-style: none;
+            padding-left: 0;
+            margin-bottom: 1rem;
+        }
+         .content-section ol { 
+            counter-reset: list-item-counter;
+        }
+
+
+        .content-section li {
+            padding-left: 2em;
+            position: relative;
+            margin-bottom: 0.75rem;
+        }
+        
+        .content-section ul li::before { 
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 9px; 
+            width: 8px;
+            height: 8px;
+            background-color: var(--accent-color);
+            border-radius: 50%;
+        }
+
+        .content-section ol li::before { 
+            counter-increment: list-item-counter;
+            content: counter(list-item-counter) ".";
+            position: absolute;
+            left: 0;
+            top: 1px; 
+            font-weight: 600;
+            color: var(--accent-color);
+        }
+
+
+        .content-section strong {
+            font-weight: 600;
+            color: var(--heading-color);
+        }
+
+        .content-section .mjx-math, .content-section pre[class*="language-math"] { 
+            font-size: 1.1em !important; 
+            margin: 1.5rem 0;
+            padding: 1rem;
+            overflow-x: auto;
+            background-color: var(--diagram-element-bg);
+            border-radius: 8px;
+            border: 1px solid var(--card-border);
+        }
+        
+        .mermaid-diagram-container {
+            background-color: var(--diagram-element-bg);
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin: 1.5rem auto;
+            text-align: center;
+            border: 1px solid var(--card-border);
+        }
+        .mermaid-diagram-container svg {
+            max-width: 100%;
+            height: auto;
+        }
+        
+        .styled-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            font-size: 0.95em;
+        }
+        .styled-table th, .styled-table td {
+            border: 1px solid var(--card-border);
+            padding: 0.75rem 1rem;
+            text-align: left;
+        }
+        .styled-table th {
+            background-color: var(--table-header-bg);
+            font-weight: 600;
+            color: var(--heading-color);
+        }
+        .styled-table tr:hover {
+            background-color: var(--table-row-hover-bg);
+        }
+        .styled-table td:nth-child(1) { /* First column (Feature) often benefits from bold */
+            font-weight: 500;
+        }
+
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 2rem 0;
+            margin-top: 2rem;
+            border-top: 1px solid var(--card-border);
+            font-size: 0.9rem;
+            color: var(--text-color);
+            opacity: 0.7;
+        }
+        footer strong {
+            font-weight: bold;
+            color: var(--accent-color);
+        }
+
+        /* Material Icons in text */
+        .icon-inline {
+            font-family: 'Material Icons Round';
+            font-size: 1.1em; 
+            vertical-align: -0.15em; 
+            margin-right: 0.2em;
+            color: var(--accent-color);
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .main-title { font-size: 2rem; }
+            .tagline { font-size: 1rem; }
+            .content-section { padding: 1.5rem; border-radius: 15px; }
+            .content-section h2 { font-size: 1.6rem; }
+            .content-section h3 { font-size: 1.3rem; }
+            .theme-switcher { top: 10px; right: 10px; padding: 0.3rem;}
+            .theme-button {padding: 0.4rem;}
+            .styled-table { font-size: 0.85em; }
+            .styled-table th, .styled-table td { padding: 0.5rem; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="theme-switcher">
+        <button id="light-mode-btn" class="theme-button" title="Switch to Light Mode">
+            <span class="material-icons-round">light_mode</span>
+        </button>
+        <button id="dark-mode-btn" class="theme-button" title="Switch to Dark Mode">
+            <span class="material-icons-round">dark_mode</span>
+        </button>
+    </div>
+
+    <div class="container">
+        <header>
+            <h1 class="main-title">Nano-Thermionic Energy Converters</h1>
+            <p class="tagline">Electron emission from heated nanowires for electricity generation</p>
+        </header>
+        <hr>
+
+        <main>
+            <section class="content-section" id="concept-overview">
+                <h2><span class="material-icons-round icon-inline">auto_stories</span>Concept Overview</h2>
+                <p>Nano-thermionic energy converters transform heat directly into electricity by exploiting <strong>thermionic electron emission</strong> from heated nanowires. These devices operate without moving parts, leveraging quantum-scale geometries and vacuum (or near-vacuum) gaps to drive free-electron flow across nanogaps.</p>
+            </section>
+            <hr>
+
+            <section class="content-section" id="scientific-principles">
+                <h2><span class="material-icons-round icon-inline">science</span>Scientific Principles</h2>
+                <h3>1. Thermionic Emission</h3>
+                <ul>
+                    <li>Based on the <strong>Richardson-Dushman equation</strong>, electrons gain thermal energy and escape from a metal surface when temperature exceeds a certain threshold.</li>
+                    <li>At the nanoscale, sharp nanowire tips significantly <strong>enhance emission</strong> due to geometric field focusing and localized heating.</li>
+                </ul>
+                <h3>2. Quantum Size Effects</h3>
+                <ul>
+                    <li>Nanowires show <strong>altered density of states</strong> and <strong>reduced work function</strong>, which further increase electron emission at lower temperatures.</li>
+                    <li><strong>Plasmonic and phononic resonances</strong> in nanostructures enhance energy absorption and electron excitation.</li>
+                </ul>
+            </section>
+            <hr>
+
+            <section class="content-section" id="system-architecture">
+                <h2><span class="material-icons-round icon-inline">schema</span>System Architecture</h2>
+                <div class="mermaid-diagram-container">
+                    <pre class="mermaid">
+graph TD
+    A[Heat Source] --> B((Heated Nanowire Emitter))
+    B -- Thermionic Emission --> C{Vacuum or Low-Pressure Gap}
+    C --> D((Electron Collector / Anode))
+    D --> E[Load / Power Storage]
+    E --> F((Waste Heat Recovery / Sink))
+
+    classDef heatSource fill:#FFCC80,stroke:#FB8C00,color:#000;
+    classDef component fill:#FFF9C4,stroke:#FBC02D,color:#000;
+    classDef process fill:#E1BEE7,stroke:#8E24AA,color:#fff;
+    classDef output fill:#C8E6C9,stroke:#388E3C,color:#000;
+
+    class A heatSource;
+    class B,C,D component;
+    class E,F output;
+                    </pre>
+                </div>
+            </section>
+            <hr>
+
+            <section class="content-section" id="key-equations">
+                <h2><span class="material-icons-round icon-inline">functions</span>Key Equations</h2>
+                <h3>1. Richardson-Dushman Equation</h3>
+                <p>Describes thermionic current density:</p>
+                \[
+                J = A T^2 \exp\left(-\frac{\phi}{k_B T}\right)
+                \]
+                <ul>
+                    <li>$J$: Current density (A/m²)</li>
+                    <li>$A$: Richardson constant ≈ $1.2 \times 10^6$ A/m²·K²</li>
+                    <li>$T$: Temperature (K)</li>
+                    <li>$\phi$: Work function (eV)</li>
+                    <li>$k_B$: Boltzmann constant</li>
+                </ul>
+                <h3>2. Power Output</h3>
+                \[
+                P = J V A_{emitter}
+                \]
+                <p>Where:</p>
+                <ul>
+                    <li>$V$: Voltage across emitter and collector</li>
+                    <li>$A_{emitter}$: Effective emission area</li>
+                </ul>
+                <h3>3. Efficiency</h3>
+                \[
+                \eta = \frac{P_{out}}{Q_{in}} = \frac{J V}{\sigma T^4}
+                \]
+                <p>Where:</p>
+                <ul>
+                    <li>$\sigma$: Stefan-Boltzmann constant</li>
+                    <li>$T$: Emitter temperature</li>
+                </ul>
+            </section>
+            <hr>
+
+            <section class="content-section" id="logic-control-flow">
+                <h2><span class="material-icons-round icon-inline">account_tree</span>Logic and Control Flow</h2>
+                <div class="mermaid-diagram-container">
+                     <pre class="mermaid">
+flowchart TD
+    Start([Start]) --> HeatCheck{Emitter Temp > Threshold?}
+    HeatCheck -- No --> Start
+    HeatCheck -- Yes --> Emit[Activate Thermionic Emission]
+    Emit --> Collect[Collect Electrons at Anode]
+    Collect --> Regulate[Regulate Output Voltage/Current]
+    Regulate --> Store[Store/Use Electrical Energy]
+    Store --> Monitor[Monitor System Parameters]
+    Monitor --> HeatCheck
+
+    classDef startEnd fill:#FFCDD2,stroke:#D32F2F,color:#000,shape:stadium;
+    classDef decision fill:#BBDEFB,stroke:#1976D2,color:#000,shape:diamond;
+    classDef process fill:#C8E6C9,stroke:#388E3C,color:#000,shape:rect;
+    
+    class Start,Monitor startEnd;
+    class HeatCheck decision;
+    class Emit,Collect,Regulate,Store process;
+                    </pre>
+                </div>
+            </section>
+            <hr>
+
+            <section class="content-section" id="materials-fabrication">
+                <h2><span class="material-icons-round icon-inline">build</span>Materials and Fabrication</h2>
+                <ul>
+                    <li><strong>Nanowire Materials</strong>: Tungsten, carbon nanotubes, molybdenum</li>
+                    <li><strong>Collectors</strong>: Transparent conductive oxides or metal meshes</li>
+                    <li><strong>Gap Control</strong>: MEMS-based nanogap regulators or vacuum encapsulation</li>
+                </ul>
+            </section>
+            <hr>
+
+            <section class="content-section" id="applications">
+                <h2><span class="material-icons-round icon-inline">widgets</span>Applications</h2>
+                <ul>
+                    <li><strong>Waste heat recovery</strong> in microelectronics</li>
+                    <li><strong>Power supply</strong> in space probes (with RTG heat sources)</li>
+                    <li><strong>Self-powered sensors</strong> in harsh environments</li>
+                    <li><strong>On-chip thermal scavenging</strong> in IoT devices</li>
+                </ul>
+            </section>
+            <hr>
+            
+            <section class="content-section" id="advantages-limitations">
+                <h2><span class="material-icons-round icon-inline">compare_arrows</span>Advantages vs Limitations</h2>
+                <table class="styled-table">
+                    <thead>
+                        <tr>
+                            <th>Feature</th>
+                            <th>Advantage</th>
+                            <th>Limitation</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>No moving parts</td>
+                            <td>Silent, durable</td>
+                            <td>Heat must be > 800–1000 K</td>
+                        </tr>
+                        <tr>
+                            <td>Nanoscale design</td>
+                            <td>High emission density</td>
+                            <td>Precision fabrication required</td>
+                        </tr>
+                        <tr>
+                            <td>Quantum effects</td>
+                            <td>Lower work function</td>
+                            <td>Requires ultra-clean vacuum interface</td>
+                        </tr>
+                        <tr>
+                            <td>Thermo-to-electrical conv.</td>
+                            <td>Efficient waste heat recovery</td>
+                            <td>Cooling mechanism still needed</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+            <hr>
+
+            <section class="content-section" id="future-directions">
+                <h2><span class="material-icons-round icon-inline">explore</span>Future Directions</h2>
+                <ul>
+                    <li><strong>Hybridization</strong> with photovoltaic or thermoelectric materials</li>
+                    <li><strong>Field-enhanced thermionics</strong> (combine with electric field to reduce work function)</li>
+                    <li><strong>2D materials</strong> as collectors or emissive surfaces</li>
+                    <li><strong>Integrated nanosystems</strong> with on-chip heat management</li>
+                </ul>
+            </section>
+            <hr>
+
+            <section class="content-section" id="references">
+                <h2><span class="material-icons-round icon-inline">menu_book</span>References</h2>
+                <ol>
+                    <li>Hatsopoulos, G. N., & Gyftopoulos, E. P. (1973). Thermionic Energy Conversion.</li>
+                    <li>Lee, J., et al. (2012). "High-efficiency thermionic energy conversion using low-dimensional nanostructures", <em>Nano Energy</em>.</li>
+                    <li>Moddel, G., & Buchsbaum, A. (2013). <em>Rectenna Solar Cells</em>.</li>
+                </ol>
+            </section>
+        </main>
+
+        <footer>
+            <p>Scientific concept and logic by <strong>Lion</strong>.</p>
+            <p>UI/UX & Web Implementation inspired by modern design principles.</p>
+            <p>© 2024 Nano-Thermionic Energy Converters Project</p>
+        </footer>
+    </div>
+
+    <script>
+        // Initialize Mermaid
+        mermaid.initialize({ 
+            startOnLoad: true,
+            theme: 'base', 
+            themeVariables: {
+                primaryColor: getComputedStyle(document.documentElement).getPropertyValue('--diagram-element-bg').trim(),
+                primaryTextColor: getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim(),
+                primaryBorderColor: getComputedStyle(document.documentElement).getPropertyValue('--card-border').trim(),
+                lineColor: getComputedStyle(document.documentElement).getPropertyValue('--icon-color').trim(),
+                secondaryColor: getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim(),
+                tertiaryColor: getComputedStyle(document.documentElement).getPropertyValue('--bg-color').trim()
+            },
+            flowchart: { 
+                htmlLabels: true,
+                nodeSpacing: 50,
+                rankSpacing: 50
+            },
+            fontFamily: getComputedStyle(document.documentElement).getPropertyValue('--font-primary').trim(),
+        });
+
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Theme Switcher
+            const lightModeBtn = document.getElementById('light-mode-btn');
+            const darkModeBtn = document.getElementById('dark-mode-btn');
+            const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+
+            function updateMermaidTheme() {
+                const currentPrimaryColor = getComputedStyle(document.documentElement).getPropertyValue('--diagram-element-bg').trim();
+                const currentTextColor = getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim();
+                const currentBorderColor = getComputedStyle(document.documentElement).getPropertyValue('--card-border').trim();
+                const currentLineColor = getComputedStyle(document.documentElement).getPropertyValue('--icon-color').trim();
+                const currentAccentColor = getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim();
+                const currentBgColor = getComputedStyle(document.documentElement).getPropertyValue('--bg-color').trim();
+                
+                mermaid.initialize({
+                    theme: 'base',
+                    themeVariables: {
+                        primaryColor: currentPrimaryColor,
+                        primaryTextColor: currentTextColor,
+                        primaryBorderColor: currentBorderColor,
+                        lineColor: currentLineColor,
+                        secondaryColor: currentAccentColor,
+                        tertiaryColor: currentBgColor
+                    }
+                });
+                document.querySelectorAll('.mermaid[data-processed="true"]').forEach((el, i) => {
+                    const code = el.textContent || el.innerText;
+                    const id = `mermaid-graph-${Date.now()}-${i}`;
+                    el.removeAttribute('data-processed');
+                    el.innerHTML = code;
+                    try {
+                         mermaid.init(undefined, el);
+                    } catch (e) {
+                        console.error("Error re-rendering Mermaid diagram:", e);
+                    }
+                });
+            }
+
+            function setTheme(theme) {
+                if (theme === 'dark') {
+                    document.documentElement.classList.add('dark-mode');
+                    localStorage.setItem('theme', 'dark');
+                } else {
+                    document.documentElement.classList.remove('dark-mode');
+                    localStorage.setItem('theme', 'light');
+                }
+                updateMermaidTheme();
+            }
+
+            lightModeBtn.addEventListener('click', () => setTheme('light'));
+            darkModeBtn.addEventListener('click', () => setTheme('dark'));
+
+            const currentTheme = localStorage.getItem('theme');
+            if (currentTheme) {
+                setTheme(currentTheme);
+            } else if (prefersDarkScheme.matches) {
+                setTheme('dark');
+            } else {
+                setTheme('light'); 
+            }
+            
+            // Scroll Animations for sections
+            const sections = document.querySelectorAll('.content-section');
+            const hrs = document.querySelectorAll('hr');
+            const observerOptions = {
+                root: null, 
+                rootMargin: '0px',
+                threshold: 0.1 
+            };
+
+            const observer = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('is-visible');
+                    }
+                });
+            }, observerOptions);
+
+            sections.forEach(section => {
+                observer.observe(section);
+            });
+            hrs.forEach(hr => { 
+                hr.style.opacity = 0; hr.style.transition = 'opacity 0.8s var(--ease-in-out-cubic) 0.2s';
+                observer.observe(hr);
+            });
+        });
+    </script>
+</body>
+</html>

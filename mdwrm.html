@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Magnetic Domain-Wall Racetrack Memory</title>
+
+    <!-- MathJax Configuration -->
+    <script>
+        MathJax = {
+          tex: {
+            inlineMath: [['$', '$'], ['\\(', '\\)']],
+            displayMath: [['$$', '$$'], ['\\[', '\\]'], ['```math', '```']],
+            processEscapes: true,
+            tags: 'ams',
+            macros: { // Define custom macros if needed
+                boldsymbol: ['{\\boldsymbol{#1}}', 1]
+            }
+          },
+          svg: {
+            fontCache: 'global'
+          }
+        };
+    </script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <!-- Mermaid JS for diagrams -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Google Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons|Material+Icons+Outlined|Material+Icons+Round" rel="stylesheet">
+
+    <style>
+        :root {
+            --font-primary: 'Inter', sans-serif;
+            --font-headings: 'Poppins', sans-serif;
+
+            --ease-out-quad: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            --ease-in-out-cubic: cubic-bezier(0.645, 0.045, 0.355, 1);
+
+            /* Light Mode (Default) */
+            --bg-color: #F0F2F5;
+            --text-color: #1d1d1f;
+            --heading-color: #000000;
+            --accent-color: #424242; /* Strong, Metallic Dark Gray for Magnetic/Solid-State */
+            --accent-color-darker: #212121;
+            --card-bg: rgba(255, 255, 255, 0.6);
+            --card-border: rgba(0, 0, 0, 0.1);
+            --card-shadow-1: rgba(0, 0, 0, 0.05);
+            --card-shadow-2: rgba(0, 0, 0, 0.02);
+            --neumorphic-shadow-light: -6px -6px 12px rgba(255, 255, 255, 0.8), 6px 6px 12px rgba(0, 0, 0, 0.1);
+            --neumorphic-shadow-light-inset: inset -4px -4px 8px rgba(255, 255, 255, 0.7), inset 4px 4px 8px rgba(0, 0, 0, 0.08);
+            --icon-color: #555;
+            --diagram-element-bg: rgba(128,128,128,0.05);
+            --code-bg: #f7f7f7;
+            --code-text: #333;
+            --hr-color: rgba(0,0,0,0.1); 
+            --table-header-bg: rgba(0,0,0,0.03);
+            --table-row-hover-bg: rgba(0,0,0,0.02);
+        }
+
+        html.dark-mode {
+            --bg-color: #161616;
+            --text-color: #E0E0E0;
+            --heading-color: #FFFFFF;
+            --accent-color: #9E9E9E; /* Lighter Gray for dark mode */
+            --accent-color-darker: #757575;
+            --card-bg: rgba(35, 35, 35, 0.6);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --card-shadow-1: rgba(255, 255, 255, 0.03);
+            --card-shadow-2: rgba(0, 0, 0, 0.1);
+            --neumorphic-shadow-light: -6px -6px 12px rgba(40, 40, 40, 0.7), 6px 6px 12px rgba(0, 0, 0, 0.3);
+            --neumorphic-shadow-light-inset: inset -4px -4px 8px rgba(40, 40, 40, 0.6), inset 4px 4px 8px rgba(0, 0, 0, 0.25);
+            --icon-color: #bbb;
+            --diagram-element-bg: rgba(200,200,200,0.05);
+            --code-bg: #2a2a2a;
+            --code-text: #ccc;
+            --hr-color: rgba(255,255,255,0.1);
+            --table-header-bg: rgba(255,255,255,0.03);
+            --table-row-hover-bg: rgba(255,255,255,0.02);
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 16px;
+        }
+
+        body {
+            font-family: var(--font-primary);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.7;
+            transition: background-color 0.3s var(--ease-out-quad), color 0.3s var(--ease-out-quad);
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem 0;
+        }
+
+        header {
+            padding: 2rem 0 1rem;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .main-title {
+            font-family: var(--font-headings);
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--heading-color);
+            margin-bottom: 0.5rem;
+            letter-spacing: -1px;
+        }
+        .tagline { 
+            font-size: 1.1rem;
+            color: var(--text-color);
+            opacity: 0.8;
+            margin-bottom: 1.5rem;
+        }
+        
+        hr.section-divider { 
+            border: none;
+            height: 1px;
+            background-color: var(--hr-color);
+            margin: 2rem auto;
+            width: 80%;
+        }
+        hr.document-end-divider { 
+            border: none;
+            height: 2px;
+            background: linear-gradient(to right, transparent, var(--accent-color), transparent);
+            margin: 3rem auto 1rem;
+            width: 60%;
+            opacity: 0.6;
+        }
+
+
+        .theme-switcher {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 0.5rem;
+            border-radius: 50px;
+            box-shadow: 0 4px 15px var(--card-shadow-1);
+            display: flex;
+            align-items: center;
+        }
+
+        .theme-button {
+            background: none;
+            border: none;
+            color: var(--icon-color);
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 50%;
+            transition: background-color 0.2s ease, color 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .theme-button:hover {
+            background-color: rgba(128,128,128,0.1);
+        }
+        .theme-button .material-icons-round {
+            font-size: 24px;
+        }
+
+
+        .content-section {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            padding: 2rem 2.5rem;
+            margin-bottom: 2.5rem;
+            border-radius: 20px;
+            box-shadow: 0 8px 30px var(--card-shadow-1), 0 2px 8px var(--card-shadow-2);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s var(--ease-in-out-cubic), transform 0.6s var(--ease-in-out-cubic);
+        }
+
+        .content-section.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .content-section h2, .content-section h3, .content-section h4 {
+            font-family: var(--font-headings);
+            color: var(--heading-color);
+            margin-bottom: 1.2rem;
+            margin-top: 1.5rem;
+            position: relative;
+            padding-left: 1.5rem;
+        }
+        .content-section h2::before, .content-section h3::before, .content-section h4::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 6px;
+            height: 60%;
+            min-height: 18px;
+            background-color: var(--accent-color);
+            border-radius: 3px;
+        }
+
+
+        .content-section h2 { font-size: 1.8rem; font-weight: 700; }
+        .content-section h3 { font-size: 1.5rem; font-weight: 600; }
+        .content-section h4 { font-size: 1.2rem; font-weight: 600; }
+        .content-section h2:first-child, .content-section h3:first-child, .content-section h4:first-child {
+            margin-top: 0;
+        }
+
+        .content-section p {
+            margin-bottom: 1rem;
+            color: var(--text-color);
+        }
+
+        .content-section ul, .content-section ol {
+            list-style: none;
+            padding-left: 0;
+            margin-bottom: 1rem;
+        }
+         .content-section ol { 
+            counter-reset: list-item-counter;
+        }
+
+
+        .content-section li {
+            padding-left: 2em;
+            position: relative;
+            margin-bottom: 0.75rem;
+        }
+        
+        .content-section ul li::before { 
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 9px; 
+            width: 8px;
+            height: 8px;
+            background-color: var(--accent-color);
+            border-radius: 50%;
+        }
+
+        .content-section ol li::before { 
+            counter-increment: list-item-counter;
+            content: counter(list-item-counter) ".";
+            position: absolute;
+            left: 0;
+            top: 1px; 
+            font-weight: 600;
+            color: var(--accent-color);
+        }
+
+
+        .content-section strong {
+            font-weight: 600;
+            color: var(--heading-color);
+        }
+
+        .content-section .mjx-math, .content-section pre[class*="language-math"] { 
+            font-size: 1.1em !important; 
+            margin: 1.5rem 0;
+            padding: 1rem;
+            overflow-x: auto;
+            background-color: var(--diagram-element-bg);
+            border-radius: 8px;
+            border: 1px solid var(--card-border);
+        }
+        
+        .mermaid-diagram-container {
+            background-color: var(--diagram-element-bg);
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin: 1.5rem auto;
+            text-align: center;
+            border: 1px solid var(--card-border);
+        }
+        .mermaid-diagram-container svg {
+            max-width: 100%;
+            height: auto;
+        }
+        
+        .styled-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            font-size: 0.95em;
+        }
+        .styled-table th, .styled-table td {
+            border: 1px solid var(--card-border);
+            padding: 0.75rem 1rem;
+            text-align: left;
+        }
+        .styled-table th {
+            background-color: var(--table-header-bg);
+            font-weight: 600;
+            color: var(--heading-color);
+        }
+        .styled-table tr:hover {
+            background-color: var(--table-row-hover-bg);
+        }
+        .styled-table td:nth-child(1) {
+            font-weight: 500;
+        }
+
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 2rem 0;
+            margin-top: 2rem;
+            border-top: 1px solid var(--hr-color); 
+            font-size: 0.9rem;
+            color: var(--text-color);
+            opacity: 0.7;
+        }
+        footer strong {
+            font-weight: bold;
+            color: var(--accent-color);
+        }
+
+        /* Material Icons in text */
+        .icon-inline {
+            font-family: 'Material Icons Round';
+            font-size: 1.1em; 
+            vertical-align: -0.15em; 
+            margin-right: 0.2em;
+            color: var(--accent-color);
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .main-title { font-size: 2rem; }
+            .tagline { font-size: 1rem; }
+            .content-section { padding: 1.5rem; border-radius: 15px; }
+            .content-section h2 { font-size: 1.6rem; }
+            .content-section h3 { font-size: 1.3rem; }
+            .theme-switcher { top: 10px; right: 10px; padding: 0.3rem;}
+            .theme-button {padding: 0.4rem;}
+            .styled-table { font-size: 0.85em; }
+            .styled-table th, .styled-table td { padding: 0.5rem; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="theme-switcher">
+        <button id="light-mode-btn" class="theme-button" title="Switch to Light Mode">
+            <span class="material-icons-round">light_mode</span>
+        </button>
+        <button id="dark-mode-btn" class="theme-button" title="Switch to Dark Mode">
+            <span class="material-icons-round">dark_mode</span>
+        </button>
+    </div>
+
+    <div class="container">
+        <header>
+            <h1 class="main-title">Magnetic Domain-Wall Racetrack Memory</h1>
+            <p class="tagline">High-Density Solid-State Shift Registers</p>
+        </header>
+        <hr class="section-divider">
+
+        <main>
+            <section class="content-section" id="introduction">
+                <h2><span class="material-icons-round icon-inline">memory</span>1. Introduction</h2>
+                <p>Magnetic domain-wall racetrack memory is a non-volatile, high-speed, high-density data storage technology that stores bits as magnetic domains in nanowires (“racetracks”). Bits are moved (shifted) via spin-transfer torque or spin-orbit torque, enabling serial access without mechanical moving parts. This design offers solid-state shift registers combining the density of tape with the speed of RAM.</p>
+                <p>This document presents a fully theoretical treatment: physical principles, governing equations, device architecture, fabrication methods, operational logic, performance metrics, applications, advantages over competing technologies, challenges, and future directions.</p>
+            </section>
+            <!-- No HR after intro as per MD -->
+
+            <section class="content-section" id="background-motivation">
+                <h2><span class="material-icons-round icon-inline">lightbulb</span>2. Background & Motivation</h2>
+                <ul>
+                    <li><strong>Limitations of conventional memory</strong>:
+                        <ul>
+                            <li><strong>DRAM</strong>: Volatile, requires refresh, limited scaling.</li>
+                            <li><strong>Flash</strong>: Slow write, limited endurance.</li>
+                            <li><strong>Tape</strong>: High density but mechanical and slow.</li>
+                        </ul>
+                    </li>
+                    <li><strong>Racetrack memory</strong>: Combines non-volatility, endurable writes, and high density with no mechanical movement.</li>
+                </ul>
+                <p>Concept first proposed by S. Parkin (HP Labs) in 2008.</p>
+            </section>
+            <!-- No HR here -->
+
+            <section class="content-section" id="fundamental-principles">
+                <h2><span class="material-icons-round icon-inline">science</span>3. Fundamental Principles</h2>
+                <h3>3.1. Magnetic Domains and Domain Walls</h3>
+                <ul>
+                    <li><strong>Magnetic domain</strong>: Region of uniform magnetization $\mathbf{M}$.</li>
+                    <li><strong>Domain wall</strong>: Transition region of width $\delta\approx\pi\sqrt{A/K_u}$, where $A$ is exchange stiffness, $K_u$ anisotropy constant.</li>
+                </ul>
+                <h3>3.2. Spin-Transfer Torque (STT)</h3>
+                <p>When a spin-polarized current $J_e$ flows along the nanowire, it exerts a torque on the local magnetization:</p>
+                $$
+                \tau_{STT} = \frac{\hbar P J_e}{2 e M_s t} (\mathbf{m} \times (\mathbf{m} \times \mathbf{p})),
+                $$
+                <p>where:</p>
+                <ul>
+                    <li>$P$: spin polarization</li>
+                    <li>$M_s$: saturation magnetization</li>
+                    <li>$t$: thickness</li>
+                    <li>$\mathbf{m}$: unit magnetization</li>
+                    <li>$\mathbf{p}$: polarization direction.</li>
+                </ul>
+                <h3>3.3. Spin-Orbit Torque (SOT)</h3>
+                <p>Using heavy-metal underlayers (e.g., Pt) generates spin currents via spin Hall effect. Torque on ferromagnet:</p>
+                $$
+                \tau_{SOT} = \frac{\hbar \theta_{SH} J_e}{2 e M_s t} (\mathbf{m} \times (\hat{y} \times \mathbf{m})),
+                $$
+                <p>with spin Hall angle $\theta_{SH}$.</p>
+                <h3>3.4. Domain-Wall Dynamics (1D Model)</h3>
+                <p>The collective coordinates: wall position $q$ and tilt angle $\phi$ obey:</p>
+                $$
+                \dot q = \frac{\gamma \Delta}{1+\alpha^2} (H + H_{STT} \cos\phi) + \alpha \Delta \dot\phi,
+                $$
+                $$
+                \dot \phi = \frac{\gamma}{1+\alpha^2} (H_K \sin2\phi - H_{STT} \cos\phi) - \frac{\alpha}{\Delta} \dot q,
+                $$
+                <p>where $\alpha$ damping, $\gamma$ gyromagnetic ratio, $H_K$ anisotropy field, $H_{STT} = J_e P \hbar/(2eM_s t)$, and wall width $\Delta$.</p>
+            </section>
+            <!-- No HR here -->
+            
+            <section class="content-section" id="device-architecture-diagrams">
+                <h2><span class="material-icons-round icon-inline">developer_board</span>4. Device Architecture & Diagrams</h2>
+                <div class="mermaid-diagram-container">
+                    <pre class="mermaid">
+flowchart TB
+  subgraph Racetrack_Module [Racetrack Memory Module]
+    direction TB
+    S[Read/Write Head (MTJ)] -- STT/SOT Pulse for Writing/Reading --> W((Nanowire Racetrack))
+    W -- Contains --> D[Magnetic Domain Walls (Bits)]
+    W -- Shift Current Pulses --> W
+  end
+  
+  subgraph Control_Electronics [Control Electronics]
+    direction TB
+    Ctrl[Pulse Generator & Sequencer] --> S
+    Sense[Voltage/Current Sensing Circuitry] <-- S
+  end
+  
+  Racetrack_Module -.-> Ctrl
+  Racetrack_Module -.-> Sense
+
+
+  classDef module_boundary fill:#ECEFF1,stroke:#546E7A,color:#000;
+  classDef rw_head fill:#CFD8DC,stroke:#607D8B,color:#000;
+  classDef racetrack fill:#B0BEC5,stroke:#78909C,color:#000,shape:cylinder;
+  classDef domain_wall fill:#90A4AE,stroke:#546E7A,color:#fff,shape:diamond;
+  classDef control_logic fill:#78909C,stroke:#455A64,color:#fff;
+  
+  class Racetrack_Module module_boundary;
+  class S rw_head;
+  class W racetrack;
+  class D domain_wall;
+  class Control_Electronics module_boundary;
+  class Ctrl,Sense control_logic;
+                    </pre>
+                </div>
+                <ul>
+                    <li><strong>Nanowire</strong>: Ferromagnetic strip (Co/Ni multilayers or CoFeB) with perpendicular anisotropy.</li>
+                    <li><strong>Heads</strong>:
+                        <ul>
+                            <li><strong>Write</strong>: Inject spin-polarized current via magnetic tunnel junction (MTJ).</li>
+                            <li><strong>Read</strong>: MTJ resistance changes (GMR/TMR) detect domain polarity.</li>
+                        </ul>
+                    </li>
+                    <li><strong>Shift lines</strong>: Conductors for current-induced domain motion.</li>
+                </ul>
+            </section>
+            <!-- No HR here -->
+
+            <section class="content-section" id="fabrication-process">
+                <h2><span class="material-icons-round icon-inline">precision_manufacturing</span>5. Fabrication Process</h2>
+                 <ol>
+                    <li><strong>Substrate</strong>: Si/SiO₂.</li>
+                    <li><strong>Heavy-metal underlayer</strong>: Sputter Pt (2–5 nm).</li>
+                    <li><strong>Ferromagnetic stack</strong>: Sputter Co/Ni multilayers with interfacial perpendicular anisotropy; cap with MgO for TMR.</li>
+                    <li><strong>Patterning</strong>: Electron-beam lithography and ion-beam etching to define nanowires (width 50–100 nm).</li>
+                    <li><strong>MTJ heads</strong>: Deposit and pattern top electrodes with MgO barrier and reference layer.</li>
+                    <li><strong>Interconnects</strong>: CMOS-compatible metallization for shift and read/write lines.</li>
+                    <li><strong>Encapsulation</strong>: Dielectric passivation and packaging.</li>
+                </ol>
+            </section>
+            <!-- No HR here -->
+
+            <section class="content-section" id="operational-workflow">
+                <h2><span class="material-icons-round icon-inline">play_circle_outline</span>6. Operational Workflow</h2>
+                 <ol>
+                    <li><strong>Write Data</strong>: Apply localized write pulse at head to nucleate domain.</li>
+                    <li><strong>Shift Data</strong>: Apply STT or SOT current along racetrack to move walls by one bit pitch.</li>
+                    <li><strong>Read Data</strong>: Sense MTJ resistance at head to determine domain magnetization.</li>
+                    <li><strong>Repeat</strong>: Serially access any position by repeating shifts.</li>
+                </ol>
+            </section>
+            <!-- No HR here -->
+            
+            <section class="content-section" id="performance-metrics">
+                <h2><span class="material-icons-round icon-inline">speed</span>7. Performance Metrics</h2>
+                <table class="styled-table">
+                    <thead>
+                        <tr>
+                            <th>Metric</th>
+                            <th>Typical Value</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Areal density</td>
+                            <td>>1 Tbit/in²</td>
+                        </tr>
+                        <tr>
+                            <td>Access time (shift)</td>
+                            <td>~1 ns/bit</td>
+                        </tr>
+                        <tr>
+                            <td>Write/read latency</td>
+                            <td>~10 ns</td>
+                        </tr>
+                        <tr>
+                            <td>Endurance (cycles)</td>
+                            <td>>10¹⁵</td>
+                        </tr>
+                        <tr>
+                            <td>Dissipation per shift</td>
+                            <td><1 pJ/bit</td>
+                        </tr>
+                        <tr>
+                            <td>Retention</td>
+                            <td>>10 years</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+            <!-- No HR here -->
+
+            <section class="content-section" id="applications-advantages">
+                <h2><span class="material-icons-round icon-inline">apps</span>8. Applications & Advantages</h2>
+                 <ul>
+                    <li><strong>Non-volatile RAM</strong>: Fast, dense on-chip memory.</li>
+                    <li><strong>Storage-class memory</strong>: Bridge between DRAM and flash.</li>
+                    <li><strong>Cache and buffer</strong>: In high-performance computing.</li>
+                 </ul>
+                 <p><strong>Advantages</strong>:</p>
+                <ol>
+                    <li><strong>High density</strong>: Bits stored along vertical or horizontal racetracks.</li>
+                    <li><strong>Low power</strong>: No refresh; STT/SOT efficient at nanoscale.</li>
+                    <li><strong>High endurance</strong>: Endure >10¹⁵ write cycles.</li>
+                    <li><strong>CMOS integration</strong>: Fabricated with back-end-of-line processes.</li>
+                </ol>
+            </section>
+            <!-- No HR here -->
+            
+            <section class="content-section" id="challenges-future">
+                <h2><span class="material-icons-round icon-inline">report_problem</span>9. Challenges & Future Directions</h2>
+                 <ul>
+                    <li><strong>Domain-wall pinning</strong>: Edge roughness and defects hinder motion; require smoother nanowires or synthetic antiferromagnets.</li>
+                    <li><strong>Thermal stability</strong>: Optimize anisotropy to prevent spontaneous depinning.</li>
+                    <li><strong>Head alignment</strong>: Precise localization of MTJ over nanowire.</li>
+                    <li><strong>3D integration</strong>: Stack multiple racetracks for ultrahigh density.</li>
+                </ul>
+                <p>Future research: Voltage-controlled magnetic anisotropy for energy-efficient shifting; skyrmion-based racetracks for lower current.</p>
+            </section>
+            <!-- No HR here -->
+
+            <section class="content-section" id="references">
+                <h2><span class="material-icons-round icon-inline">menu_book</span>10. References</h2>
+                <ol>
+                    <li>S. S. P. Parkin et al., “Magnetic Domain-Wall Racetrack Memory,” <em>Science</em>, 2008.</li>
+                    <li>D. A. Allwood et al., “Submicrometer Ferromagnetic NOT Gate and Shift Register,” <em>Science</em>, 2005.</li>
+                </ol>
+            </section>
+            
+            <hr class="document-end-divider">
+            <p style="text-align:center; font-style:italic; opacity:0.7;">*End of theoretical design document for Magnetic Domain-Wall Racetrack Memory.*</p>
+
+        </main>
+
+        <footer>
+            <p>Scientific concept and logic by <strong>Lion</strong>.</p>
+            <p>UI/UX & Web Implementation inspired by modern design principles.</p>
+            <p>© 2024 Magnetic Domain-Wall Racetrack Memory Project</p>
+        </footer>
+    </div>
+
+    <script>
+        // Initialize Mermaid
+        mermaid.initialize({ 
+            startOnLoad: true,
+            theme: 'base', 
+            themeVariables: {
+                primaryColor: getComputedStyle(document.documentElement).getPropertyValue('--diagram-element-bg').trim(),
+                primaryTextColor: getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim(),
+                primaryBorderColor: getComputedStyle(document.documentElement).getPropertyValue('--card-border').trim(),
+                lineColor: getComputedStyle(document.documentElement).getPropertyValue('--icon-color').trim(),
+                secondaryColor: getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim(),
+                tertiaryColor: getComputedStyle(document.documentElement).getPropertyValue('--bg-color').trim()
+            },
+            flowchart: { 
+                htmlLabels: true, 
+                nodeSpacing: 50,
+                rankSpacing: 50
+            },
+            fontFamily: getComputedStyle(document.documentElement).getPropertyValue('--font-primary').trim(),
+        });
+
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Theme Switcher
+            const lightModeBtn = document.getElementById('light-mode-btn');
+            const darkModeBtn = document.getElementById('dark-mode-btn');
+            const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+
+            function updateMermaidTheme() {
+                const currentPrimaryColor = getComputedStyle(document.documentElement).getPropertyValue('--diagram-element-bg').trim();
+                const currentTextColor = getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim();
+                const currentBorderColor = getComputedStyle(document.documentElement).getPropertyValue('--card-border').trim();
+                const currentLineColor = getComputedStyle(document.documentElement).getPropertyValue('--icon-color').trim();
+                const currentAccentColor = getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim();
+                const currentBgColor = getComputedStyle(document.documentElement).getPropertyValue('--bg-color').trim();
+                
+                mermaid.initialize({
+                    theme: 'base',
+                    themeVariables: {
+                        primaryColor: currentPrimaryColor,
+                        primaryTextColor: currentTextColor,
+                        primaryBorderColor: currentBorderColor,
+                        lineColor: currentLineColor,
+                        secondaryColor: currentAccentColor,
+                        tertiaryColor: currentBgColor
+                    }
+                });
+                document.querySelectorAll('.mermaid[data-processed="true"]').forEach((el, i) => {
+                    const code = el.textContent || el.innerText;
+                    const id = `mermaid-graph-${Date.now()}-${i}`;
+                    el.removeAttribute('data-processed');
+                    el.innerHTML = code;
+                    try {
+                         mermaid.init(undefined, el);
+                    } catch (e) {
+                        console.error("Error re-rendering Mermaid diagram:", e);
+                    }
+                });
+            }
+
+            function setTheme(theme) {
+                if (theme === 'dark') {
+                    document.documentElement.classList.add('dark-mode');
+                    localStorage.setItem('theme', 'dark');
+                } else {
+                    document.documentElement.classList.remove('dark-mode');
+                    localStorage.setItem('theme', 'light');
+                }
+                updateMermaidTheme();
+            }
+
+            lightModeBtn.addEventListener('click', () => setTheme('light'));
+            darkModeBtn.addEventListener('click', () => setTheme('dark'));
+
+            const currentTheme = localStorage.getItem('theme');
+            if (currentTheme) {
+                setTheme(currentTheme);
+            } else if (prefersDarkScheme.matches) {
+                setTheme('dark');
+            } else {
+                setTheme('light'); 
+            }
+            
+            // Scroll Animations for sections
+            const sections = document.querySelectorAll('.content-section');
+            const hrs = document.querySelectorAll('hr.section-divider, hr.document-end-divider'); 
+            const observerOptions = {
+                root: null, 
+                rootMargin: '0px',
+                threshold: 0.1 
+            };
+
+            const observer = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('is-visible');
+                    }
+                });
+            }, observerOptions);
+
+            sections.forEach(section => {
+                observer.observe(section);
+            });
+             hrs.forEach(hr => { 
+                hr.style.opacity = 0; hr.style.transition = 'opacity 0.8s var(--ease-in-out-cubic) 0.2s';
+                observer.observe(hr);
+            });
+        });
+    </script>
+</body>
+</html>

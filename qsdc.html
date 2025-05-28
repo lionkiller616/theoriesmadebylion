@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quantum-Sealed Data Capsules</title>
+
+    <!-- MathJax Configuration -->
+    <script>
+        MathJax = {
+          tex: {
+            inlineMath: [['$', '$'], ['\\(', '\\)']],
+            displayMath: [['$$', '$$'], ['\\[', '\\]'], ['```math', '```']],
+            processEscapes: true,
+            tags: 'ams',
+            macros: { // Define custom macros if needed
+                ket: ['|#1\\rangle', 1],
+                bra: ['\\langle#1|', 1],
+                otimes: ['\\otimes']
+            }
+          },
+          svg: {
+            fontCache: 'global'
+          }
+        };
+    </script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <!-- Mermaid JS for diagrams -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Google Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons|Material+Icons+Outlined|Material+Icons+Round" rel="stylesheet">
+
+    <style>
+        :root {
+            --font-primary: 'Inter', sans-serif;
+            --font-headings: 'Poppins', sans-serif;
+
+            --ease-out-quad: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            --ease-in-out-cubic: cubic-bezier(0.645, 0.045, 0.355, 1);
+
+            /* Light Mode (Default) */
+            --bg-color: #F0F2F5;
+            --text-color: #1d1d1f;
+            --heading-color: #000000;
+            --accent-color: #0D47A1; /* Deep Sapphire Blue for Quantum Security/Archive */
+            --accent-color-darker: #0A369D;
+            --card-bg: rgba(255, 255, 255, 0.6);
+            --card-border: rgba(0, 0, 0, 0.1);
+            --card-shadow-1: rgba(0, 0, 0, 0.05);
+            --card-shadow-2: rgba(0, 0, 0, 0.02);
+            --neumorphic-shadow-light: -6px -6px 12px rgba(255, 255, 255, 0.8), 6px 6px 12px rgba(0, 0, 0, 0.1);
+            --neumorphic-shadow-light-inset: inset -4px -4px 8px rgba(255, 255, 255, 0.7), inset 4px 4px 8px rgba(0, 0, 0, 0.08);
+            --icon-color: #555;
+            --diagram-element-bg: rgba(128,128,128,0.05);
+            --code-bg: #f7f7f7;
+            --code-text: #333;
+            --hr-color: rgba(0,0,0,0.1); 
+            --table-header-bg: rgba(0,0,0,0.03);
+            --table-row-hover-bg: rgba(0,0,0,0.02);
+        }
+
+        html.dark-mode {
+            --bg-color: #161616;
+            --text-color: #E0E0E0;
+            --heading-color: #FFFFFF;
+            --accent-color: #42A5F5; /* Lighter Sapphire for dark mode */
+            --accent-color-darker: #1E88E5;
+            --card-bg: rgba(35, 35, 35, 0.6);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --card-shadow-1: rgba(255, 255, 255, 0.03);
+            --card-shadow-2: rgba(0, 0, 0, 0.1);
+            --neumorphic-shadow-light: -6px -6px 12px rgba(40, 40, 40, 0.7), 6px 6px 12px rgba(0, 0, 0, 0.3);
+            --neumorphic-shadow-light-inset: inset -4px -4px 8px rgba(40, 40, 40, 0.6), inset 4px 4px 8px rgba(0, 0, 0, 0.25);
+            --icon-color: #bbb;
+            --diagram-element-bg: rgba(200,200,200,0.05);
+            --code-bg: #2a2a2a;
+            --code-text: #ccc;
+            --hr-color: rgba(255,255,255,0.1);
+            --table-header-bg: rgba(255,255,255,0.03);
+            --table-row-hover-bg: rgba(255,255,255,0.02);
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 16px;
+        }
+
+        body {
+            font-family: var(--font-primary);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.7;
+            transition: background-color 0.3s var(--ease-out-quad), color 0.3s var(--ease-out-quad);
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem 0;
+        }
+
+        header {
+            padding: 2rem 0 1rem;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .main-title {
+            font-family: var(--font-headings);
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--heading-color);
+            margin-bottom: 0.5rem;
+            letter-spacing: -1px;
+        }
+        .tagline { 
+            font-size: 1.1rem;
+            color: var(--text-color);
+            opacity: 0.8;
+            margin-bottom: 1.5rem;
+        }
+        
+        hr.section-divider { 
+            border: none;
+            height: 1px;
+            background-color: var(--hr-color);
+            margin: 2rem auto;
+            width: 80%;
+        }
+        hr.document-end-divider { 
+            border: none;
+            height: 2px;
+            background: linear-gradient(to right, transparent, var(--accent-color), transparent);
+            margin: 3rem auto 1rem;
+            width: 60%;
+            opacity: 0.6;
+        }
+
+
+        .theme-switcher {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 0.5rem;
+            border-radius: 50px;
+            box-shadow: 0 4px 15px var(--card-shadow-1);
+            display: flex;
+            align-items: center;
+        }
+
+        .theme-button {
+            background: none;
+            border: none;
+            color: var(--icon-color);
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 50%;
+            transition: background-color 0.2s ease, color 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .theme-button:hover {
+            background-color: rgba(128,128,128,0.1);
+        }
+        .theme-button .material-icons-round {
+            font-size: 24px;
+        }
+
+
+        .content-section {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            padding: 2rem 2.5rem;
+            margin-bottom: 2.5rem;
+            border-radius: 20px;
+            box-shadow: 0 8px 30px var(--card-shadow-1), 0 2px 8px var(--card-shadow-2);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s var(--ease-in-out-cubic), transform 0.6s var(--ease-in-out-cubic);
+        }
+
+        .content-section.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .content-section h2, .content-section h3, .content-section h4 {
+            font-family: var(--font-headings);
+            color: var(--heading-color);
+            margin-bottom: 1.2rem;
+            margin-top: 1.5rem;
+            position: relative;
+            padding-left: 1.5rem;
+        }
+        .content-section h2::before, .content-section h3::before, .content-section h4::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 6px;
+            height: 60%;
+            min-height: 18px;
+            background-color: var(--accent-color);
+            border-radius: 3px;
+        }
+
+
+        .content-section h2 { font-size: 1.8rem; font-weight: 700; }
+        .content-section h3 { font-size: 1.5rem; font-weight: 600; }
+        .content-section h4 { font-size: 1.2rem; font-weight: 600; }
+        .content-section h2:first-child, .content-section h3:first-child, .content-section h4:first-child {
+            margin-top: 0;
+        }
+
+        .content-section p {
+            margin-bottom: 1rem;
+            color: var(--text-color);
+        }
+
+        .content-section ul, .content-section ol {
+            list-style: none;
+            padding-left: 0;
+            margin-bottom: 1rem;
+        }
+         .content-section ol { 
+            counter-reset: list-item-counter;
+        }
+
+
+        .content-section li {
+            padding-left: 2em;
+            position: relative;
+            margin-bottom: 0.75rem;
+        }
+        
+        .content-section ul li::before { 
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 9px; 
+            width: 8px;
+            height: 8px;
+            background-color: var(--accent-color);
+            border-radius: 50%;
+        }
+
+        .content-section ol li::before { 
+            counter-increment: list-item-counter;
+            content: counter(list-item-counter) ".";
+            position: absolute;
+            left: 0;
+            top: 1px; 
+            font-weight: 600;
+            color: var(--accent-color);
+        }
+
+
+        .content-section strong {
+            font-weight: 600;
+            color: var(--heading-color);
+        }
+
+        .content-section .mjx-math, .content-section pre[class*="language-math"] { 
+            font-size: 1.1em !important; 
+            margin: 1.5rem 0;
+            padding: 1rem;
+            overflow-x: auto;
+            background-color: var(--diagram-element-bg);
+            border-radius: 8px;
+            border: 1px solid var(--card-border);
+        }
+        
+        .mermaid-diagram-container {
+            background-color: var(--diagram-element-bg);
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin: 1.5rem auto;
+            text-align: center;
+            border: 1px solid var(--card-border);
+        }
+        .mermaid-diagram-container svg {
+            max-width: 100%;
+            height: auto;
+        }
+        
+        .styled-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            font-size: 0.95em;
+        }
+        .styled-table th, .styled-table td {
+            border: 1px solid var(--card-border);
+            padding: 0.75rem 1rem;
+            text-align: left;
+        }
+        .styled-table th {
+            background-color: var(--table-header-bg);
+            font-weight: 600;
+            color: var(--heading-color);
+        }
+        .styled-table tr:hover {
+            background-color: var(--table-row-hover-bg);
+        }
+        .styled-table td:nth-child(1) {
+            font-weight: 500;
+        }
+
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 2rem 0;
+            margin-top: 2rem;
+            border-top: 1px solid var(--hr-color); 
+            font-size: 0.9rem;
+            color: var(--text-color);
+            opacity: 0.7;
+        }
+        footer strong {
+            font-weight: bold;
+            color: var(--accent-color);
+        }
+
+        /* Material Icons in text */
+        .icon-inline {
+            font-family: 'Material Icons Round';
+            font-size: 1.1em; 
+            vertical-align: -0.15em; 
+            margin-right: 0.2em;
+            color: var(--accent-color);
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .main-title { font-size: 2rem; }
+            .tagline { font-size: 1rem; }
+            .content-section { padding: 1.5rem; border-radius: 15px; }
+            .content-section h2 { font-size: 1.6rem; }
+            .content-section h3 { font-size: 1.3rem; }
+            .theme-switcher { top: 10px; right: 10px; padding: 0.3rem;}
+            .theme-button {padding: 0.4rem;}
+            .styled-table { font-size: 0.85em; }
+            .styled-table th, .styled-table td { padding: 0.5rem; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="theme-switcher">
+        <button id="light-mode-btn" class="theme-button" title="Switch to Light Mode">
+            <span class="material-icons-round">light_mode</span>
+        </button>
+        <button id="dark-mode-btn" class="theme-button" title="Switch to Dark Mode">
+            <span class="material-icons-round">dark_mode</span>
+        </button>
+    </div>
+
+    <div class="container">
+        <header>
+            <h1 class="main-title">Quantum-Sealed Data Capsules</h1>
+            <p class="tagline">Tamper-Evident Qubit Registers for Secure Archives</p>
+        </header>
+        <hr class="section-divider">
+
+        <main>
+            <section class="content-section" id="introduction">
+                <h2><span class="material-icons-round icon-inline">enhanced_encryption</span>1. Introduction</h2>
+                <p>Quantum-sealed data capsules (QSDCs) leverage the fundamental principles of quantum mechanics—no-cloning, measurement disturbance, and entanglement—to create archival storage modules whose integrity can be verified, and any tampering becomes evident. By encoding classical information into protected qubit registers sealed under quantum error-detecting codes and entangled “seal” qubits, these capsules function as tamper-evident vaults for high-security, long-term data archiving.</p>
+                <p>This document provides a fully theoretical design: core concepts, underlying physics, logical protocols, key equations, device architecture, fabrication approaches, operational workflows, applications, advantages, and future enhancements.</p>
+            </section>
+            <!-- No HR after intro as per MD -->
+
+            <section class="content-section" id="core-concepts-security-model">
+                <h2><span class="material-icons-round icon-inline">security</span>2. Core Concepts and Security Model</h2>
+                <h3>2.1. Quantum No-Cloning & Measurement Disturbance</h3>
+                <ul>
+                    <li><strong>No-cloning theorem</strong>: Unknown qubit states $\ket{\psi}$ cannot be copied without disturbance.</li>
+                    <li><strong>Measurement disturbance</strong>: Any measurement in the wrong basis alters the state and can be detected.</li>
+                </ul>
+                <h3>2.2. Tamper-Evident Sealing</h3>
+                <ul>
+                    <li><strong>Seal qubits</strong>: A set of ancilla qubits entangled with data qubits via controlled operations; measure only after unsealing.</li>
+                    <li><strong>Quantum authentication codes (QACs)</strong>: Embed data in a code space stabilized by known operators; violations signal tampering.</li>
+                </ul>
+                <h3>2.3. Threat Model</h3>
+                <ul>
+                    <li><strong>Adversary</strong>: May intercept, measure, or replace qubits within the capsule.</li>
+                    <li><strong>Detection</strong>: Any deviation from the prepared syndrome indicates unauthorized access.</li>
+                </ul>
+            </section>
+            <!-- No HR here -->
+
+            <section class="content-section" id="theoretical-framework-key-equations">
+                <h2><span class="material-icons-round icon-inline">functions</span>3. Theoretical Framework and Key Equations</h2>
+                <h3>3.1. Encoding with Stabilizer Codes</h3>
+                <p>Use an $\llbracket n,k,d\rrbracket$ stabilizer code to encode $k$ logical data qubits into $n$ physical qubits, distance $d$ detects up to $d-1$ errors:</p>
+                $$
+                S_i \ket{\psi_L} = +1 \;\forall\; i = 1,\dots,n-k,
+                $$
+                <p>where stabilizers $S_i\in \{I,X,Z\}^{\otimes n}$.</p>
+                <h3>3.2. Seal-Qubit Entanglement</h3>
+                <p>Append $m$ seal qubits initialized to $\ket{0}$. Apply controlled-Z (CZ) gates between chosen data and seal qubits:</p>
+                $$
+                \ket{\Psi} = \prod_{(i,j)\in E}\mathrm{CZ}_{i,j} \bigl(\ket{\psi_L} \otimes \ket{0}^{\otimes m}\bigr).
+                $$
+                <p>Any disturbance on data qubit $i$ flips the phase of seal qubit $j$ and can be detected by measuring $Z_j$.</p>
+                <h3>3.3. Tamper Detection Probability</h3>
+                <p>For single-qubit measurement by adversary in random basis, disturbance probability:</p>
+                $$
+                P_{detect} = 1 - |\bra{\Psi}\Psi'\rangle|^2 \, ,
+                $$
+                <p>where $\ket{\Psi'}$ is post-measurement state. Random basis yields $P_{detect}=1/2$ per qubit; multiple seals amplify detection.</p>
+            </section>
+            <!-- No HR here -->
+            
+            <section class="content-section" id="device-architecture-diagram">
+                <h2><span class="material-icons-round icon-inline">developer_board</span>4. Device Architecture & Diagram</h2>
+                <div class="mermaid-diagram-container">
+                    <pre class="mermaid">
+flowchart LR
+  subgraph Initialization_Phase [Initialization & Sealing]
+    direction TB
+    D[Classical Data Input] --> E((Encoding Circuit - Classical to Quantum))
+    E --> Q[Logical Qubits (k states)]
+    Q --> C((Stabilizer Encoder - n physical qubits))
+    C --> S[Encoded Data + m Entangled Seal Qubits]
+  end
+  
+  subgraph Sealed_Capsule_Storage [Sealed Capsule Storage]
+    direction TB
+    S -->|Store in Cryogenic Memory Module| M((Quantum Memory Unit - High Coherence))
+  end
+
+  subgraph Verification_Phase [Verification & Unsealing]
+    direction TB
+    M --> U((Unsealing Protocol: Decode Stabilizers & Measure Seal Qubits))
+    U --> R{Syndrome Zero & Seal Qubits Intact?}
+    R -- Yes --> O[Data Intact - Recover Classical Data]
+    R -- No --> A[Tamper Alert - Quarantine Data]
+  end
+
+  classDef data_input fill:#E3F2FD,stroke:#0D47A1,color:#000;
+  classDef quantum_process fill:#C5CAE9,stroke:#303F9F,color:#000;
+  classDef storage fill:#D1C4E9,stroke:#3F51B5,color:#000,shape:cylinder;
+  classDef decision fill:#E1BEE7,stroke:#5E35B1,color:#fff,shape:diamond;
+  classDef outcome fill:#EDE7F6,stroke:#673AB7,color:#000;
+  
+  class D data_input;
+  class E,Q,C,U quantum_process;
+  class S,M storage;
+  class R decision;
+  class O,A outcome;
+                    </pre>
+                </div>
+                <p>Key modules:</p>
+                <ol>
+                    <li><strong>Quantum encoder</strong>: Superconducting/Rydberg circuit implementing stabilizer and CZ gates.</li>
+                    <li><strong>Cryogenic memory</strong>: 3D cavities or spin ensembles for multi-day coherence.</li>
+                    <li><strong>Seal qubit monitors</strong>: Dedicated readout lines for periodic, non-demolition syndrome checks.</li>
+                </ol>
+            </section>
+            <!-- No HR here -->
+
+            <section class="content-section" id="fabrication-implementation">
+                <h2><span class="material-icons-round icon-inline">precision_manufacturing</span>5. Fabrication and Implementation Considerations</h2>
+                <h3>5.1. Qubit Technology</h3>
+                <ul>
+                    <li><strong>Superconducting qubits</strong> (transmons) with $T_1\sim100\,\mu\text{s}$, extended via 3D cavities.</li>
+                    <li><strong>Trapped ions</strong>: $T_2\sim1\,\text{s}$, long-lived hyperfine levels, slower gate speeds.</li>
+                </ul>
+                <h3>5.2. Gate Operations</h3>
+                <ul>
+                    <li><strong>Stabilizer encoding</strong>: Multi-qubit gates (CZ, CNOT) with error rate $<10^{-3}$.</li>
+                    <li><strong>Seal entanglement</strong>: Fast CZ between data and ancilla; schedule to minimize crosstalk.</li>
+                </ul>
+                <h3>5.3. Coherence and Error Rates</h3>
+                <ul>
+                    <li>Code distance $d$ chosen to tolerate background decoherence; periodic syndrome measurement with error-correction cycles.</li>
+                </ul>
+            </section>
+            <!-- No HR here -->
+
+            <section class="content-section" id="operational-workflow">
+                <h2><span class="material-icons-round icon-inline">play_circle_outline</span>6. Operational Workflow</h2>
+                 <ol>
+                    <li><strong>Data Preparation</strong>: Convert classical archive into $k$-qubit logical state via amplitude and phase encoding.</li>
+                    <li><strong>Quantum Sealing</strong>: Encode with stabilizer code and entangle seal qubits.</li>
+                    <li><strong>Storage</strong>: Place capsule in cryostat at <10 mK; maintain magnetic shielding.</li>
+                    <li><strong>Integrity Checks</strong>: Perform nondestructive syndrome readouts periodically; record logs.</li>
+                    <li><strong>Unsealing</strong>: Retrieve, measure full syndrome, decode logical qubits, recover classical data.</li>
+                    <li><strong>Tamper Alert</strong>: Any nonzero syndrome triggers audit and data quarantine.</li>
+                </ol>
+            </section>
+            <!-- No HR here -->
+            
+            <section class="content-section" id="applications-use-cases">
+                <h2><span class="material-icons-round icon-inline">apps</span>7. Applications and Use Cases</h2>
+                <table class="styled-table">
+                    <thead>
+                        <tr>
+                            <th>Domain</th>
+                            <th>Use Case</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Government Archives</td>
+                            <td>Long-term classified documents with tamper log.</td>
+                        </tr>
+                        <tr>
+                            <td>Financial Institutions</td>
+                            <td>Sealed transaction ledgers requiring audit trace.</td>
+                        </tr>
+                        <tr>
+                            <td>Healthcare Records</td>
+                            <td>Patient data capsules with integrity assurance.</td>
+                        </tr>
+                        <tr>
+                            <td>Scientific Data</td>
+                            <td>Experimental records stored irreversibly sealed.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+            <!-- No HR here -->
+
+            <section class="content-section" id="advantages-classical-seals">
+                <h2><span class="material-icons-round icon-inline">compare_arrows</span>8. Advantages over Classical Seals</h2>
+                 <ol>
+                    <li><strong>Unforgeable</strong>: No classical seal can prevent perfect copying.</li>
+                    <li><strong>Tamper-Evident</strong>: Measurement-induced disturbance is guaranteed.</li>
+                    <li><strong>Quantum Authentication</strong>: Combines data integrity with confidentiality.</li>
+                    <li><strong>Audit Trails</strong>: Syndrome logs provide timestamped access records.</li>
+                </ol>
+            </section>
+            <!-- No HR here -->
+            
+            <section class="content-section" id="limitations-challenges">
+                <h2><span class="material-icons-round icon-inline">report_problem</span>9. Limitations and Challenges</h2>
+                 <ul>
+                    <li><strong>Decoherence</strong>: Finite coherence times demand periodic error correction.</li>
+                    <li><strong>Scalability</strong>: Large $n$-qubit codes require complex control hardware.</li>
+                    <li><strong>Environmental Isolation</strong>: Extreme shielding and cryogenics increase cost.</li>
+                </ul>
+            </section>
+            <!-- No HR here -->
+
+            <section class="content-section" id="future-directions">
+                <h2><span class="material-icons-round icon-inline">rocket_launch</span>10. Future Directions</h2>
+                 <ul>
+                    <li><strong>Bosonic Codes</strong>: Use cat- or binomial codes in microwave cavities for higher $T_1$.</li>
+                    <li><strong>Integrated Photonic Capsules</strong>: Room-temperature photonic qubits with nonlinear circuits.</li>
+                    <li><strong>Quantum Network Sealing</strong>: Distribute seal qubits across nodes for decentralized verification.</li>
+                </ul>
+            </section>
+            
+            <hr class="document-end-divider">
+            <p style="text-align:center; font-style:italic; opacity:0.7;">*End of theoretical design document for Quantum-Sealed Data Capsules.*</p>
+
+        </main>
+
+        <footer>
+            <p>Scientific concept and logic by <strong>Lion</strong>.</p>
+            <p>UI/UX & Web Implementation inspired by modern design principles.</p>
+            <p>© 2024 Quantum-Sealed Data Capsules Project</p>
+        </footer>
+    </div>
+
+    <script>
+        // Initialize Mermaid
+        mermaid.initialize({ 
+            startOnLoad: true,
+            theme: 'base', 
+            themeVariables: {
+                primaryColor: getComputedStyle(document.documentElement).getPropertyValue('--diagram-element-bg').trim(),
+                primaryTextColor: getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim(),
+                primaryBorderColor: getComputedStyle(document.documentElement).getPropertyValue('--card-border').trim(),
+                lineColor: getComputedStyle(document.documentElement).getPropertyValue('--icon-color').trim(),
+                secondaryColor: getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim(),
+                tertiaryColor: getComputedStyle(document.documentElement).getPropertyValue('--bg-color').trim()
+            },
+            flowchart: { 
+                htmlLabels: true, 
+                nodeSpacing: 50,
+                rankSpacing: 50
+            },
+            fontFamily: getComputedStyle(document.documentElement).getPropertyValue('--font-primary').trim(),
+        });
+
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Theme Switcher
+            const lightModeBtn = document.getElementById('light-mode-btn');
+            const darkModeBtn = document.getElementById('dark-mode-btn');
+            const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+
+            function updateMermaidTheme() {
+                const currentPrimaryColor = getComputedStyle(document.documentElement).getPropertyValue('--diagram-element-bg').trim();
+                const currentTextColor = getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim();
+                const currentBorderColor = getComputedStyle(document.documentElement).getPropertyValue('--card-border').trim();
+                const currentLineColor = getComputedStyle(document.documentElement).getPropertyValue('--icon-color').trim();
+                const currentAccentColor = getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim();
+                const currentBgColor = getComputedStyle(document.documentElement).getPropertyValue('--bg-color').trim();
+                
+                mermaid.initialize({
+                    theme: 'base',
+                    themeVariables: {
+                        primaryColor: currentPrimaryColor,
+                        primaryTextColor: currentTextColor,
+                        primaryBorderColor: currentBorderColor,
+                        lineColor: currentLineColor,
+                        secondaryColor: currentAccentColor,
+                        tertiaryColor: currentBgColor
+                    }
+                });
+                document.querySelectorAll('.mermaid[data-processed="true"]').forEach((el, i) => {
+                    const code = el.textContent || el.innerText;
+                    const id = `mermaid-graph-${Date.now()}-${i}`;
+                    el.removeAttribute('data-processed');
+                    el.innerHTML = code;
+                    try {
+                         mermaid.init(undefined, el);
+                    } catch (e) {
+                        console.error("Error re-rendering Mermaid diagram:", e);
+                    }
+                });
+            }
+
+            function setTheme(theme) {
+                if (theme === 'dark') {
+                    document.documentElement.classList.add('dark-mode');
+                    localStorage.setItem('theme', 'dark');
+                } else {
+                    document.documentElement.classList.remove('dark-mode');
+                    localStorage.setItem('theme', 'light');
+                }
+                updateMermaidTheme();
+            }
+
+            lightModeBtn.addEventListener('click', () => setTheme('light'));
+            darkModeBtn.addEventListener('click', () => setTheme('dark'));
+
+            const currentTheme = localStorage.getItem('theme');
+            if (currentTheme) {
+                setTheme(currentTheme);
+            } else if (prefersDarkScheme.matches) {
+                setTheme('dark');
+            } else {
+                setTheme('light'); 
+            }
+            
+            // Scroll Animations for sections
+            const sections = document.querySelectorAll('.content-section');
+            const hrs = document.querySelectorAll('hr.section-divider, hr.document-end-divider'); 
+            const observerOptions = {
+                root: null, 
+                rootMargin: '0px',
+                threshold: 0.1 
+            };
+
+            const observer = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('is-visible');
+                    }
+                });
+            }, observerOptions);
+
+            sections.forEach(section => {
+                observer.observe(section);
+            });
+             hrs.forEach(hr => { 
+                hr.style.opacity = 0; hr.style.transition = 'opacity 0.8s var(--ease-in-out-cubic) 0.2s';
+                observer.observe(hr);
+            });
+        });
+    </script>
+</body>
+</html>

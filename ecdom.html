@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Electrically Controlled DNA Origami Machines</title>
+
+    <!-- MathJax Configuration -->
+    <script>
+        MathJax = {
+          tex: {
+            inlineMath: [['$', '$'], ['\\(', '\\)']],
+            displayMath: [['$$', '$$'], ['\\[', '\\]'], ['```math', '```']],
+            processEscapes: true,
+            tags: 'ams',
+            macros: { // Define custom macros if needed
+                text: ['{\\text{#1}}', 1]
+            }
+          },
+          svg: {
+            fontCache: 'global'
+          }
+        };
+    </script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <!-- Mermaid JS for diagrams -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Google Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons|Material+Icons+Outlined|Material+Icons+Round" rel="stylesheet">
+
+    <style>
+        :root {
+            --font-primary: 'Inter', sans-serif;
+            --font-headings: 'Poppins', sans-serif;
+
+            --ease-out-quad: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            --ease-in-out-cubic: cubic-bezier(0.645, 0.045, 0.355, 1);
+
+            /* Light Mode (Default) */
+            --bg-color: #F0F2F5;
+            --text-color: #1d1d1f;
+            --heading-color: #000000;
+            --accent-color: #00ACC1; /* Vibrant Teal/Cyan for DNA/Biotech */
+            --accent-color-darker: #00838F;
+            --card-bg: rgba(255, 255, 255, 0.6);
+            --card-border: rgba(0, 0, 0, 0.1);
+            --card-shadow-1: rgba(0, 0, 0, 0.05);
+            --card-shadow-2: rgba(0, 0, 0, 0.02);
+            --neumorphic-shadow-light: -6px -6px 12px rgba(255, 255, 255, 0.8), 6px 6px 12px rgba(0, 0, 0, 0.1);
+            --neumorphic-shadow-light-inset: inset -4px -4px 8px rgba(255, 255, 255, 0.7), inset 4px 4px 8px rgba(0, 0, 0, 0.08);
+            --icon-color: #555;
+            --diagram-element-bg: rgba(128,128,128,0.05);
+            --code-bg: #f7f7f7;
+            --code-text: #333;
+            --hr-color: rgba(0,0,0,0.1);
+            --table-header-bg: rgba(0,0,0,0.03);
+            --table-row-hover-bg: rgba(0,0,0,0.02);
+        }
+
+        html.dark-mode {
+            --bg-color: #161616;
+            --text-color: #E0E0E0;
+            --heading-color: #FFFFFF;
+            --accent-color: #26C6DA; /* Lighter Teal/Cyan for dark mode */
+            --accent-color-darker: #00ACC1;
+            --card-bg: rgba(35, 35, 35, 0.6);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --card-shadow-1: rgba(255, 255, 255, 0.03);
+            --card-shadow-2: rgba(0, 0, 0, 0.1);
+            --neumorphic-shadow-light: -6px -6px 12px rgba(40, 40, 40, 0.7), 6px 6px 12px rgba(0, 0, 0, 0.3);
+            --neumorphic-shadow-light-inset: inset -4px -4px 8px rgba(40, 40, 40, 0.6), inset 4px 4px 8px rgba(0, 0, 0, 0.25);
+            --icon-color: #bbb;
+            --diagram-element-bg: rgba(200,200,200,0.05);
+            --code-bg: #2a2a2a;
+            --code-text: #ccc;
+            --hr-color: rgba(255,255,255,0.1);
+            --table-header-bg: rgba(255,255,255,0.03);
+            --table-row-hover-bg: rgba(255,255,255,0.02);
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 16px;
+        }
+
+        body {
+            font-family: var(--font-primary);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.7;
+            transition: background-color 0.3s var(--ease-out-quad), color 0.3s var(--ease-out-quad);
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem 0;
+        }
+
+        header {
+            padding: 2rem 0 1rem;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .main-title {
+            font-family: var(--font-headings);
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--heading-color);
+            margin-bottom: 0.5rem;
+            letter-spacing: -1px;
+        }
+
+        .tagline {
+            font-size: 1.1rem;
+            color: var(--text-color);
+            opacity: 0.8;
+            margin-bottom: 1.5rem;
+        }
+        
+        hr {
+            border: none;
+            height: 1px;
+            background-color: var(--hr-color);
+            margin: 2rem auto;
+            width: 80%;
+        }
+
+
+        .theme-switcher {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 0.5rem;
+            border-radius: 50px;
+            box-shadow: 0 4px 15px var(--card-shadow-1);
+            display: flex;
+            align-items: center;
+        }
+
+        .theme-button {
+            background: none;
+            border: none;
+            color: var(--icon-color);
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 50%;
+            transition: background-color 0.2s ease, color 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .theme-button:hover {
+            background-color: rgba(128,128,128,0.1);
+        }
+        .theme-button .material-icons-round {
+            font-size: 24px;
+        }
+
+
+        .content-section {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            padding: 2rem 2.5rem;
+            margin-bottom: 2.5rem;
+            border-radius: 20px;
+            box-shadow: 0 8px 30px var(--card-shadow-1), 0 2px 8px var(--card-shadow-2);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s var(--ease-in-out-cubic), transform 0.6s var(--ease-in-out-cubic);
+        }
+
+        .content-section.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .content-section h2, .content-section h3, .content-section h4 {
+            font-family: var(--font-headings);
+            color: var(--heading-color);
+            margin-bottom: 1.2rem;
+            margin-top: 1.5rem;
+            position: relative;
+            padding-left: 1.5rem;
+        }
+        .content-section h2::before, .content-section h3::before, .content-section h4::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 6px;
+            height: 60%;
+            min-height: 18px;
+            background-color: var(--accent-color);
+            border-radius: 3px;
+        }
+
+
+        .content-section h2 { font-size: 1.8rem; font-weight: 700; }
+        .content-section h3 { font-size: 1.5rem; font-weight: 600; }
+        .content-section h4 { font-size: 1.2rem; font-weight: 600; }
+        .content-section h2:first-child, .content-section h3:first-child, .content-section h4:first-child {
+            margin-top: 0;
+        }
+
+        .content-section p {
+            margin-bottom: 1rem;
+            color: var(--text-color);
+        }
+
+        .content-section ul, .content-section ol {
+            list-style: none;
+            padding-left: 0;
+            margin-bottom: 1rem;
+        }
+         .content-section ol { 
+            counter-reset: list-item-counter;
+        }
+
+
+        .content-section li {
+            padding-left: 2em;
+            position: relative;
+            margin-bottom: 0.75rem;
+        }
+        
+        .content-section ul li::before { 
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 9px; 
+            width: 8px;
+            height: 8px;
+            background-color: var(--accent-color);
+            border-radius: 50%;
+        }
+
+        .content-section ol li::before { 
+            counter-increment: list-item-counter;
+            content: counter(list-item-counter) ".";
+            position: absolute;
+            left: 0;
+            top: 1px; 
+            font-weight: 600;
+            color: var(--accent-color);
+        }
+
+
+        .content-section strong {
+            font-weight: 600;
+            color: var(--heading-color);
+        }
+
+        .content-section .mjx-math, .content-section pre[class*="language-math"] { 
+            font-size: 1.1em !important; 
+            margin: 1.5rem 0;
+            padding: 1rem;
+            overflow-x: auto;
+            background-color: var(--diagram-element-bg);
+            border-radius: 8px;
+            border: 1px solid var(--card-border);
+        }
+        
+        .mermaid-diagram-container {
+            background-color: var(--diagram-element-bg);
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin: 1.5rem auto;
+            text-align: center;
+            border: 1px solid var(--card-border);
+        }
+        .mermaid-diagram-container svg {
+            max-width: 100%;
+            height: auto;
+        }
+        
+        .styled-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            font-size: 0.95em;
+        }
+        .styled-table th, .styled-table td {
+            border: 1px solid var(--card-border);
+            padding: 0.75rem 1rem;
+            text-align: left;
+        }
+        .styled-table th {
+            background-color: var(--table-header-bg);
+            font-weight: 600;
+            color: var(--heading-color);
+        }
+        .styled-table tr:hover {
+            background-color: var(--table-row-hover-bg);
+        }
+        .styled-table td:nth-child(1) {
+            font-weight: 500;
+        }
+
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 2rem 0;
+            margin-top: 2rem;
+            border-top: 1px solid var(--card-border);
+            font-size: 0.9rem;
+            color: var(--text-color);
+            opacity: 0.7;
+        }
+        footer strong {
+            font-weight: bold;
+            color: var(--accent-color);
+        }
+
+        /* Material Icons in text */
+        .icon-inline {
+            font-family: 'Material Icons Round';
+            font-size: 1.1em; 
+            vertical-align: -0.15em; 
+            margin-right: 0.2em;
+            color: var(--accent-color);
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .main-title { font-size: 2rem; }
+            .tagline { font-size: 1rem; }
+            .content-section { padding: 1.5rem; border-radius: 15px; }
+            .content-section h2 { font-size: 1.6rem; }
+            .content-section h3 { font-size: 1.3rem; }
+            .theme-switcher { top: 10px; right: 10px; padding: 0.3rem;}
+            .theme-button {padding: 0.4rem;}
+            .styled-table { font-size: 0.85em; }
+            .styled-table th, .styled-table td { padding: 0.5rem; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="theme-switcher">
+        <button id="light-mode-btn" class="theme-button" title="Switch to Light Mode">
+            <span class="material-icons-round">light_mode</span>
+        </button>
+        <button id="dark-mode-btn" class="theme-button" title="Switch to Dark Mode">
+            <span class="material-icons-round">dark_mode</span>
+        </button>
+    </div>
+
+    <div class="container">
+        <header>
+            <h1 class="main-title">Electrically Controlled DNA Origami Machines</h1>
+            <p class="tagline">Voltage-steered conformational changes in nanoscale devices</p>
+        </header>
+        <hr>
+
+        <main>
+            <section class="content-section" id="concept-overview">
+                <h2><span class="material-icons-round icon-inline">extension</span>Concept Overview</h2>
+                <p>Electrically controlled DNA origami machines use designed DNA nanostructures whose shapes and functions can be <strong>actively switched</strong> by applying external electric fields or voltages. Localized electrodes create field gradients or electrophoretic forces that induce <strong>voltage-dependent conformational transitions</strong>, enabling tasks such as cargo release, mechanical actuation, and logic gating at the molecular scale.</p>
+            </section>
+            <hr>
+
+            <section class="content-section" id="scientific-principles">
+                <h2><span class="material-icons-round icon-inline">science</span>Scientific Principles</h2>
+                <h3>1. DNA Origami Mechanics</h3>
+                <ul>
+                    <li>DNA double helices behave like semi-flexible rods with persistence length ~50 nm.</li>
+                    <li>Origami structures fold via staple strands into planar or 3D shapes; their elastic energy is governed by bending and twisting moduli.</li>
+                </ul>
+                <h3>2. Electrostatic Actuation</h3>
+                <ul>
+                    <li>An external electric field <strong>E</strong> induces forces on charged phosphate backbones.</li>
+                    <li><strong>Electrophoretic force</strong> on segment <em>i</em>:
+                    \[
+                    \mathbf{F}_i = q_{\text{eff}}\,\mathbf{E}
+                    \]
+                    where $q_{\text{eff}}$ is the effective charge per base pair after counterion screening.</li>
+                </ul>
+                <h3>3. Energy Landscape Modulation</h3>
+                <ul>
+                    <li>Applying voltage <strong>V</strong> across nanoelectrodes changes the <strong>electrostatic potential</strong> $\Phi$ in the vicinity.</li>
+                    <li>The system free energy
+                    \[
+                    G = G_{\text{elastic}} + G_{\text{electrostatic}} + G_{\text{hybridization}}
+                    \]
+                    </li>
+                    <li>Voltage alters $G_{\text{electrostatic}} = \sum_i q_i\,\Phi(\mathbf{r}_i)$, tipping the balance toward open/closed states.</li>
+                </ul>
+            </section>
+            <hr>
+
+            <section class="content-section" id="device-architecture">
+                <h2><span class="material-icons-round icon-inline">memory</span>Device Architecture</h2>
+                <div class="mermaid-diagram-container">
+                    <pre class="mermaid">
+graph LR
+  A[DNA Origami Scaffold] --> B((Staple Strands Fold into Machine))
+  B --> C{State Sensor (FRET pairs)}
+  C --> D[Electrodes on Substrate]
+  D -- Apply Voltage V --> E((Field Gradient))
+  E --> F[Conformational Change]
+  F --> G[Target Function (e.g., Cargo Release)]
+  G --> H((Reset by Reverse Voltage))
+
+  classDef dna fill:#B2EBF2,stroke:#0097A7,color:#000;
+  classDef sensor fill:#FFECB3,stroke:#FFA000,color:#000;
+  classDef electrode fill:#CFD8DC,stroke:#455A64,color:#000;
+  classDef process fill:#C8E6C9,stroke:#388E3C,color:#000;
+  
+  class A,B dna;
+  class C sensor;
+  class D electrode;
+  class E,F,G,H process;
+                    </pre>
+                </div>
+                <ul>
+                    <li><strong>Substrate electrodes</strong> can be patterned via e-beam lithography with nanoscale gaps (~50–200 nm).</li>
+                    <li><strong>FRET dyes</strong> or gold nanoparticles report state changes in real time.</li>
+                </ul>
+            </section>
+            <hr>
+
+            <section class="content-section" id="key-equations">
+                <h2><span class="material-icons-round icon-inline">functions</span>Key Equations</h2>
+                <h3>1. Debye–Hückel Screening</h3>
+                \[
+                \lambda_D = \sqrt{\frac{\varepsilon_r \varepsilon_0 k_B T}{2 N_A e^2 I}}
+                \]
+                <ul>
+                    <li>Debye length $\lambda_D$ sets screening; typical buffer (100 mM) gives $\lambda_D \approx 1\text{–}2\,\mathrm{nm}$.</li>
+                </ul>
+                <h3>2. Electrostatic Potential near Electrode</h3>
+                \[
+                \Phi(x) \approx \frac{V}{d}\,x\quad (0 \le x \le d)
+                \]
+                <ul>
+                    <li>$d$: electrode gap distance.</li>
+                </ul>
+                <h3>3. Elastic Bending Energy</h3>
+                \[
+                G_{\text{bend}} = \frac{1}{2} \kappa_b \int (\kappa(s))^2\,\mathrm{d}s
+                \]
+                <ul>
+                    <li>$\kappa_b$: bending stiffness; $\kappa(s)$: local curvature.</li>
+                </ul>
+                <h3>4. Transition Rate (Kramers’ Theory)</h3>
+                \[
+                k(V) = k_0 \exp\!\Bigl(-\frac{\Delta G(V)}{k_B T}\Bigr)
+                \]
+                <ul>
+                    <li>$\Delta G(V)$: voltage-dependent barrier height between conformations.</li>
+                </ul>
+            </section>
+            <hr>
+
+            <section class="content-section" id="control-logic-operation">
+                <h2><span class="material-icons-round icon-inline">smart_toy</span>Control Logic & Operation Flow</h2>
+                <div class="mermaid-diagram-container">
+                     <pre class="mermaid">
+flowchart TD
+  Start([Idle State]) --> Measure{Sense Input Voltage?}
+  Measure -- No change --> Start
+  Measure -- Voltage detected --> V_Check{Voltage > Threshold V₁?}
+  V_Check -- No --> Leak[Maintain Current State / Leakage Check]
+  V_Check -- Yes --> Apply[Apply V to Electrodes]
+  Apply --> Actuate[Origami Conformational Switch]
+  Actuate --> Perform[Execute Task (e.g., release cargo)]
+  Perform --> Reverse_Check{Voltage < Reverse Threshold V₂?}
+  Reverse_Check -- No --> Monitor[Monitor Stability/Task Completion]
+  Monitor --> Start
+  Reverse_Check -- Yes --> Reset[Apply Reverse/Zero Voltage]
+  Reset --> Start
+
+  classDef state_idle fill:#E0E0E0,stroke:#757575,color:#000,shape:stadium;
+  classDef decision fill:#80CBC4,stroke:#00796B,color:#000,shape:diamond;
+  classDef action fill:#A5D6A7,stroke:#388E3C,color:#000,shape:rect;
+    
+  class Start state_idle;
+  class Measure,V_Check,Reverse_Check decision;
+  class Leak,Apply,Actuate,Perform,Monitor,Reset action;
+                    </pre>
+                </div>
+                <ul>
+                    <li><strong>Threshold voltages</strong> $V_1$ (open) and $V_2$ (close) tuned by electrode geometry and salt conditions.</li>
+                    <li><strong>Feedback</strong> via on-chip fluorescence detection or nanopore current readout.</li>
+                </ul>
+            </section>
+            <hr>
+
+            <section class="content-section" id="materials-fabrication">
+                <h2><span class="material-icons-round icon-inline">build_circle</span>Materials & Fabrication</h2>
+                <ul>
+                    <li><strong>DNA Scaffold</strong>: M13 bacteriophage genome or custom long strands.</li>
+                    <li><strong>Staples</strong>: Short synthetic oligos, some functionalized with dyes or thiols.</li>
+                    <li><strong>Electrodes</strong>: Gold or platinum electrodes on glass/Si with insulating oxide layers.</li>
+                    <li><strong>Microfluidic Chamber</strong>: Controls buffer concentration and temperature.</li>
+                </ul>
+            </section>
+            <hr>
+
+            <section class="content-section" id="applications-table">
+                <h2><span class="material-icons-round icon-inline">rocket_launch</span>Applications</h2>
+                <table class="styled-table">
+                    <thead>
+                        <tr>
+                            <th>Application</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Smart Drug Delivery</strong></td>
+                            <td>Voltage-triggered release of therapeutic cargo from origami “boxes.”</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Nanoscale Logic Gates</strong></td>
+                            <td>AND/OR operations via multi-electrode switching.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Reconfigurable Plasmonics</strong></td>
+                            <td>DNA-templated nanoparticle arrays with switchable geometries.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Single-Molecule Sensors</strong></td>
+                            <td>Conformation-dependent FRET or nanopore signals.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+            <hr>
+            
+            <section class="content-section" id="advantages-challenges">
+                <h2><span class="material-icons-round icon-inline">balance</span>Advantages & Challenges</h2>
+                <table class="styled-table">
+                    <thead>
+                        <tr>
+                            <th>Advantage</th>
+                            <th>Challenge</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Remote, reversible actuation</td>
+                            <td>Precise control of local field and screening effects</td>
+                        </tr>
+                        <tr>
+                            <td>Integration with electronic circuits</td>
+                            <td>DNA stability under high fields and electrochemical side reactions</td>
+                        </tr>
+                        <tr>
+                            <td>Fast switching (µs–ms timescales)</td>
+                            <td>Fabrication of sub-100 nm electrode gaps</td>
+                        </tr>
+                        <tr>
+                            <td>High spatial resolution (few nm)</td>
+                            <td>Buffer ionic strength trade-offs</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+            <hr>
+
+            <section class="content-section" id="future-directions">
+                <h2><span class="material-icons-round icon-inline">trending_up</span>Future Directions</h2>
+                <ul>
+                    <li><strong>Multi-electrode arrays</strong> for complex logic networks.</li>
+                    <li><strong>Hybrid CMOS–DNA systems</strong> integrating molecular machines with silicon circuits.</li>
+                    <li><strong>Enhanced bio-stability</strong> via chemical modifications or protective coatings.</li>
+                    <li><strong>3D actuation</strong> using stacked electrode geometries.</li>
+                </ul>
+            </section>
+            <hr>
+
+            <section class="content-section" id="references">
+                <h2><span class="material-icons-round icon-inline">menu_book</span>References</h2>
+                <ol>
+                    <li>Kuzuya, A., & Komiyama, M. (2010). DNA Origami: Folded DNA Nanostructures for Nanotechnology. <em>Chemical Reviews</em>, <strong>110</strong>(9), 4765–4788.</li>
+                    <li>Simmel, F. C., et al. (2019). DNA-based dynamic nanoparticles act as voltage-gated switches. <em>Nano Letters</em>, <strong>19</strong>(3), 1484–1490.</li>
+                    <li>Seeman, N. C., & Sleiman, H. F. (2017). DNA nanotechnology. <em>Nature Reviews Materials</em>, <strong>3</strong>, 17068.</li>
+                </ol>
+            </section>
+        </main>
+
+        <footer>
+            <p>Scientific concept and logic by <strong>Lion</strong>.</p>
+            <p>UI/UX & Web Implementation inspired by modern design principles.</p>
+            <p>© 2024 Electrically Controlled DNA Origami Machines Project</p>
+        </footer>
+    </div>
+
+    <script>
+        // Initialize Mermaid
+        mermaid.initialize({ 
+            startOnLoad: true,
+            theme: 'base', 
+            themeVariables: {
+                primaryColor: getComputedStyle(document.documentElement).getPropertyValue('--diagram-element-bg').trim(),
+                primaryTextColor: getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim(),
+                primaryBorderColor: getComputedStyle(document.documentElement).getPropertyValue('--card-border').trim(),
+                lineColor: getComputedStyle(document.documentElement).getPropertyValue('--icon-color').trim(),
+                secondaryColor: getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim(),
+                tertiaryColor: getComputedStyle(document.documentElement).getPropertyValue('--bg-color').trim()
+            },
+            flowchart: { 
+                htmlLabels: true,
+                nodeSpacing: 50,
+                rankSpacing: 50
+            },
+            fontFamily: getComputedStyle(document.documentElement).getPropertyValue('--font-primary').trim(),
+        });
+
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Theme Switcher
+            const lightModeBtn = document.getElementById('light-mode-btn');
+            const darkModeBtn = document.getElementById('dark-mode-btn');
+            const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+
+            function updateMermaidTheme() {
+                const currentPrimaryColor = getComputedStyle(document.documentElement).getPropertyValue('--diagram-element-bg').trim();
+                const currentTextColor = getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim();
+                const currentBorderColor = getComputedStyle(document.documentElement).getPropertyValue('--card-border').trim();
+                const currentLineColor = getComputedStyle(document.documentElement).getPropertyValue('--icon-color').trim();
+                const currentAccentColor = getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim();
+                const currentBgColor = getComputedStyle(document.documentElement).getPropertyValue('--bg-color').trim();
+                
+                mermaid.initialize({
+                    theme: 'base',
+                    themeVariables: {
+                        primaryColor: currentPrimaryColor,
+                        primaryTextColor: currentTextColor,
+                        primaryBorderColor: currentBorderColor,
+                        lineColor: currentLineColor,
+                        secondaryColor: currentAccentColor,
+                        tertiaryColor: currentBgColor
+                    }
+                });
+                document.querySelectorAll('.mermaid[data-processed="true"]').forEach((el, i) => {
+                    const code = el.textContent || el.innerText;
+                    const id = `mermaid-graph-${Date.now()}-${i}`;
+                    el.removeAttribute('data-processed');
+                    el.innerHTML = code;
+                    try {
+                         mermaid.init(undefined, el);
+                    } catch (e) {
+                        console.error("Error re-rendering Mermaid diagram:", e);
+                    }
+                });
+            }
+
+            function setTheme(theme) {
+                if (theme === 'dark') {
+                    document.documentElement.classList.add('dark-mode');
+                    localStorage.setItem('theme', 'dark');
+                } else {
+                    document.documentElement.classList.remove('dark-mode');
+                    localStorage.setItem('theme', 'light');
+                }
+                updateMermaidTheme();
+            }
+
+            lightModeBtn.addEventListener('click', () => setTheme('light'));
+            darkModeBtn.addEventListener('click', () => setTheme('dark'));
+
+            const currentTheme = localStorage.getItem('theme');
+            if (currentTheme) {
+                setTheme(currentTheme);
+            } else if (prefersDarkScheme.matches) {
+                setTheme('dark');
+            } else {
+                setTheme('light'); 
+            }
+            
+            // Scroll Animations for sections
+            const sections = document.querySelectorAll('.content-section');
+            const hrs = document.querySelectorAll('hr');
+            const observerOptions = {
+                root: null, 
+                rootMargin: '0px',
+                threshold: 0.1 
+            };
+
+            const observer = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('is-visible');
+                    }
+                });
+            }, observerOptions);
+
+            sections.forEach(section => {
+                observer.observe(section);
+            });
+            hrs.forEach(hr => { 
+                hr.style.opacity = 0; hr.style.transition = 'opacity 0.8s var(--ease-in-out-cubic) 0.2s';
+                observer.observe(hr);
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Optical Tweezer Quantum Gates</title>
+
+    <!-- MathJax Configuration -->
+    <script>
+        MathJax = {
+          tex: {
+            inlineMath: [['$', '$'], ['\\(', '\\)']],
+            displayMath: [['$$', '$$'], ['\\[', '\\]'], ['```math', '```']],
+            processEscapes: true,
+            tags: 'ams',
+            macros: { // Define custom macros if needed
+                sub: ['_{\\text{#1}}', 1],
+                ket: ['|#1\\rangle', 1],
+                bra: ['\\langle#1|', 1]
+            }
+          },
+          svg: {
+            fontCache: 'global'
+          }
+        };
+    </script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <!-- Mermaid JS for diagrams -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Google Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons|Material+Icons+Outlined|Material+Icons+Round" rel="stylesheet">
+
+    <style>
+        :root {
+            --font-primary: 'Inter', sans-serif;
+            --font-headings: 'Poppins', sans-serif;
+
+            --ease-out-quad: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            --ease-in-out-cubic: cubic-bezier(0.645, 0.045, 0.355, 1);
+
+            /* Light Mode (Default) */
+            --bg-color: #F0F2F5;
+            --text-color: #1d1d1f;
+            --heading-color: #000000;
+            --accent-color: #6A0DAD; /* Purple for Quantum/Lasers */
+            --accent-color-darker: #4B0082;
+            --card-bg: rgba(255, 255, 255, 0.6);
+            --card-border: rgba(0, 0, 0, 0.1);
+            --card-shadow-1: rgba(0, 0, 0, 0.05);
+            --card-shadow-2: rgba(0, 0, 0, 0.02);
+            --neumorphic-shadow-light: -6px -6px 12px rgba(255, 255, 255, 0.8), 6px 6px 12px rgba(0, 0, 0, 0.1);
+            --neumorphic-shadow-light-inset: inset -4px -4px 8px rgba(255, 255, 255, 0.7), inset 4px 4px 8px rgba(0, 0, 0, 0.08);
+            --icon-color: #555;
+            --diagram-element-bg: rgba(128,128,128,0.05);
+            --code-bg: #f7f7f7;
+            --code-text: #333;
+            --hr-color: rgba(0,0,0,0.1);
+        }
+
+        html.dark-mode {
+            --bg-color: #161616;
+            --text-color: #E0E0E0;
+            --heading-color: #FFFFFF;
+            --accent-color: #9370DB; /* Lighter Purple for dark mode */
+            --accent-color-darker: #7A5DC7;
+            --card-bg: rgba(35, 35, 35, 0.6);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --card-shadow-1: rgba(255, 255, 255, 0.03);
+            --card-shadow-2: rgba(0, 0, 0, 0.1);
+            --neumorphic-shadow-light: -6px -6px 12px rgba(40, 40, 40, 0.7), 6px 6px 12px rgba(0, 0, 0, 0.3);
+            --neumorphic-shadow-light-inset: inset -4px -4px 8px rgba(40, 40, 40, 0.6), inset 4px 4px 8px rgba(0, 0, 0, 0.25);
+            --icon-color: #bbb;
+            --diagram-element-bg: rgba(200,200,200,0.05);
+            --code-bg: #2a2a2a;
+            --code-text: #ccc;
+            --hr-color: rgba(255,255,255,0.1);
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 16px;
+        }
+
+        body {
+            font-family: var(--font-primary);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.7;
+            transition: background-color 0.3s var(--ease-out-quad), color 0.3s var(--ease-out-quad);
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem 0;
+        }
+
+        header {
+            padding: 2rem 0 1rem;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .main-title {
+            font-family: var(--font-headings);
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--heading-color);
+            margin-bottom: 0.5rem;
+            letter-spacing: -1px;
+        }
+
+        .tagline {
+            font-size: 1.1rem;
+            color: var(--text-color);
+            opacity: 0.8;
+            margin-bottom: 1.5rem;
+        }
+        
+        hr {
+            border: none;
+            height: 1px;
+            background-color: var(--hr-color);
+            margin: 2rem auto;
+            width: 80%;
+        }
+
+
+        .theme-switcher {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 0.5rem;
+            border-radius: 50px;
+            box-shadow: 0 4px 15px var(--card-shadow-1);
+            display: flex;
+            align-items: center;
+        }
+
+        .theme-button {
+            background: none;
+            border: none;
+            color: var(--icon-color);
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 50%;
+            transition: background-color 0.2s ease, color 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .theme-button:hover {
+            background-color: rgba(128,128,128,0.1);
+        }
+        .theme-button .material-icons-round {
+            font-size: 24px;
+        }
+
+
+        .content-section {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            padding: 2rem 2.5rem;
+            margin-bottom: 2.5rem;
+            border-radius: 20px;
+            box-shadow: 0 8px 30px var(--card-shadow-1), 0 2px 8px var(--card-shadow-2);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s var(--ease-in-out-cubic), transform 0.6s var(--ease-in-out-cubic);
+        }
+
+        .content-section.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .content-section h2, .content-section h3, .content-section h4 {
+            font-family: var(--font-headings);
+            color: var(--heading-color);
+            margin-bottom: 1.2rem;
+            margin-top: 1.5rem;
+            position: relative;
+            padding-left: 1.5rem;
+        }
+        .content-section h2::before, .content-section h3::before, .content-section h4::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 6px;
+            height: 60%;
+            min-height: 18px;
+            background-color: var(--accent-color);
+            border-radius: 3px;
+        }
+
+
+        .content-section h2 { font-size: 1.8rem; font-weight: 700; }
+        .content-section h3 { font-size: 1.5rem; font-weight: 600; }
+        .content-section h4 { font-size: 1.2rem; font-weight: 600; }
+        .content-section h2:first-child, .content-section h3:first-child, .content-section h4:first-child {
+            margin-top: 0;
+        }
+
+        .content-section p {
+            margin-bottom: 1rem;
+            color: var(--text-color);
+        }
+
+        .content-section ul, .content-section ol {
+            list-style: none;
+            padding-left: 0;
+            margin-bottom: 1rem;
+        }
+         .content-section ol { 
+            counter-reset: list-item-counter;
+        }
+
+
+        .content-section li {
+            padding-left: 2em;
+            position: relative;
+            margin-bottom: 0.75rem;
+        }
+        
+        .content-section ul li::before { 
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 9px; 
+            width: 8px;
+            height: 8px;
+            background-color: var(--accent-color);
+            border-radius: 50%;
+        }
+
+        .content-section ol li::before { 
+            counter-increment: list-item-counter;
+            content: counter(list-item-counter) ".";
+            position: absolute;
+            left: 0;
+            top: 1px; 
+            font-weight: 600;
+            color: var(--accent-color);
+        }
+
+
+        .content-section strong {
+            font-weight: 600;
+            color: var(--heading-color);
+        }
+
+        .content-section .mjx-math, .content-section pre[class*="language-math"] { 
+            font-size: 1.1em !important; 
+            margin: 1.5rem 0;
+            padding: 1rem;
+            overflow-x: auto;
+            background-color: var(--diagram-element-bg);
+            border-radius: 8px;
+            border: 1px solid var(--card-border);
+        }
+        
+        .mermaid-diagram-container {
+            background-color: var(--diagram-element-bg);
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin: 1.5rem auto;
+            text-align: center;
+            border: 1px solid var(--card-border);
+        }
+        .mermaid-diagram-container svg {
+            max-width: 100%;
+            height: auto;
+        }
+        
+        .placeholder-image-container {
+            text-align: center;
+            margin: 1.5rem 0;
+        }
+        .placeholder-image-container img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 12px;
+            border: 1px solid var(--card-border);
+            box-shadow: 0 4px 10px var(--card-shadow-1);
+        }
+
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 2rem 0;
+            margin-top: 2rem;
+            border-top: 1px solid var(--card-border);
+            font-size: 0.9rem;
+            color: var(--text-color);
+            opacity: 0.7;
+        }
+        footer strong {
+            font-weight: bold;
+            color: var(--accent-color);
+        }
+
+        /* Material Icons in text */
+        .icon-inline {
+            font-family: 'Material Icons Round';
+            font-size: 1.1em; 
+            vertical-align: -0.15em; 
+            margin-right: 0.2em;
+            color: var(--accent-color);
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .main-title { font-size: 2rem; }
+            .tagline { font-size: 1rem; }
+            .content-section { padding: 1.5rem; border-radius: 15px; }
+            .content-section h2 { font-size: 1.6rem; }
+            .content-section h3 { font-size: 1.3rem; }
+            .theme-switcher { top: 10px; right: 10px; padding: 0.3rem;}
+            .theme-button {padding: 0.4rem;}
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="theme-switcher">
+        <button id="light-mode-btn" class="theme-button" title="Switch to Light Mode">
+            <span class="material-icons-round">light_mode</span>
+        </button>
+        <button id="dark-mode-btn" class="theme-button" title="Switch to Dark Mode">
+            <span class="material-icons-round">dark_mode</span>
+        </button>
+    </div>
+
+    <div class="container">
+        <header>
+            <h1 class="main-title">Optical Tweezer Quantum Gates</h1>
+            <p class="tagline">Photonically defined traps manipulating neutral-atom qubits via controlled interactions for high-fidelity quantum logic.</p>
+        </header>
+        <hr>
+
+        <main>
+            <section class="content-section" id="introduction">
+                <h2><span class="material-icons-round icon-inline">grain</span>1. Introduction</h2>
+                <p>Optical tweezers—highly focused laser beams—can trap and position single neutral atoms with sub-micron precision. By arranging atoms in configurable arrays and leveraging their Rydberg-state interactions, one can implement two-qubit entangling gates. <strong>Optical Tweezer Quantum Gates</strong> marry precise photon trapping with coherent control to realize scalable, reconfigurable neutral-atom quantum processors.</p>
+            </section>
+            <hr>
+
+            <section class="content-section" id="principles-trapping">
+                <h2><span class="material-icons-round icon-inline">center_focus_strong</span>2. Principles of Optical Tweezer Trapping</h2>
+                <h4>Trapping Potential</h4>
+                <p>A red-detuned Gaussian beam creates a three-dimensional potential well:</p>
+                ```math
+                U(r) = -\frac{1}{2} \alpha(\omega) I(r),
+                \quad I(r) = I_0 \exp\bigl(-2\tfrac{r^2}{w_0^2}\bigr)
+                ```
+                <ul>
+                    <li>α(ω): atomic polarizability at laser frequency ω</li>
+                    <li>I₀: peak intensity, w₀: waist radius</li>
+                </ul>
+                <h4>Oscillation Frequencies in trap</h4>
+                ```math
+                \omega_r = \sqrt{\frac{4 U_0}{m w_0^2}},
+                \quad \omega_z = \sqrt{\frac{2 U_0}{m z_R^2}}
+                ```
+                <ul>
+                    <li>m: atomic mass, z_R: Rayleigh range = π w₀²/λ</li>
+                </ul>
+            </section>
+            <hr>
+
+            <section class="content-section" id="qubit-encoding">
+                <h2><span class="material-icons-round icon-inline">flip_to_front</span>3. Neutral-Atom Qubit Encoding</h2>
+                <h4>Hyperfine States</h4>
+                <p>Two long-lived ground states $\ket{0}$ and $\ket{1}$ encode the qubit (e.g., ⁸⁷Rb: $\ket{F=1,m_F=0}$, $\ket{F=2,m_F=0}$).</p>
+                <h4>Single-Qubit Control</h4>
+                <p>Driven by Raman lasers or microwave fields with Rabi frequency Ω and detuning Δ:</p>
+                ```math
+                H_{1q} = \frac{\hbar}{2} \begin{pmatrix}0 & Ω e^{-iϕ}\\ Ω e^{iϕ} & 2Δ\end{pmatrix}
+                ```
+            </section>
+            <hr>
+
+            <section class="content-section" id="two-qubit-gate">
+                <h2><span class="material-icons-round icon-inline">link</span>4. Two-Qubit Gate via Rydberg Blockade</h2>
+                <h3>4.1 Rydberg Excitation</h3>
+                <p>Atoms are excited from $\ket{1} \rightarrow \ket{r}$ (Rydberg state) by a two-photon transition:</p>
+                ```math
+                H_{ryd} = \frac{\hbar Ω_r}{2}\bigl(\ket{1}\bra{r} + \ket{r}\bra{1}\bigr) - \hbar Δ_r \ket{r}\bra{r}
+                ```
+                <ul>
+                    <li>Ω_r: Rabi frequency, Δ_r: detuning</li>
+                </ul>
+                <h3>4.2 Blockade Interaction</h3>
+                <p>Two nearby Rydberg atoms experience van der Waals interaction V(R)≈C₆/R⁶.</p>
+                <p><strong>Blockade Condition</strong>: V ≫ ℏΩ_r ensures single excitation across the pair.</p>
+                <h3>4.3 Controlled-Z Gate Sequence</h3>
+                <ol>
+                    <li><strong>$\ket{11}\rightarrow\ket{r1}$</strong>: Pulse on control atom (π pulse)</li>
+                    <li><strong>Target Pulse</strong>: Attempted $\ket{11}\rightarrow\ket{1r}$ is blockaded → only acquires phase</li>
+                    <li><strong>Return</strong>: De-excite control (π pulse)</li>
+                </ol>
+                <p>Result: $\ket{11}$ picks up phase φ=π, implementing CZ.</p>
+            </section>
+            <hr>
+
+            <section class="content-section" id="fidelity-errors">
+                <h2><span class="material-icons-round icon-inline">error_outline</span>5. Gate Fidelity and Error Sources</h2>
+                <ul>
+                    <li><strong>Spontaneous Emission</strong>: γ_r from Rydberg state</li>
+                    <li><strong>Laser Phase Noise</strong>: Δϕ→ dephasing</li>
+                    <li><strong>Thermal Motion</strong>: Doppler shifts δ</li>
+                    <li><strong>Errors</strong>: E ≈ (γ_r + δ)/Ω_r</li>
+                </ul>
+                <p>Optimization: maximize Ω_r, minimize pulse duration, cool atoms to μK temperatures.</p>
+            </section>
+            <hr>
+
+            <section class="content-section" id="control-logic-sequence">
+                <h2><span class="material-icons-round icon-inline">tune</span>6. Control Logic and Experimental Sequence</h2>
+                <div class="mermaid-diagram-container">
+                    <pre class="mermaid">
+sequenceDiagram
+  participant A as Atom A (control)
+  participant B as Atom B (target)
+  participant L as Laser & Control
+  L->>A: π-pulse |1⟩→|r⟩
+  L->>B: 2π-pulse |1⟩→|r⟩ (blockaded)
+  L->>A: π-pulse |r⟩→|1⟩
+  Note over A,B: CZ gate realized
+                    </pre>
+                </div>
+            </section>
+            <hr>
+
+            <section class="content-section" id="scalability-arrays">
+                <h2><span class="material-icons-round icon-inline">apps</span>7. Scalability and Tweezer Arrays</h2>
+                <ul>
+                    <li><strong>Acousto-Optic Deflectors (AODs)</strong> or Spatial Light Modulators (SLMs) generate configurable 2D arrays.</li>
+                    <li><strong>Reconfiguration</strong>: Dynamic beam steering allows arbitrary connectivity.</li>
+                    <li><strong>Multi-qubit Operations</strong>: Selective addressing via frequency or spatial multiplexing.</li>
+                </ul>
+            </section>
+            <hr>
+
+            <section class="content-section" id="illustrative-diagram">
+                <h2><span class="material-icons-round icon-inline">perm_media</span>8. Illustrative Diagram</h2>
+                <div class="mermaid-diagram-container">
+                     <pre class="mermaid">
+graph LR
+  subgraph Tweezer Array
+    direction LR
+    T1[Atom A]
+    T2[Atom B]
+    T3[Atom C]
+  end
+  LaserBeam((Laser Beam)) --> T1
+  LaserBeam --> T2
+  LaserBeam --> T3
+  T1 -- Rydberg Interaction --> T2
+  T2 -- Rydberg Interaction --> T3
+
+style T1 fill:#8A2BE2,stroke:#5D0A93,stroke-width:2px,color:#fff
+style T2 fill:#8A2BE2,stroke:#5D0A93,stroke-width:2px,color:#fff
+style T3 fill:#8A2BE2,stroke:#5D0A93,stroke-width:2px,color:#fff
+style LaserBeam fill:#FFD700,stroke:#B8860B,stroke-width:2px,color:#000
+
+classDef default fill:var(--diagram-element-bg),stroke:var(--icon-color),color:var(--text-color),rx:5px,ry:5px;
+classDef atomNode fill:var(--accent-color),stroke:var(--accent-color-darker),stroke-width:2px,color:#fff,rx:10px,ry:10px;
+classDef laserNode fill:#FFC107,stroke:#FFA000,stroke-width:2px,color:#000,rx:10px,ry:10px;
+
+class T1,T2,T3 atomNode;
+class LaserBeam laserNode;
+                    </pre>
+                </div>
+                <div class="placeholder-image-container">
+                    <img src="https://placehold.co/600x200?text=Blockade+Potential+vs+Distance" alt="Rydberg Blockade Potential vs Distance">
+                </div>
+            </section>
+            <hr>
+
+            <section class="content-section" id="conclusion">
+                <h2><span class="material-icons-round icon-inline">verified</span>9. Conclusion</h2>
+                <p>Optical tweezer quantum gates exploit precise photon traps and strong Rydberg interactions to implement high-fidelity, scalable neutral-atom logic. Through careful control of laser parameters, trap dynamics, and interaction geometry, CZ and other gates can reach error rates <10⁻³, paving the way for neutral-atom quantum processors.</p>
+            </section>
+            <hr>
+            
+            <section class="content-section" id="references">
+                <h2><span class="material-icons-round icon-inline">menu_book</span>References</h2>
+                <ol>
+                    <li>Saffman, M., Walker, T. G., & Mølmer, K. "Quantum information with Rydberg atoms," <em>Rev. Mod. Phys.</em>, 2010.</li>
+                    <li>Levine, H. et al. "High-Fidelity Control and Entanglement of Rydberg-Atom Qubits," <em>Phys. Rev. Lett.</em>, 2018.</li>
+                    <li>Endres, M. et al. "Atom-by-atom assembly of defect-free one-dimensional cold atom arrays," <em>Science</em>, 2016.</li>
+                </ol>
+            </section>
+        </main>
+
+        <footer>
+            <p>Scientific concept and logic by <strong>Lion</strong>.</p>
+            <p>UI/UX & Web Implementation inspired by modern design principles.</p>
+            <p>© 2024 Optical Tweezer Quantum Gates Project</p>
+        </footer>
+    </div>
+
+    <script>
+        // Initialize Mermaid
+        mermaid.initialize({ 
+            startOnLoad: true,
+            theme: 'base', // Using 'base' and `themeVariables` for more control
+            themeVariables: {
+                primaryColor: getComputedStyle(document.documentElement).getPropertyValue('--diagram-element-bg').trim(),
+                primaryTextColor: getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim(),
+                primaryBorderColor: getComputedStyle(document.documentElement).getPropertyValue('--card-border').trim(),
+                lineColor: getComputedStyle(document.documentElement).getPropertyValue('--icon-color').trim(),
+                secondaryColor: getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim(), // For accents in diagram if not overridden by classDef
+                tertiaryColor: getComputedStyle(document.documentElement).getPropertyValue('--bg-color').trim()
+            },
+            flowchart: { htmlLabels: true },
+            sequence: {
+                actorFontFamily: getComputedStyle(document.documentElement).getPropertyValue('--font-primary').trim(),
+                messageFontFamily: getComputedStyle(document.documentElement).getPropertyValue('--font-primary').trim(),
+                noteFontFamily: getComputedStyle(document.documentElement).getPropertyValue('--font-primary').trim(),
+                actorFontWeight: 'normal',
+                messageFontWeight: 'normal',
+                noteFontWeight: 'normal',
+            },
+            fontFamily: getComputedStyle(document.documentElement).getPropertyValue('--font-primary').trim(),
+        });
+
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Theme Switcher
+            const lightModeBtn = document.getElementById('light-mode-btn');
+            const darkModeBtn = document.getElementById('dark-mode-btn');
+            const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+
+            function updateMermaidTheme() {
+                const currentPrimaryColor = getComputedStyle(document.documentElement).getPropertyValue('--diagram-element-bg').trim();
+                const currentTextColor = getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim();
+                const currentBorderColor = getComputedStyle(document.documentElement).getPropertyValue('--card-border').trim();
+                const currentLineColor = getComputedStyle(document.documentElement).getPropertyValue('--icon-color').trim();
+                const currentAccentColor = getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim();
+                const currentBgColor = getComputedStyle(document.documentElement).getPropertyValue('--bg-color').trim();
+                
+                mermaid.initialize({
+                    theme: 'base', // Keep 'base' to allow variables to take full effect
+                    themeVariables: {
+                        primaryColor: currentPrimaryColor,
+                        primaryTextColor: currentTextColor,
+                        primaryBorderColor: currentBorderColor,
+                        lineColor: currentLineColor,
+                        secondaryColor: currentAccentColor,
+                        tertiaryColor: currentBgColor
+                    }
+                });
+                 // Force re-render of existing diagrams
+                document.querySelectorAll('.mermaid[data-processed="true"]').forEach((el, i) => {
+                    const code = el.textContent || el.innerText; // Get original Mermaid code
+                    const id = `mermaid-graph-${Date.now()}-${i}`; // Unique ID
+                    el.removeAttribute('data-processed'); // Allow re-processing
+                    el.innerHTML = code; // Put back the code
+                    try {
+                         mermaid.init(undefined, el);
+                    } catch (e) {
+                        console.error("Error re-rendering Mermaid diagram:", e);
+                    }
+                });
+
+            }
+
+
+            function setTheme(theme) {
+                if (theme === 'dark') {
+                    document.documentElement.classList.add('dark-mode');
+                    localStorage.setItem('theme', 'dark');
+                } else {
+                    document.documentElement.classList.remove('dark-mode');
+                    localStorage.setItem('theme', 'light');
+                }
+                updateMermaidTheme(); // Update Mermaid theme after CSS vars change
+            }
+
+            lightModeBtn.addEventListener('click', () => setTheme('light'));
+            darkModeBtn.addEventListener('click', () => setTheme('dark'));
+
+            const currentTheme = localStorage.getItem('theme');
+            if (currentTheme) {
+                setTheme(currentTheme);
+            } else if (prefersDarkScheme.matches) {
+                setTheme('dark');
+            } else {
+                setTheme('light'); // Default to light
+            }
+            
+
+            // Scroll Animations for sections
+            const sections = document.querySelectorAll('.content-section');
+            const hrs = document.querySelectorAll('hr');
+            const observerOptions = {
+                root: null, 
+                rootMargin: '0px',
+                threshold: 0.1 
+            };
+
+            const observer = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('is-visible');
+                    }
+                });
+            }, observerOptions);
+
+            sections.forEach(section => {
+                observer.observe(section);
+            });
+            hrs.forEach(hr => { 
+                hr.style.opacity = 0; hr.style.transition = 'opacity 0.8s var(--ease-in-out-cubic) 0.2s';
+                observer.observe(hr);
+            });
+        });
+    </script>
+</body>
+</html>

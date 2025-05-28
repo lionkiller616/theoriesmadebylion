@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Electro-Gravitational Mass Modulation (EGMM)</title>
+
+    <!-- MathJax Configuration -->
+    <script>
+        MathJax = {
+          tex: {
+            inlineMath: [['$', '$'], ['\\(', '\\)']],
+            displayMath: [['$$', '$$'], ['\\[', '\\]'], ['```math', '```']],
+            processEscapes: true,
+            tags: 'ams',
+            macros: { // Define custom macros if needed
+                rm: ['{\\rm #1}', 1], // for \rm (e.g., \rm eff)
+                mathcal: ['{\\mathcal{#1}}', 1], // for \mathcal{L}
+                tfrac: ['\\frac{#1}{#2}', 2] // for \tfrac
+            }
+          },
+          svg: {
+            fontCache: 'global'
+          }
+        };
+    </script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <!-- Mermaid JS for diagrams -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Google Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons|Material+Icons+Outlined|Material+Icons+Round" rel="stylesheet">
+
+    <style>
+        :root {
+            --font-primary: 'Inter', sans-serif;
+            --font-headings: 'Poppins', sans-serif;
+
+            --ease-out-quad: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            --ease-in-out-cubic: cubic-bezier(0.645, 0.045, 0.355, 1);
+
+            /* Light Mode (Default) */
+            --bg-color: #F0F2F5;
+            --text-color: #1d1d1f;
+            --heading-color: #000000;
+            --accent-color: #673AB7; /* Deep Cosmic Purple */
+            --accent-color-darker: #512DA8;
+            --card-bg: rgba(255, 255, 255, 0.6);
+            --card-border: rgba(0, 0, 0, 0.1);
+            --card-shadow-1: rgba(0, 0, 0, 0.05);
+            --card-shadow-2: rgba(0, 0, 0, 0.02);
+            --neumorphic-shadow-light: -6px -6px 12px rgba(255, 255, 255, 0.8), 6px 6px 12px rgba(0, 0, 0, 0.1);
+            --neumorphic-shadow-light-inset: inset -4px -4px 8px rgba(255, 255, 255, 0.7), inset 4px 4px 8px rgba(0, 0, 0, 0.08);
+            --icon-color: #555;
+            --diagram-element-bg: rgba(128,128,128,0.05);
+            --code-bg: #f7f7f7;
+            --code-text: #333;
+            --hr-color: rgba(0,0,0,0.1);
+            --table-header-bg: rgba(0,0,0,0.03);
+            --table-row-hover-bg: rgba(0,0,0,0.02);
+        }
+
+        html.dark-mode {
+            --bg-color: #161616;
+            --text-color: #E0E0E0;
+            --heading-color: #FFFFFF;
+            --accent-color: #9575CD; /* Lighter Cosmic Purple for dark mode */
+            --accent-color-darker: #7E57C2;
+            --card-bg: rgba(35, 35, 35, 0.6);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --card-shadow-1: rgba(255, 255, 255, 0.03);
+            --card-shadow-2: rgba(0, 0, 0, 0.1);
+            --neumorphic-shadow-light: -6px -6px 12px rgba(40, 40, 40, 0.7), 6px 6px 12px rgba(0, 0, 0, 0.3);
+            --neumorphic-shadow-light-inset: inset -4px -4px 8px rgba(40, 40, 40, 0.6), inset 4px 4px 8px rgba(0, 0, 0, 0.25);
+            --icon-color: #bbb;
+            --diagram-element-bg: rgba(200,200,200,0.05);
+            --code-bg: #2a2a2a;
+            --code-text: #ccc;
+            --hr-color: rgba(255,255,255,0.1);
+            --table-header-bg: rgba(255,255,255,0.03);
+            --table-row-hover-bg: rgba(255,255,255,0.02);
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 16px;
+        }
+
+        body {
+            font-family: var(--font-primary);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.7;
+            transition: background-color 0.3s var(--ease-out-quad), color 0.3s var(--ease-out-quad);
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem 0;
+        }
+
+        header {
+            padding: 2rem 0 1rem;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .main-title {
+            font-family: var(--font-headings);
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--heading-color);
+            margin-bottom: 0.5rem;
+            letter-spacing: -1px;
+        }
+
+        .tagline {
+            font-size: 1.1rem;
+            color: var(--text-color);
+            opacity: 0.8;
+            margin-bottom: 1.5rem;
+        }
+        
+        hr {
+            border: none;
+            height: 1px;
+            background-color: var(--hr-color);
+            margin: 2rem auto;
+            width: 80%;
+        }
+
+
+        .theme-switcher {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 0.5rem;
+            border-radius: 50px;
+            box-shadow: 0 4px 15px var(--card-shadow-1);
+            display: flex;
+            align-items: center;
+        }
+
+        .theme-button {
+            background: none;
+            border: none;
+            color: var(--icon-color);
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 50%;
+            transition: background-color 0.2s ease, color 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .theme-button:hover {
+            background-color: rgba(128,128,128,0.1);
+        }
+        .theme-button .material-icons-round {
+            font-size: 24px;
+        }
+
+
+        .content-section {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            padding: 2rem 2.5rem;
+            margin-bottom: 2.5rem;
+            border-radius: 20px;
+            box-shadow: 0 8px 30px var(--card-shadow-1), 0 2px 8px var(--card-shadow-2);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s var(--ease-in-out-cubic), transform 0.6s var(--ease-in-out-cubic);
+        }
+
+        .content-section.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .content-section h2, .content-section h3, .content-section h4 {
+            font-family: var(--font-headings);
+            color: var(--heading-color);
+            margin-bottom: 1.2rem;
+            margin-top: 1.5rem;
+            position: relative;
+            padding-left: 1.5rem;
+        }
+        .content-section h2::before, .content-section h3::before, .content-section h4::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 6px;
+            height: 60%;
+            min-height: 18px;
+            background-color: var(--accent-color);
+            border-radius: 3px;
+        }
+
+
+        .content-section h2 { font-size: 1.8rem; font-weight: 700; }
+        .content-section h3 { font-size: 1.5rem; font-weight: 600; }
+        .content-section h4 { font-size: 1.2rem; font-weight: 600; }
+        .content-section h2:first-child, .content-section h3:first-child, .content-section h4:first-child {
+            margin-top: 0;
+        }
+
+        .content-section p {
+            margin-bottom: 1rem;
+            color: var(--text-color);
+        }
+
+        .content-section ul, .content-section ol {
+            list-style: none;
+            padding-left: 0;
+            margin-bottom: 1rem;
+        }
+         .content-section ol { 
+            counter-reset: list-item-counter;
+        }
+
+
+        .content-section li {
+            padding-left: 2em;
+            position: relative;
+            margin-bottom: 0.75rem;
+        }
+        
+        .content-section ul li::before { 
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 9px; 
+            width: 8px;
+            height: 8px;
+            background-color: var(--accent-color);
+            border-radius: 50%;
+        }
+
+        .content-section ol li::before { 
+            counter-increment: list-item-counter;
+            content: counter(list-item-counter) ".";
+            position: absolute;
+            left: 0;
+            top: 1px; 
+            font-weight: 600;
+            color: var(--accent-color);
+        }
+
+
+        .content-section strong {
+            font-weight: 600;
+            color: var(--heading-color);
+        }
+
+        .content-section .mjx-math, .content-section pre[class*="language-math"] { 
+            font-size: 1.1em !important; 
+            margin: 1.5rem 0;
+            padding: 1rem;
+            overflow-x: auto;
+            background-color: var(--diagram-element-bg);
+            border-radius: 8px;
+            border: 1px solid var(--card-border);
+        }
+        
+        .mermaid-diagram-container {
+            background-color: var(--diagram-element-bg);
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin: 1.5rem auto;
+            text-align: center;
+            border: 1px solid var(--card-border);
+        }
+        .mermaid-diagram-container svg {
+            max-width: 100%;
+            height: auto;
+        }
+        
+        .styled-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            font-size: 0.95em;
+        }
+        .styled-table th, .styled-table td {
+            border: 1px solid var(--card-border);
+            padding: 0.75rem 1rem;
+            text-align: left;
+        }
+        .styled-table th {
+            background-color: var(--table-header-bg);
+            font-weight: 600;
+            color: var(--heading-color);
+        }
+        .styled-table tr:hover {
+            background-color: var(--table-row-hover-bg);
+        }
+        .styled-table td:nth-child(1) {
+            font-weight: 500;
+        }
+
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 2rem 0;
+            margin-top: 2rem;
+            border-top: 1px solid var(--card-border);
+            font-size: 0.9rem;
+            color: var(--text-color);
+            opacity: 0.7;
+        }
+        footer strong {
+            font-weight: bold;
+            color: var(--accent-color);
+        }
+
+        /* Material Icons in text */
+        .icon-inline {
+            font-family: 'Material Icons Round';
+            font-size: 1.1em; 
+            vertical-align: -0.15em; 
+            margin-right: 0.2em;
+            color: var(--accent-color);
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .main-title { font-size: 2rem; }
+            .tagline { font-size: 1rem; }
+            .content-section { padding: 1.5rem; border-radius: 15px; }
+            .content-section h2 { font-size: 1.6rem; }
+            .content-section h3 { font-size: 1.3rem; }
+            .theme-switcher { top: 10px; right: 10px; padding: 0.3rem;}
+            .theme-button {padding: 0.4rem;}
+            .styled-table { font-size: 0.85em; }
+            .styled-table th, .styled-table td { padding: 0.5rem; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="theme-switcher">
+        <button id="light-mode-btn" class="theme-button" title="Switch to Light Mode">
+            <span class="material-icons-round">light_mode</span>
+        </button>
+        <button id="dark-mode-btn" class="theme-button" title="Switch to Dark Mode">
+            <span class="material-icons-round">dark_mode</span>
+        </button>
+    </div>
+
+    <div class="container">
+        <header>
+            <h1 class="main-title">Electro-Gravitational Mass Modulation (EGMM)</h1>
+            <p class="tagline">A hypothetical coupling between electromagnetic fields and inertial/gravitational mass for active inertia control</p>
+        </header>
+        <hr>
+
+        <main>
+            <section class="content-section" id="concept-overview">
+                <h2><span class="material-icons-round icon-inline">auto_stories</span>Concept Overview</h2>
+                <p>Electro-Gravitational Mass Modulation proposes that under very intense, specially shaped electromagnetic (EM) fields, a test mass’s <strong>effective inertial</strong> and—even more speculatively—its <strong>gravitational</strong> mass can be altered by a small amount. By engineering the local stress–energy tensor $T_{\mu\nu}$ via high-field EM configurations, one aims to transiently “soften” inertia (and thus resistive force to acceleration) without violating overall energy–momentum conservation.</p>
+                <p>Key ideas:</p>
+                <ul>
+                    <li><strong>Inertia tuning</strong> via field-induced corrections to rest mass.</li>
+                    <li><strong>Gravitational coupling</strong> through the weak-field limit of General Relativity, where EM energy contributes to spacetime curvature.</li>
+                    <li><strong>Active control</strong>: switch EM resonators on/off to modulate the local effective mass.</li>
+                </ul>
+            </section>
+            <hr>
+
+            <section class="content-section" id="scientific-principles">
+                <h2><span class="material-icons-round icon-inline">science</span>Scientific Principles & Hypotheses</h2>
+                <h3>1. Stress–Energy Contribution</h3>
+                <p>In Einstein’s equations:
+                \[
+                  R_{\mu\nu} - \tfrac12 R\,g_{\mu\nu} = \frac{8\pi G}{c^4}\,T_{\mu\nu}
+                \]
+                the EM field Lagrangian $\mathcal{L}_{\rm EM} = -\tfrac14 F^{\alpha\beta}F_{\alpha\beta}$ adds to $T_{\mu\nu}$, so intense fields locally reshape spacetime and, by the equivalence principle, effective inertial mass.</p>
+                
+                <h3>2. Inertial Mass Correction</h3>
+                <p>We postulate a first-order perturbation:
+                \[
+                  m_{\rm eff} = m_0 \Bigl(1 + \kappa\,\frac{U_{\rm EM}}{m_0 c^2}\Bigr)
+                \]
+                where $U_{\rm EM} = \tfrac12\int(\varepsilon_0 E^2 + \tfrac1{\mu_0}B^2)\,dV$ is the stored EM energy in a volume $V$, and $\kappa$ is a dimensionless coupling constant to be determined experimentally (hypothetically $|\kappa|\ll1$).</p>
+
+                <h3>3. Gravitomagnetic Analogy</h3>
+                <p>In the linearized weak-field limit, gravitational “vector potential” $h_{0i}$ obeys equations akin to Maxwell’s. We conjecture cross-terms like $E\cdot B$ might source a tiny gravitomagnetic moment:
+                \[
+                  h_{0i} \sim \frac{4G}{c^4} (E \times B)_i
+                \]
+                which could influence local inertial frames (Mach-like effect).</p>
+
+                 <h3>4. Field Geometry & Resonance</h3>
+                <p>To maximize $U_{\rm EM}$ without excessive power, use <strong>high-Q cavities</strong> or <strong>metamaterial resonators</strong> tuned to both electric and magnetic field antinodes, achieving peak $E$ and $B$ overlap.</p>
+            </section>
+            <hr>
+
+            <section class="content-section" id="key-equations">
+                <h2><span class="material-icons-round icon-inline">functions</span>Key Equations</h2>
+                <h3>1. EM Energy Density</h3>
+                \[
+                  u_{\rm EM} = \tfrac12\bigl(\varepsilon_0 E^2 + \mu_0^{-1}B^2\bigr)
+                \]
+                <h3>2. Effective Mass Shift</h3>
+                \[
+                  \Delta m = m_{\rm eff} - m_0 = \kappa\,\frac{U_{\rm EM}}{c^2}
+                  = \kappa\,\frac{1}{2c^2}\int_V\!\bigl(\varepsilon_0 E^2 + \mu_0^{-1}B^2\bigr)\,dV
+                \]
+                <h3>3. Field-Induced Inertial Force Modification</h3>
+                <p>For applied force $F$, Newton’s law becomes:
+                \[
+                  F = m_{\rm eff}\,a 
+                  \quad\Longrightarrow\quad
+                  a = \frac{F}{m_0 + \Delta m}
+                \]</p>
+                <h3>4. Gravitomagnetic Potential Estimate</h3>
+                \[
+                  \mathbf{A}_g \approx \frac{4G}{c^3}\,\mathbf{S}_{\rm EM}
+                  \quad\text{with}\quad
+                  \mathbf{S}_{\rm EM} = \frac{1}{\mu_0}\,(\mathbf{E}\times\mathbf{B})
+                \]
+                <h3>5. Dimensionless Coupling</h3>
+                \[
+                  \kappa \sim \mathcal{O}\!\bigl(10^{-n}\bigr),\; n\gtrsim5
+                \]
+                <p>to satisfy energy-conservation bounds and existing null measurements.</p>
+            </section>
+            <hr>
+
+             <section class="content-section" id="proposed-device-architecture">
+                <h2><span class="material-icons-round icon-inline">developer_board</span>Proposed Device Architecture</h2>
+                <div class="mermaid-diagram-container">
+                    <pre class="mermaid">
+graph LR
+  subgraph Resonant_EM_Module [Resonant EM Module]
+    direction TB
+    C1[Cylindrical High-Q Cavity] --> E1((E-field Peak at Antinode))
+    C1 --> B1((B-field Peak at Antinode))
+  end
+  Power[High-power RF / Microwave Source] --> C1
+  Control[Phase & Amplitude Controller] --> Power
+  Mechanics[Test Mass & Low-Friction Frame] --- C1
+  style Mechanics stroke-dasharray: 5 5
+  Sensors[Inertial Sensors & Gravimeters] --> Data((Signal Processor))
+  Data --> Feedback{Control & Logging}
+  Feedback --> Control
+
+
+  classDef source fill:#EDE7F6,stroke:#5E35B1,color:#000;
+  classDef cavity fill:#D1C4E9,stroke:#673AB7,color:#000,shape:cylinder;
+  classDef field_peak fill:#B39DDB,stroke:#7E57C2,color:#000,shape:ellipse;
+  classDef test_setup fill:#F3E5F5,stroke:#AB47BC,color:#000;
+  classDef sensor_data fill:#E1BEE7,stroke:#8E24AA,color:#fff;
+  
+  class Power,Control source;
+  class C1 cavity;
+  class E1,B1 field_peak;
+  class Mechanics test_setup;
+  class Sensors,Data,Feedback sensor_data;
+                    </pre>
+                </div>
+                <ol>
+                    <li><strong>High-Q Cavity</strong>: superconducting or dielectric resonator at GHz frequencies.</li>
+                    <li><strong>Phase Control</strong>: synthesize standing waves with maximal $\int E^2$ and $\int B^2$.</li>
+                    <li><strong>Test Mass</strong>: suspended via low-friction pivot to detect minute inertia changes.</li>
+                    <li><strong>Sensors</strong>: laser interferometric accelerometers and torsion balances.</li>
+                </ol>
+            </section>
+            <hr>
+
+
+            <section class="content-section" id="control-logic-sequence">
+                <h2><span class="material-icons-round icon-inline">play_circle_outline</span>Control Logic & Experimental Sequence</h2>
+                <div class="mermaid-diagram-container">
+                     <pre class="mermaid">
+flowchart TD
+  Init([System Cooldown & Calibration]) --> FieldCheck{Resonance Lock Achieved?}
+  FieldCheck -- No --> TuneFreq[Tune RF Source Frequency/Phase] --> FieldCheck
+  FieldCheck -- Yes --> RampUp[Increase Field Amplitude Gradually]
+  RampUp --> Hold[Hold Stable High Field Configuration]
+  Hold --> Measure[Record Test-Mass Response (Accelerometer, Interferometer)]
+  Measure --> Compute[Extract Δm via a = F/m_eff Analysis]
+  Compute --> Compare{Is Δm Statistically Significant (> Noise Floor)?}
+  Compare -- No, Null Result or Below Noise --> Adjust[Increase Cavity Q, Source Power, or Integration Time] --> FieldCheck
+  Compare -- Yes, Potential Effect Detected --> Log[Log Data, Vary Parameters & Analyze for κ]
+  Log --> RampDown[Safely Reduce Field to Zero]
+  RampDown --> End([Experiment Finished / Cycle Complete])
+
+  classDef start_end fill:#F3E5F5,stroke:#AB47BC,color:#000,shape:stadium;
+  classDef decision fill:#EDE7F6,stroke:#5E35B1,color:#000,shape:diamond;
+  classDef process fill:#D1C4E9,stroke:#673AB7,color:#000,shape:rect;
+    
+  class Init,End start_end;
+  class FieldCheck,Compare decision;
+  class TuneFreq,RampUp,Hold,Measure,Compute,Adjust,Log,RampDown process;
+                    </pre>
+                </div>
+            </section>
+            <hr>
+            
+            <section class="content-section" id="potential-applications">
+                <h2><span class="material-icons-round icon-inline">rocket_launch</span>Potential Applications</h2>
+                 <ul>
+                    <li><strong>Propellant-less propulsion</strong> (inertia reduction during acceleration phases).</li>
+                    <li><strong>Vibration isolation</strong> by dynamically “softening” payload inertia.</li>
+                    <li><strong>Precision inertial sensing</strong> with tunable effective mass for calibration.</li>
+                    <li><strong>Fundamental tests</strong> of equivalence principle and exotic couplings.</li>
+                </ul>
+            </section>
+            <hr>
+            
+            <section class="content-section" id="advantages-challenges">
+                <h2><span class="material-icons-round icon-inline">balance</span>Advantages & Theoretical Challenges</h2>
+                <table class="styled-table">
+                    <thead>
+                        <tr>
+                            <th>Aspect</th>
+                            <th>Potential Advantage</th>
+                            <th>Primary Challenge</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Active inertia control</strong></td>
+                            <td>Reduce required thrust for maneuvering</td>
+                            <td>Exceedingly small effect ($\kappa\ll1$)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>No moving parts</strong></td>
+                            <td>Silent, fast electronic switching</td>
+                            <td>Engineering high-energy, low-loss resonators</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Test of GR extensions</strong></td>
+                            <td>Probe non-minimal couplings in stress–energy tensor</td>
+                            <td>Disentangling EM-induced artifacts (thermal, Lorentz)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Scalability</strong></td>
+                            <td>Integrated photonic/microwave chips</td>
+                            <td>Ceramic/superconductor fabrication complexity</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+            <hr>
+
+            <section class="content-section" id="future-directions">
+                <h2><span class="material-icons-round icon-inline">explore</span>Future Directions & Theoretical Extensions</h2>
+                <ul>
+                    <li><strong>Nonlinear coupling terms</strong>: include $F^{\mu\nu}F_{\nu\rho}R^{\rho}{}_{\mu}$ in extended Lagrangians.</li>
+                    <li><strong>Quantum field treatments</strong>: vacuum polarization enhancements (Schwinger effect analogues).</li>
+                    <li><strong>Metamaterial cavities</strong>: engineer locally enhanced field densities beyond classical Q limits.</li>
+                    <li><strong>Space-based tests</strong>: leverage microgravity to lower vibrational noise floor.</li>
+                </ul>
+            </section>
+            <hr>
+
+            <section class="content-section" id="references">
+                <h2><span class="material-icons-round icon-inline">menu_book</span>(Select) References & Further Reading</h2>
+                <ol>
+                    <li>Wald, R. M. (1984). <em>General Relativity</em>. University of Chicago Press.</li>
+                    <li>Misner, C. W., Thorne, K. S., & Wheeler, J. A. (1973). <em>Gravitation</em>. W. H. Freeman.</li>
+                    <li>Tajmar, M., & de Matos, C. J. (2003). “Gravitomagnetic Field of a Rotating Superconductor and of a Rotating Superfluid,” <em>Physica C</em>, <strong>385</strong>, 551–554.</li>
+                    <li>Modanese, G. (2017). “On the Interplay Between Gravitational and Electromagnetic Fields in Superconductors,” <em>Journal of Applied Physics</em>, <strong>121</strong>, 243903.</li>
+                    <li>Agapov, A. L., & Modanese, G. (2018). “Electromagnetic Mass Variation in High-Q Cavities,” <em>International Journal of Modern Physics D</em>, <strong>27</strong>, 1850034.</li>
+                </ol>
+            </section>
+        </main>
+
+        <footer>
+            <p>Scientific concept and logic by <strong>Lion</strong>.</p>
+            <p>UI/UX & Web Implementation inspired by modern design principles.</p>
+            <p>© 2024 Electro-Gravitational Mass Modulation Project</p>
+        </footer>
+    </div>
+
+    <script>
+        // Initialize Mermaid
+        mermaid.initialize({ 
+            startOnLoad: true,
+            theme: 'base', 
+            themeVariables: {
+                primaryColor: getComputedStyle(document.documentElement).getPropertyValue('--diagram-element-bg').trim(),
+                primaryTextColor: getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim(),
+                primaryBorderColor: getComputedStyle(document.documentElement).getPropertyValue('--card-border').trim(),
+                lineColor: getComputedStyle(document.documentElement).getPropertyValue('--icon-color').trim(),
+                secondaryColor: getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim(),
+                tertiaryColor: getComputedStyle(document.documentElement).getPropertyValue('--bg-color').trim()
+            },
+            flowchart: { 
+                htmlLabels: true,
+                nodeSpacing: 50,
+                rankSpacing: 50
+            },
+            fontFamily: getComputedStyle(document.documentElement).getPropertyValue('--font-primary').trim(),
+        });
+
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Theme Switcher
+            const lightModeBtn = document.getElementById('light-mode-btn');
+            const darkModeBtn = document.getElementById('dark-mode-btn');
+            const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+
+            function updateMermaidTheme() {
+                const currentPrimaryColor = getComputedStyle(document.documentElement).getPropertyValue('--diagram-element-bg').trim();
+                const currentTextColor = getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim();
+                const currentBorderColor = getComputedStyle(document.documentElement).getPropertyValue('--card-border').trim();
+                const currentLineColor = getComputedStyle(document.documentElement).getPropertyValue('--icon-color').trim();
+                const currentAccentColor = getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim();
+                const currentBgColor = getComputedStyle(document.documentElement).getPropertyValue('--bg-color').trim();
+                
+                mermaid.initialize({
+                    theme: 'base',
+                    themeVariables: {
+                        primaryColor: currentPrimaryColor,
+                        primaryTextColor: currentTextColor,
+                        primaryBorderColor: currentBorderColor,
+                        lineColor: currentLineColor,
+                        secondaryColor: currentAccentColor,
+                        tertiaryColor: currentBgColor
+                    }
+                });
+                document.querySelectorAll('.mermaid[data-processed="true"]').forEach((el, i) => {
+                    const code = el.textContent || el.innerText;
+                    const id = `mermaid-graph-${Date.now()}-${i}`;
+                    el.removeAttribute('data-processed');
+                    el.innerHTML = code;
+                    try {
+                         mermaid.init(undefined, el);
+                    } catch (e) {
+                        console.error("Error re-rendering Mermaid diagram:", e);
+                    }
+                });
+            }
+
+            function setTheme(theme) {
+                if (theme === 'dark') {
+                    document.documentElement.classList.add('dark-mode');
+                    localStorage.setItem('theme', 'dark');
+                } else {
+                    document.documentElement.classList.remove('dark-mode');
+                    localStorage.setItem('theme', 'light');
+                }
+                updateMermaidTheme();
+            }
+
+            lightModeBtn.addEventListener('click', () => setTheme('light'));
+            darkModeBtn.addEventListener('click', () => setTheme('dark'));
+
+            const currentTheme = localStorage.getItem('theme');
+            if (currentTheme) {
+                setTheme(currentTheme);
+            } else if (prefersDarkScheme.matches) {
+                setTheme('dark');
+            } else {
+                setTheme('light'); 
+            }
+            
+            // Scroll Animations for sections
+            const sections = document.querySelectorAll('.content-section');
+            const hrs = document.querySelectorAll('hr');
+            const observerOptions = {
+                root: null, 
+                rootMargin: '0px',
+                threshold: 0.1 
+            };
+
+            const observer = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('is-visible');
+                    }
+                });
+            }, observerOptions);
+
+            sections.forEach(section => {
+                observer.observe(section);
+            });
+            hrs.forEach(hr => { 
+                hr.style.opacity = 0; hr.style.transition = 'opacity 0.8s var(--ease-in-out-cubic) 0.2s';
+                observer.observe(hr);
+            });
+        });
+    </script>
+</body>
+</html>

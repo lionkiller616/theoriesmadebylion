@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hydrogen–Boron Fusion Catalysts</title>
+
+    <!-- MathJax Configuration -->
+    <script>
+        MathJax = {
+          tex: {
+            inlineMath: [['$', '$'], ['\\(', '\\)']],
+            displayMath: [['$$', '$$'], ['\\[', '\\]'], ['```math', '```']],
+            processEscapes: true,
+            tags: 'ams',
+            macros: { // Define custom macros if needed
+                // No specific macros from content, but can add if needed
+            }
+          },
+          svg: {
+            fontCache: 'global'
+          }
+        };
+    </script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <!-- Mermaid JS for diagrams -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Google Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons|Material+Icons+Outlined|Material+Icons+Round" rel="stylesheet">
+
+    <style>
+        :root {
+            --font-primary: 'Inter', sans-serif;
+            --font-headings: 'Poppins', sans-serif;
+
+            --ease-out-quad: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            --ease-in-out-cubic: cubic-bezier(0.645, 0.045, 0.355, 1);
+
+            /* Light Mode (Default) */
+            --bg-color: #F0F2F5;
+            --text-color: #1d1d1f;
+            --heading-color: #000000;
+            --accent-color: #D81B60; /* Vibrant Magenta for Fusion/Energy */
+            --accent-color-darker: #AD1457;
+            --card-bg: rgba(255, 255, 255, 0.6);
+            --card-border: rgba(0, 0, 0, 0.1);
+            --card-shadow-1: rgba(0, 0, 0, 0.05);
+            --card-shadow-2: rgba(0, 0, 0, 0.02);
+            --neumorphic-shadow-light: -6px -6px 12px rgba(255, 255, 255, 0.8), 6px 6px 12px rgba(0, 0, 0, 0.1);
+            --neumorphic-shadow-light-inset: inset -4px -4px 8px rgba(255, 255, 255, 0.7), inset 4px 4px 8px rgba(0, 0, 0, 0.08);
+            --icon-color: #555;
+            --diagram-element-bg: rgba(128,128,128,0.05);
+            --code-bg: #f7f7f7;
+            --code-text: #333;
+            --hr-color: rgba(0,0,0,0.1); 
+        }
+
+        html.dark-mode {
+            --bg-color: #161616;
+            --text-color: #E0E0E0;
+            --heading-color: #FFFFFF;
+            --accent-color: #F06292; /* Lighter Magenta for dark mode */
+            --accent-color-darker: #EC407A;
+            --card-bg: rgba(35, 35, 35, 0.6);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --card-shadow-1: rgba(255, 255, 255, 0.03);
+            --card-shadow-2: rgba(0, 0, 0, 0.1);
+            --neumorphic-shadow-light: -6px -6px 12px rgba(40, 40, 40, 0.7), 6px 6px 12px rgba(0, 0, 0, 0.3);
+            --neumorphic-shadow-light-inset: inset -4px -4px 8px rgba(40, 40, 40, 0.6), inset 4px 4px 8px rgba(0, 0, 0, 0.25);
+            --icon-color: #bbb;
+            --diagram-element-bg: rgba(200,200,200,0.05);
+            --code-bg: #2a2a2a;
+            --code-text: #ccc;
+            --hr-color: rgba(255,255,255,0.1);
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 16px;
+        }
+
+        body {
+            font-family: var(--font-primary);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.7;
+            transition: background-color 0.3s var(--ease-out-quad), color 0.3s var(--ease-out-quad);
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem 0;
+        }
+
+        header {
+            padding: 2rem 0 1rem;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .main-title {
+            font-family: var(--font-headings);
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--heading-color);
+            margin-bottom: 0.5rem;
+            letter-spacing: -1px;
+        }
+        .tagline { 
+            font-size: 1.1rem;
+            color: var(--text-color);
+            opacity: 0.8;
+            margin-bottom: 1.5rem;
+        }
+        
+        hr {
+            border: none;
+            height: 1px;
+            background-color: var(--hr-color);
+            margin: 2rem auto;
+            width: 80%;
+        }
+
+
+        .theme-switcher {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 0.5rem;
+            border-radius: 50px;
+            box-shadow: 0 4px 15px var(--card-shadow-1);
+            display: flex;
+            align-items: center;
+        }
+
+        .theme-button {
+            background: none;
+            border: none;
+            color: var(--icon-color);
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 50%;
+            transition: background-color 0.2s ease, color 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .theme-button:hover {
+            background-color: rgba(128,128,128,0.1);
+        }
+        .theme-button .material-icons-round {
+            font-size: 24px;
+        }
+
+
+        .content-section {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            padding: 2rem 2.5rem;
+            margin-bottom: 2.5rem;
+            border-radius: 20px;
+            box-shadow: 0 8px 30px var(--card-shadow-1), 0 2px 8px var(--card-shadow-2);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s var(--ease-in-out-cubic), transform 0.6s var(--ease-in-out-cubic);
+        }
+
+        .content-section.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .content-section h2, .content-section h3, .content-section h4 {
+            font-family: var(--font-headings);
+            color: var(--heading-color);
+            margin-bottom: 1.2rem;
+            margin-top: 1.5rem;
+            position: relative;
+            padding-left: 1.5rem;
+        }
+        .content-section h2::before, .content-section h3::before, .content-section h4::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 6px;
+            height: 60%;
+            min-height: 18px;
+            background-color: var(--accent-color);
+            border-radius: 3px;
+        }
+
+
+        .content-section h2 { font-size: 1.8rem; font-weight: 700; }
+        .content-section h3 { font-size: 1.5rem; font-weight: 600; }
+        .content-section h4 { font-size: 1.2rem; font-weight: 600; }
+        .content-section h2:first-child, .content-section h3:first-child, .content-section h4:first-child {
+            margin-top: 0;
+        }
+
+        .content-section p {
+            margin-bottom: 1rem;
+            color: var(--text-color);
+        }
+
+        .content-section ul, .content-section ol {
+            list-style: none;
+            padding-left: 0;
+            margin-bottom: 1rem;
+        }
+         .content-section ol { 
+            counter-reset: list-item-counter;
+        }
+
+
+        .content-section li {
+            padding-left: 2em;
+            position: relative;
+            margin-bottom: 0.75rem;
+        }
+        
+        .content-section ul li::before { 
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 9px; 
+            width: 8px;
+            height: 8px;
+            background-color: var(--accent-color);
+            border-radius: 50%;
+        }
+
+        .content-section ol li::before { 
+            counter-increment: list-item-counter;
+            content: counter(list-item-counter) ".";
+            position: absolute;
+            left: 0;
+            top: 1px; 
+            font-weight: 600;
+            color: var(--accent-color);
+        }
+
+
+        .content-section strong {
+            font-weight: 600;
+            color: var(--heading-color);
+        }
+
+        .content-section .mjx-math, .content-section pre[class*="language-math"] { 
+            font-size: 1.1em !important; 
+            margin: 1.5rem 0;
+            padding: 1rem;
+            overflow-x: auto;
+            background-color: var(--diagram-element-bg);
+            border-radius: 8px;
+            border: 1px solid var(--card-border);
+        }
+        
+        .mermaid-diagram-container {
+            background-color: var(--diagram-element-bg);
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin: 1.5rem auto;
+            text-align: center;
+            border: 1px solid var(--card-border);
+        }
+        .mermaid-diagram-container svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 2rem 0;
+            margin-top: 2rem;
+            border-top: 1px solid var(--hr-color); 
+            font-size: 0.9rem;
+            color: var(--text-color);
+            opacity: 0.7;
+        }
+        footer strong {
+            font-weight: bold;
+            color: var(--accent-color);
+        }
+
+        /* Material Icons in text */
+        .icon-inline {
+            font-family: 'Material Icons Round';
+            font-size: 1.1em; 
+            vertical-align: -0.15em; 
+            margin-right: 0.2em;
+            color: var(--accent-color);
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .main-title { font-size: 2rem; }
+            .tagline { font-size: 1rem; }
+            .content-section { padding: 1.5rem; border-radius: 15px; }
+            .content-section h2 { font-size: 1.6rem; }
+            .content-section h3 { font-size: 1.3rem; }
+            .theme-switcher { top: 10px; right: 10px; padding: 0.3rem;}
+            .theme-button {padding: 0.4rem;}
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="theme-switcher">
+        <button id="light-mode-btn" class="theme-button" title="Switch to Light Mode">
+            <span class="material-icons-round">light_mode</span>
+        </button>
+        <button id="dark-mode-btn" class="theme-button" title="Switch to Dark Mode">
+            <span class="material-icons-round">dark_mode</span>
+        </button>
+    </div>
+
+    <div class="container">
+        <header>
+            <h1 class="main-title">Hydrogen–Boron Fusion Catalysts</h1>
+            <p class="tagline">RF-Driven Molecular Catalysts for Aneutronic Fusion Reactions</p>
+        </header>
+        <hr>
+
+        <main>
+            <section class="content-section" id="introduction">
+                <h2><span class="material-icons-round icon-inline">flare</span>1. Introduction</h2>
+                <p>Proton–boron-11 (p–¹¹B) fusion offers aneutronic energy release:</p>
+                $$
+                p + {^{11}\mathrm B} \to 3\alpha + 8.7\,\mathrm{MeV}
+                $$
+                <p>However, high Coulomb barriers (~600 keV center-of-mass) and low reaction cross-sections demand extreme conditions. <strong>RF-driven molecular catalysts</strong>—tailored complexes that localize RF energy into molecular vibrational and rotational modes—can lower effective barriers via enhanced tunneling and field-induced polarization, potentially reducing ignition thresholds.</p>
+                <p><strong>Key Innovations:</strong></p>
+                <ul>
+                    <li>Molecular catalyst scaffolds that bind reactants in optimal geometry</li>
+                    <li>RF field coupling to vibrational modes to transiently polarize barrier region</li>
+                    <li>Nanostructured reactors for field enhancement (plasmonic resonators)</li>
+                </ul>
+            </section>
+            <!-- No HR after intro as per MD -->
+
+            <section class="content-section" id="fusion-reaction-fundamentals">
+                <h2><span class="material-icons-round icon-inline">science</span>2. Fusion Reaction Fundamentals</h2>
+                <h3>2.1 Coulomb Barrier</h3>
+                <p>Proton and boron nucleus separation energy:</p>
+                $$
+                V_C(r) = \frac{Z_1Z_2e^2}{4\pi\varepsilon_0 r} \approx \frac{e^2}{4\pi\varepsilon_0 r}
+                $$
+                <p>with $Z_1=1, Z_2=5$. Barrier height at contact (nuclear radius ~5 fm) ~ 14 MeV in lab frame.</p>
+                <h3>2.2 Quantum Tunneling</h3>
+                <p>The fusion probability via WKB approximation:</p>
+                \[
+                P_t \approx \exp\Bigl(-2\int_{r_0}^{r_b} \sqrt{\frac{2\mu}{\hbar^2}[V_C(r)-E]}\,dr\Bigr)\]
+                <ul>
+                    <li>$\mu$: reduced mass of p–B system</li>
+                    <li>$E$: center-of-mass kinetic energy</li>
+                </ul>
+            </section>
+            <!-- No HR here -->
+
+            <section class="content-section" id="rf-driven-catalytic-enhancement">
+                <h2><span class="material-icons-round icon-inline">waves</span>3. RF-Driven Catalytic Enhancement</h2>
+                <h3>3.1 Field-Induced Barrier Lowering</h3>
+                <p>An oscillating electric field $E_0 \cos(\omega t)$ induces dynamic Stark shifts:</p>
+                \[
+                V_C'(r,t) = V_C(r) - \alpha E_0^2 \cos^2(\omega t)
+                $$
+                <ul>
+                    <li>$\alpha$: molecular polarizability along bond axis</li>
+                </ul>
+                <p>Time-averaged barrier reduction:</p>
+                $$
+                \Delta V \approx \frac{\alpha E_0^2}{2}
+                $$
+                <h3>3.2 Resonant Coupling</h3>
+                <p>Catalyst vibrational mode frequency $\omega_0$ tuned near RF frequency to maximize energy transfer:</p>
+                $$
+                H_{int} = -\mu_m E_0 \cos(\omega t)\cos(\omega_0 t)
+                $$
+                <p>Generates anharmonic mixing and transient localization of energy in the reaction coordinate.</p>
+            </section>
+            <!-- No HR here -->
+            
+            <section class="content-section" id="molecular-catalyst-design">
+                <h2><span class="material-icons-round icon-inline">hub</span>4. Molecular Catalyst Design</h2>
+                <ul>
+                    <li><strong>Ligand Framework:</strong> High-dielectric macrocycle to bind p and ¹¹B in proximity (~1–2 Å)</li>
+                    <li><strong>Electrode Attachment:</strong> Anchored to plasmonic nanoparticle arrays for field enhancement</li>
+                    <li><strong>Resonator Geometry:</strong> Split-ring resonators to focus RF fields into molecular pocket</li>
+                </ul>
+                <div class="mermaid-diagram-container">
+                    <pre class="mermaid">
+graph LR
+  A[RF Source (GHz)] --> B((Plasmonic Resonator Array))
+  B -- Enhanced E-field --> C{Molecular Catalyst with p & ¹¹B}
+  C -- RF Excitation --> D(Lowered Coulomb Barrier / Enhanced Tunneling)
+  D --> E[Alpha Particle Emission (Fusion Product)]
+
+  classDef source fill:#F8BBD0,stroke:#C2185B,color:#000;
+  classDef resonator fill:#FCE4EC,stroke:#AD1457,color:#000;
+  classDef catalyst fill:#F48FB1,stroke:#D81B60,color:#000;
+  classDef process fill:#F06292,stroke:#E91E63,color:#fff;
+  classDef product fill:#EC407A,stroke:#C2185B,color:#fff,shape:hexagon;
+  
+  class A source;
+  class B resonator;
+  class C catalyst;
+  class D process;
+  class E product;
+                    </pre>
+                </div>
+            </section>
+            <!-- No HR here -->
+
+            <section class="content-section" id="reactor-field-environment">
+                <h2><span class="material-icons-round icon-inline">settings_input_component</span>5. Reactor and Field Environment</h2>
+                <ul>
+                    <li><strong>RF Frequency:</strong> 10–100 GHz to match vibrational overtones</li>
+                    <li><strong>Field Strength:</strong> 10^6–10^8 V/m localized in nanogaps</li>
+                    <li><strong>Temperature:</strong> Moderate (≤500°C) to maintain catalyst stability and reduce background</li>
+                </ul>
+            </section>
+            <!-- No HR here -->
+
+            <section class="content-section" id="reaction-rate-modeling">
+                <h2><span class="material-icons-round icon-inline">functions</span>6. Reaction Rate Modeling</h2>
+                <h3>6.1 Modified Fusion Rate</h3>
+                $$
+                R = n_p n_{B} \langle \sigma v \rangle_{eff}
+                $$
+                <p>with effective cross-section:</p>
+                $$
+                \sigma_{eff}(E) = \sigma_0(E) \exp\Bigl(\frac{\Delta V}{k_B T}\Bigr)
+                $$
+                <ul>
+                    <li>$\sigma_0(E)$: unenhanced fusion cross-section</li>
+                    <li>$\langle \sigma v \rangle_{eff}$: Maxwellian-averaged with field correction</li>
+                </ul>
+                <h3>6.2 Energy Balance</h3>
+                $$
+                P_{fusion} = R \times 8.7\,\mathrm{MeV}, \quad P_{input} = \tfrac{1}{2} \varepsilon_0 E_0^2 \omega V_{eff}
+                $$
+                <p>Define gain when $P_{fusion} > P_{input}$.</p>
+            </section>
+            <!-- No HR here -->
+            
+            <section class="content-section" id="diagnostics-detection">
+                <h2><span class="material-icons-round icon-inline">monitor</span>7. Diagnostics and Detection</h2>
+                 <ul>
+                    <li><strong>Alpha Spectrometry:</strong> Silicon detectors around reactor</li>
+                    <li><strong>Neutron Suppression:</strong> Aneutronic process yields minimal neutrons, measured by He-3 tubes</li>
+                    <li><strong>Optical Emission:</strong> Monitor plasma lines for side reactions</li>
+                </ul>
+            </section>
+            <!-- No HR here -->
+
+            <section class="content-section" id="challenges-outlook">
+                <h2><span class="material-icons-round icon-inline">report_problem</span>8. Challenges & Outlook</h2>
+                 <ul>
+                    <li><strong>Catalyst Stability:</strong> High fields and radiation degrade ligands</li>
+                    <li><strong>Field Localization:</strong> Fabrication of nanogaps with Å-level precision</li>
+                    <li><strong>Reaction Yield:</strong> Scaling from single-site to macro-scale densities</li>
+                </ul>
+                <p>Future work includes quantum-chemical simulations of barrier dynamics, arrayed catalyst networks for macroscopic power, and integrated RF–chemical reactor prototypes.</p>
+            </section>
+            <!-- No HR here -->
+            
+            <section class="content-section" id="references">
+                <h2><span class="material-icons-round icon-inline">menu_book</span>9. References</h2>
+                <ol>
+                    <li>Hora, H., et al. (2009). P–B¹¹ fusion with ultrahigh-intensity femtosecond laser pulses. <em>Laser and Particle Beams</em>, 27(4), 599–623.</li>
+                    <li>Zheng, J., & Fang, Z. (2022). Plasmonic enhancement of nuclear reactions. <em>Journal of Applied Physics</em>, 131(12), 124901.</li>
+                </ol>
+            </section>
+        </main>
+
+        <footer>
+            <p>Scientific concept and logic by <strong>Lion</strong>.</p>
+            <p>UI/UX & Web Implementation inspired by modern design principles.</p>
+            <p>© 2024 Hydrogen–Boron Fusion Catalysts Project</p>
+        </footer>
+    </div>
+
+    <script>
+        // Initialize Mermaid
+        mermaid.initialize({ 
+            startOnLoad: true,
+            theme: 'base', 
+            themeVariables: {
+                primaryColor: getComputedStyle(document.documentElement).getPropertyValue('--diagram-element-bg').trim(),
+                primaryTextColor: getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim(),
+                primaryBorderColor: getComputedStyle(document.documentElement).getPropertyValue('--card-border').trim(),
+                lineColor: getComputedStyle(document.documentElement).getPropertyValue('--icon-color').trim(),
+                secondaryColor: getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim(),
+                tertiaryColor: getComputedStyle(document.documentElement).getPropertyValue('--bg-color').trim()
+            },
+            flowchart: { 
+                htmlLabels: true,
+                nodeSpacing: 50,
+                rankSpacing: 50
+            },
+            fontFamily: getComputedStyle(document.documentElement).getPropertyValue('--font-primary').trim(),
+        });
+
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Theme Switcher
+            const lightModeBtn = document.getElementById('light-mode-btn');
+            const darkModeBtn = document.getElementById('dark-mode-btn');
+            const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+
+            function updateMermaidTheme() {
+                const currentPrimaryColor = getComputedStyle(document.documentElement).getPropertyValue('--diagram-element-bg').trim();
+                const currentTextColor = getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim();
+                const currentBorderColor = getComputedStyle(document.documentElement).getPropertyValue('--card-border').trim();
+                const currentLineColor = getComputedStyle(document.documentElement).getPropertyValue('--icon-color').trim();
+                const currentAccentColor = getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim();
+                const currentBgColor = getComputedStyle(document.documentElement).getPropertyValue('--bg-color').trim();
+                
+                mermaid.initialize({
+                    theme: 'base',
+                    themeVariables: {
+                        primaryColor: currentPrimaryColor,
+                        primaryTextColor: currentTextColor,
+                        primaryBorderColor: currentBorderColor,
+                        lineColor: currentLineColor,
+                        secondaryColor: currentAccentColor,
+                        tertiaryColor: currentBgColor
+                    }
+                });
+                document.querySelectorAll('.mermaid[data-processed="true"]').forEach((el, i) => {
+                    const code = el.textContent || el.innerText;
+                    const id = `mermaid-graph-${Date.now()}-${i}`;
+                    el.removeAttribute('data-processed');
+                    el.innerHTML = code;
+                    try {
+                         mermaid.init(undefined, el);
+                    } catch (e) {
+                        console.error("Error re-rendering Mermaid diagram:", e);
+                    }
+                });
+            }
+
+            function setTheme(theme) {
+                if (theme === 'dark') {
+                    document.documentElement.classList.add('dark-mode');
+                    localStorage.setItem('theme', 'dark');
+                } else {
+                    document.documentElement.classList.remove('dark-mode');
+                    localStorage.setItem('theme', 'light');
+                }
+                updateMermaidTheme();
+            }
+
+            lightModeBtn.addEventListener('click', () => setTheme('light'));
+            darkModeBtn.addEventListener('click', () => setTheme('dark'));
+
+            const currentTheme = localStorage.getItem('theme');
+            if (currentTheme) {
+                setTheme(currentTheme);
+            } else if (prefersDarkScheme.matches) {
+                setTheme('dark');
+            } else {
+                setTheme('light'); 
+            }
+            
+            // Scroll Animations for sections
+            const sections = document.querySelectorAll('.content-section');
+            // No HRs between sections in this MD
+            const observerOptions = {
+                root: null, 
+                rootMargin: '0px',
+                threshold: 0.1 
+            };
+
+            const observer = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('is-visible');
+                    }
+                });
+            }, observerOptions);
+
+            sections.forEach(section => {
+                observer.observe(section);
+            });
+        });
+    </script>
+</body>
+</html>

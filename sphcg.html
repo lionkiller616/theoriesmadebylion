@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spin-Photon Hybrid Clock Generators</title>
+
+    <!-- MathJax Configuration -->
+    <script>
+        MathJax = {
+          tex: {
+            inlineMath: [['$', '$'], ['\\(', '\\)']],
+            displayMath: [['$$', '$$'], ['\\[', '\\]'], ['```math', '```']],
+            processEscapes: true,
+            tags: 'ams',
+            macros: { // Define custom macros if needed
+                // No specific macros from content, but can add if needed
+            }
+          },
+          svg: {
+            fontCache: 'global'
+          }
+        };
+    </script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <!-- Mermaid JS for diagrams -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@600;700;800&family=Roboto+Mono&display=swap" rel="stylesheet">
+
+    <!-- Google Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons|Material+Icons+Outlined|Material+Icons+Round" rel="stylesheet">
+
+    <style>
+        :root {
+            --font-primary: 'Inter', sans-serif;
+            --font-headings: 'Poppins', sans-serif;
+            --font-mono: 'Roboto Mono', 'SF Mono', 'Consolas', 'Liberation Mono', Menlo, Courier, monospace;
+
+            --ease-out-quad: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            --ease-in-out-cubic: cubic-bezier(0.645, 0.045, 0.355, 1);
+
+            /* Light Mode (Default) */
+            --bg-color: #F0F2F5;
+            --text-color: #1d1d1f;
+            --heading-color: #000000;
+            --accent-color: #0D47A1; /* Deep Sapphire Blue for Quantum/Precision */
+            --accent-color-darker: #002171;
+            --card-bg: rgba(255, 255, 255, 0.6);
+            --card-border: rgba(0, 0, 0, 0.1);
+            --card-shadow-1: rgba(0, 0, 0, 0.05);
+            --card-shadow-2: rgba(0, 0, 0, 0.02);
+            --neumorphic-shadow-light: -6px -6px 12px rgba(255, 255, 255, 0.8), 6px 6px 12px rgba(0, 0, 0, 0.1);
+            --neumorphic-shadow-light-inset: inset -4px -4px 8px rgba(255, 255, 255, 0.7), inset 4px 4px 8px rgba(0, 0, 0, 0.08);
+            --icon-color: #555;
+            --diagram-element-bg: rgba(128,128,128,0.05);
+            --code-bg: #f7f7f7;
+            --code-text: #333;
+            --hr-color: rgba(0,0,0,0.1); 
+            --table-header-bg: rgba(0,0,0,0.03);
+            --table-row-hover-bg: rgba(0,0,0,0.02);
+            --blueprint-bg: #ECEFF1;
+            --blueprint-text: #263238;
+            --blueprint-border: #B0BEC5;
+            --abstract-bg: rgba(225, 235, 255, 0.3); /* Light blueish for abstract */
+            --abstract-border: var(--accent-color-darker);
+        }
+
+        html.dark-mode {
+            --bg-color: #161616;
+            --text-color: #E0E0E0;
+            --heading-color: #FFFFFF;
+            --accent-color: #5C6BC0; /* Lighter Sapphire for dark mode */
+            --accent-color-darker: #3F51B5;
+            --card-bg: rgba(35, 35, 35, 0.6);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --card-shadow-1: rgba(255, 255, 255, 0.03);
+            --card-shadow-2: rgba(0, 0, 0, 0.1);
+            --neumorphic-shadow-light: -6px -6px 12px rgba(40, 40, 40, 0.7), 6px 6px 12px rgba(0, 0, 0, 0.3);
+            --neumorphic-shadow-light-inset: inset -4px -4px 8px rgba(40, 40, 40, 0.6), inset 4px 4px 8px rgba(0, 0, 0, 0.25);
+            --icon-color: #bbb;
+            --diagram-element-bg: rgba(200,200,200,0.05);
+            --code-bg: #282c34; 
+            --code-text: #abb2bf;    
+            --hr-color: rgba(255,255,255,0.1);
+            --table-header-bg: rgba(255,255,255,0.03);
+            --table-row-hover-bg: rgba(255,255,255,0.02);
+            --blueprint-bg: #263238;
+            --blueprint-text: #CFD8DC;
+            --blueprint-border: #455A64;
+            --abstract-bg: rgba(30, 40, 70, 0.4); /* Darker blueish for abstract */
+            --abstract-border: var(--accent-color);
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 16px;
+        }
+
+        body {
+            font-family: var(--font-primary);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.7;
+            transition: background-color 0.3s var(--ease-out-quad), color 0.3s var(--ease-out-quad);
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem 0;
+        }
+
+        header {
+            padding: 2rem 0 1rem;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .main-title {
+            font-family: var(--font-headings);
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--heading-color);
+            margin-bottom: 0.5rem;
+            letter-spacing: -1px;
+        }
+        /* No tagline in this MD */
+        
+        hr {
+            border: none;
+            height: 1px;
+            background-color: var(--hr-color);
+            margin: 2rem auto;
+            width: 80%;
+        }
+
+
+        .theme-switcher {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 0.5rem;
+            border-radius: 50px;
+            box-shadow: 0 4px 15px var(--card-shadow-1);
+            display: flex;
+            align-items: center;
+        }
+
+        .theme-button {
+            background: none;
+            border: none;
+            color: var(--icon-color);
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 50%;
+            transition: background-color 0.2s ease, color 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .theme-button:hover {
+            background-color: rgba(128,128,128,0.1);
+        }
+        .theme-button .material-icons-round {
+            font-size: 24px;
+        }
+
+
+        .content-section {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            padding: 2rem 2.5rem;
+            margin-bottom: 2.5rem;
+            border-radius: 20px;
+            box-shadow: 0 8px 30px var(--card-shadow-1), 0 2px 8px var(--card-shadow-2);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s var(--ease-in-out-cubic), transform 0.6s var(--ease-in-out-cubic);
+        }
+        .abstract-section { /* Special styling for the abstract */
+            background-color: var(--abstract-bg);
+            border-left: 5px solid var(--abstract-border);
+            padding: 1.5rem 2rem;
+            margin-bottom: 2.5rem;
+            border-radius: 8px;
+             opacity: 0; transform: translateY(30px);
+            transition: opacity 0.6s var(--ease-in-out-cubic), transform 0.6s var(--ease-in-out-cubic);
+        }
+        .abstract-section p {
+            font-style: italic;
+            color: var(--text-color);
+            opacity: 0.9;
+        }
+
+
+        .content-section.is-visible, .abstract-section.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .content-section h2, .content-section h3, .content-section h4 {
+            font-family: var(--font-headings);
+            color: var(--heading-color);
+            margin-bottom: 1.2rem;
+            margin-top: 1.5rem;
+            position: relative;
+            padding-left: 1.5rem;
+        }
+        .content-section h2::before, .content-section h3::before, .content-section h4::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 6px;
+            height: 60%;
+            min-height: 18px;
+            background-color: var(--accent-color);
+            border-radius: 3px;
+        }
+
+
+        .content-section h2 { font-size: 1.8rem; font-weight: 700; }
+        .content-section h3 { font-size: 1.5rem; font-weight: 600; }
+        .content-section h4 { font-size: 1.2rem; font-weight: 600; }
+        .content-section h2:first-child, .content-section h3:first-child, .content-section h4:first-child {
+            margin-top: 0;
+        }
+
+        .content-section p {
+            margin-bottom: 1rem;
+            color: var(--text-color);
+        }
+
+        .content-section ul, .content-section ol {
+            list-style: none;
+            padding-left: 0;
+            margin-bottom: 1rem;
+        }
+         .content-section ol { 
+            counter-reset: list-item-counter;
+        }
+
+
+        .content-section li {
+            padding-left: 2em;
+            position: relative;
+            margin-bottom: 0.75rem;
+        }
+        
+        .content-section ul li::before { 
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 9px; 
+            width: 8px;
+            height: 8px;
+            background-color: var(--accent-color);
+            border-radius: 50%;
+        }
+
+        .content-section ol li::before { 
+            counter-increment: list-item-counter;
+            content: counter(list-item-counter) ".";
+            position: absolute;
+            left: 0;
+            top: 1px; 
+            font-weight: 600;
+            color: var(--accent-color);
+        }
+
+
+        .content-section strong {
+            font-weight: 600;
+            color: var(--heading-color);
+        }
+
+        .content-section .mjx-math, .content-section pre[class*="language-math"] { 
+            font-size: 1.1em !important; 
+            margin: 1.5rem 0;
+            padding: 1rem;
+            overflow-x: auto;
+            background-color: var(--diagram-element-bg);
+            border-radius: 8px;
+            border: 1px solid var(--card-border);
+        }
+        
+        .mermaid-diagram-container {
+            background-color: var(--diagram-element-bg);
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin: 1.5rem auto;
+            text-align: center;
+            border: 1px solid var(--card-border);
+        }
+        .mermaid-diagram-container svg {
+            max-width: 100%;
+            height: auto;
+        }
+        
+        .styled-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            font-size: 0.95em;
+        }
+        .styled-table th, .styled-table td {
+            border: 1px solid var(--card-border);
+            padding: 0.75rem 1rem;
+            text-align: left;
+        }
+        .styled-table th {
+            background-color: var(--table-header-bg);
+            font-weight: 600;
+            color: var(--heading-color);
+        }
+        .styled-table tr:hover {
+            background-color: var(--table-row-hover-bg);
+        }
+        .styled-table td:nth-child(1) {
+            font-weight: 500;
+        }
+
+        .blueprint-container {
+            background-color: var(--blueprint-bg);
+            color: var(--blueprint-text);
+            padding: 1.5rem;
+            border-radius: 12px;
+            font-family: var(--font-mono);
+            font-size: 0.9em;
+            line-height: 1.6;
+            overflow-x: auto;
+            white-space: pre; 
+            border: 1px solid var(--blueprint-border);
+            margin: 1.5rem 0;
+            box-shadow: inset 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 2rem 0;
+            margin-top: 2rem; 
+            border-top: 1px solid var(--hr-color); 
+            font-size: 0.9rem;
+            color: var(--text-color);
+            opacity: 0.7;
+        }
+        footer strong {
+            font-weight: bold;
+            color: var(--accent-color);
+        }
+
+        /* Material Icons in text */
+        .icon-inline {
+            font-family: 'Material Icons Round';
+            font-size: 1.1em; 
+            vertical-align: -0.15em; 
+            margin-right: 0.2em;
+            color: var(--accent-color);
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .main-title { font-size: 2rem; }
+            .content-section { padding: 1.5rem; border-radius: 15px; }
+            .abstract-section { padding: 1rem 1.5rem; }
+            .content-section h2 { font-size: 1.6rem; }
+            .content-section h3 { font-size: 1.3rem; }
+            .theme-switcher { top: 10px; right: 10px; padding: 0.3rem;}
+            .theme-button {padding: 0.4rem;}
+            .styled-table { font-size: 0.85em; }
+            .styled-table th, .styled-table td { padding: 0.5rem; }
+            .blueprint-container { font-size: 0.8em; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="theme-switcher">
+        <button id="light-mode-btn" class="theme-button" title="Switch to Light Mode">
+            <span class="material-icons-round">light_mode</span>
+        </button>
+        <button id="dark-mode-btn" class="theme-button" title="Switch to Dark Mode">
+            <span class="material-icons-round">dark_mode</span>
+        </button>
+    </div>
+
+    <div class="container">
+        <header>
+            <h1 class="main-title">Spin–Photon Hybrid Clock Generators</h1>
+            <p class="tagline">Coupled Spin/Photon Oscillators for Ultra-Low Jitter</p>
+        </header>
+        <hr>
+
+        <main>
+            <section class="abstract-section" id="abstract">
+                <p>We propose a <strong>Spin–Photon Hybrid Clock Generator</strong> that combines high‑Q photonic cavities with spin‑based oscillators (e.g., nitrogen‑vacancy centers in diamond or electron spins in silicon) to achieve ultra‑low phase noise and jitter. By coherently coupling spin precession to cavity photons under feedback control, this architecture transcends conventional electronic and photonic oscillators.</p>
+            </section>
+            <!-- No HR after abstract as per MD -->
+
+            <section class="content-section" id="introduction">
+                <h2><span class="material-icons-round icon-inline">hourglass_top</span>1. Introduction</h2>
+                <p>Modern timing systems demand jitter below femtosecond scales for high‑speed communications, quantum computing synchronization, and precision instrumentation. Traditional quartz and MEMS clocks face limitations in phase noise and environmental sensitivity. Here, we introduce a hybrid approach leveraging:</p>
+                <ul>
+                    <li><strong>Spin Oscillators:</strong> exhibit long coherence times (T₂) at cryogenic or room temperature</li>
+                    <li><strong>Photonic Cavities:</strong> offer high Q‑factors (>10⁶) and low insertion loss</li>
+                    <li><strong>Coherent Coupling:</strong> transfers spectral purity from spin to photon mode</li>
+                </ul>
+                <p><strong>Keywords:</strong> spintronics, cavity QED, hybrid oscillator, ultra‑low jitter, clock generator</p>
+            </section>
+            <!-- No HR here -->
+
+            <section class="content-section" id="unique-concept">
+                <h2><span class="material-icons-round icon-inline">lightbulb</span>2. Unique Concept</h2>
+                <ol>
+                    <li><strong>Spin Reservoir:</strong> an ensemble of polarized electron or nuclear spins providing a stable Larmor frequency.</li>
+                    <li><strong>Photonic Cavity:</strong> whispering‑gallery or photonic‑crystal resonator tuned near spin transition.</li>
+                    <li><strong>Nonlinear Feedback Loop:</strong> injection‑locking the cavity output to the spin precession via microwave/RF drive and optical readout.</li>
+                    <li><strong>Temperature and Magnetic Field Stabilization:</strong> dual‑feedback to compensate drift.</li>
+                </ol>
+            </section>
+            <!-- No HR here -->
+            
+            <section class="content-section" id="system-architecture">
+                <h2><span class="material-icons-round icon-inline">developer_board</span>3. System Architecture</h2>
+                <div class="mermaid-diagram-container">
+                    <pre class="mermaid">
+flowchart LR
+  subgraph Control_Feedback [Control & Feedback Loop]
+    D[Phase Detector (Optical)] -->|Error Signal| E((PID Controller))
+    E -->|Feedback Signal| B[RF Source & Amplifier]
+  end
+
+  subgraph Core_Oscillator [Core Hybrid Oscillator]
+    A[Spin Ensemble (NV Centers/Si Spins)] -- Microwave Drive --> B
+    B -- Drives / Injection Locks --> C((Photonic Cavity WGM/PhC))
+    C -- Optical Output --> D
+  end
+  
+  subgraph Environment_Stabilization [Environmental Stabilization]
+    F[Temperature Control (TEC/Cryo)] --> A & C
+    G[Magnetic Shielding & Field Coils] --> A
+  end
+
+  classDef spin_ensemble fill:#EDE7F6,stroke:#5E35B1,color:#000;
+  classDef rf_photonic fill:#D1C4E9,stroke:#673AB7,color:#000;
+  classDef control_loop fill:#B39DDB,stroke:#7E57C2,color:#000;
+  classDef stabilization fill:#F3E5F5,stroke:#AB47BC,color:#000;
+  
+  class A spin_ensemble;
+  class B,C rf_photonic;
+  class D,E control_loop;
+  class F,G stabilization;
+                    </pre>
+                </div>
+            </section>
+            <!-- No HR here -->
+
+            <section class="content-section" id="theoretical-principles">
+                <h2><span class="material-icons-round icon-inline">science</span>4. Theoretical Principles</h2>
+                <h3>4.1 Spin Dynamics (LLG Equation)</h3>
+                <p>The spin ensemble in a magnetic field $\mathbf{B}_{0}$ follows the Landau–Lifshitz–Gilbert (LLG) equation:</p>
+                $$
+                \frac{d\mathbf{M}}{dt} = -\gamma \mathbf{M} \times \mathbf{B}_\mathrm{eff} + \frac{\alpha}{M_s} \mathbf{M} \times \frac{d\mathbf{M}}{dt} ,
+                $$
+                <p>where <em>M</em> is magnetization, <em>γ</em> gyromagnetic ratio, <em>α</em> damping constant, <em>B<sub>eff</sub></em> effective field.</p>
+                <h3>4.2 Cavity QED Coupling</h3>
+                <p>The Jaynes–Cummings Hamiltonian for spin–photon interaction:</p>
+                $$
+                H = \hbar \omega_c a^\dagger a + \frac{\hbar \omega_s}{2} \sigma_z + \hbar g (a \sigma_+ + a^\dagger \sigma_-) ,
+                $$
+                <p>with photon mode frequency <em>ω<sub>c</sub></em>, spin transition <em>ω<sub>s</sub></em>, coupling rate <em>g</em>.</p>
+                <h3>4.3 Injection Locking and Phase Noise</h3>
+                <p>Injection locking bandwidth $Δω_L$:</p>
+                $$
+                Δω_L = \frac{K}{2Q} \sqrt{\frac{P_\mathrm{in}}{P_\mathrm{osc}}} ,
+                $$
+                <p>where <em>K</em> coupling coefficient, <em>Q</em> cavity quality factor, <em>P<sub>in</sub></em> injected power, <em>P<sub>osc</sub></em> oscillator power.</p>
+                <p>Phase noise approximation:</p>
+                $$
+                L(Δω) \approx 10 \log \left( \frac{F k_B T}{2 P_\mathrm{osc}} \frac{1}{Δω^2} \right) ,
+                $$
+                <p>with noise factor <em>F</em>, Boltzmann constant <em>k<sub>B</sub></em>, temperature <em>T</em>, offset <em>Δω</em>.</p>
+            </section>
+            <!-- No HR here -->
+
+            <section class="content-section" id="control-logic-stabilization">
+                <h2><span class="material-icons-round icon-inline">settings_input_component</span>5. Control Logic & Stabilization</h2>
+                 <ol>
+                    <li><strong>Phase Detector & PID:</strong> Minimizes phase error between cavity output and a reference derived from the spin precession.</li>
+                    <li><strong>Cavity Temperature Control:</strong> Maintains resonance via thermo‑electric coolers.</li>
+                    <li><strong>Magnetic Field Locking:</strong> Flux‑gate sensor feedback to Helmholtz coils for field stability.</li>
+                </ol>
+            </section>
+            <!-- No HR here -->
+            
+            <section class="content-section" id="fabrication-assembly">
+                <h2><span class="material-icons-round icon-inline">precision_manufacturing</span>6. Fabrication & Assembly</h2>
+                 <ol>
+                    <li><strong>Spin Medium:</strong> Diamond with NV centers, isotopically purified silicon, or yttrium‑iron‑garnet (YIG).</li>
+                    <li><strong>Photonic Resonator:</strong> Silicon‑nitride microring or silica whispering gallery—fabricated via e‑beam lithography.</li>
+                    <li><strong>Integration:</strong> Flip‑chip bonding of spin chip onto cavity substrate; wire‑bonded RF feed.</li>
+                    <li><strong>Control Electronics:</strong> Low‑noise amplifiers, FPGA‑based PID, precision temperature controllers.</li>
+                </ol>
+            </section>
+            <!-- No HR here -->
+
+            <section class="content-section" id="operation-workflow">
+                <h2><span class="material-icons-round icon-inline">play_circle_outline</span>7. Operation Workflow</h2>
+                <div class="mermaid-diagram-container">
+                     <pre class="mermaid">
+sequenceDiagram
+    participant U as User/System
+    participant S as Spin Medium Control
+    participant C as Photonic Cavity Control
+    participant D as Phase Detector & Feedback
+    
+    U->>S: Initialize Spin Polarization & Bias Fields
+    loop Oscillation & Locking Cycle
+        S->>C: Spin Precession Modulates/Injects into Cavity (via g)
+        C->>D: Cavity Emits Photons (Optical Output)
+        D->>D: Detect Optical Phase/Frequency
+        D->>S: Compute Error Signal, Feedback to RF Drive (Phase/Power)
+        D->>C: (Optional) Fine-tune Cavity Resonance (e.g., thermal)
+    end
+    Note over U,F: System achieves stable, low-jitter clock output.
+
+    actor U fill:#EDE7F6,stroke:#5E35B1,color:#000
+    actor S fill:#D1C4E9,stroke:#673AB7,color:#000
+    actor C fill:#B39DDB,stroke:#7E57C2,color:#000
+    actor D fill:#F3E5F5,stroke:#AB47BC,color:#000
+                    </pre>
+                </div>
+            </section>
+            <!-- No HR here -->
+            
+            <section class="content-section" id="size-form-factor">
+                <h2><span class="material-icons-round icon-inline">straighten</span>8. Size & Form Factor</h2>
+                <table class="styled-table">
+                    <thead>
+                        <tr>
+                            <th>Component</th>
+                            <th>Dimensions (mm)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Spin Chip</td>
+                            <td>5 × 5 × 0.5</td>
+                        </tr>
+                        <tr>
+                            <td>Photonic Resonator</td>
+                            <td>10 (dia) × 0.5 height</td>
+                        </tr>
+                        <tr>
+                            <td>Control Module Rack</td>
+                            <td>200 × 150 × 50</td>
+                        </tr>
+                        <tr>
+                            <td>Magnetic Shielding</td>
+                            <td>100 × 100 × 100</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <p><strong>Figure:</strong> Simplified side-view of hybrid clock assembly:</p>
+                <div class="blueprint-container">
+  ┌────────────┐
+  │  Shield    │
+  │  Box       │
+  └───┬───┬────┘
+      │   │
+   Spin  Cavity
+    Chip  Resonator
+      │   │
+  Control Rack
+                </div>
+            </section>
+            <!-- No HR here -->
+            
+            <section class="content-section" id="applications">
+                <h2><span class="material-icons-round icon-inline">apps</span>9. Applications</h2>
+                 <ul>
+                    <li><strong>High‑Speed Telecom:</strong> Synchronization for 5G/6G BS and fronthaul</li>
+                    <li><strong>Quantum Computers:</strong> Low‑jitter clocking of qubit control electronics</li>
+                    <li><strong>Test & Measurement:</strong> Time‑interval analyzers and sampling scopes</li>
+                    <li><strong>Space Systems:</strong> Radiation‑hard timing sources for satellites</li>
+                </ul>
+            </section>
+            <!-- No HR here -->
+            
+            <section class="content-section" id="advantages-over-conventional">
+                <h2><span class="material-icons-round icon-inline">verified_user</span>10. Advantages Over Conventional Clocks</h2>
+                 <ul>
+                    <li><strong>Sub‑100 fs Jitter:</strong> Enabled by narrow spin linewidths and high‑Q cavities</li>
+                    <li><strong>Environmental Robustness:</strong> Active stabilization of temperature and magnetic field</li>
+                    <li><strong>Size Reduction:</strong> Chip‑scale integration vs. bulky atomic clocks</li>
+                    <li><strong>Low Power:</strong> mW‑level continuous‑wave operation</li>
+                </ul>
+            </section>
+            <!-- No HR here -->
+
+            <section class="content-section" id="conclusion">
+                <h2><span class="material-icons-round icon-inline">flag</span>11. Conclusion</h2>
+                <p>The Spin–Photon Hybrid Clock Generator presents a theoretical paradigm for ultra‑low jitter, chip‑scale timing sources by leveraging coherent spin–photon coupling and active stabilization, suitable for next‑generation communications, quantum systems, and precision instrumentation.</p>
+            </section>
+            <!-- No HR here -->
+
+            <section class="content-section" id="references">
+                <h2><span class="material-icons-round icon-inline">menu_book</span>References</h2>
+                <ol>
+                    <li>R. S. Judson, et al. (2023). Hybrid spin–photon oscillators for precision timing. <em>Physical Review Applied</em>, 19(3), 034055.</li>
+                    <li>J. M. Taylor, et al. (2016). High‑fidelity spin–photon interfaces in diamond. <em>Nature Physics</em>, 12, 899–903.</li>
+                    <li>K. G. Fong & B. S. Craeye (2019). Phase noise in injection‑locked oscillators. <em>IEEE Transactions on Microwave Theory and Techniques</em>, 67(12), 5140–5148.</li>
+                    <li>A. B. Weis & C. H. Volk (2021). Chip‑scale photonic resonators for low‑noise clocks. <em>Optica</em>, 8(7), 834–841.</li>
+                </ol>
+            </section>
+        </main>
+
+        <footer>
+            <p>Scientific concept and logic by <strong>Lion</strong>.</p>
+            <p>UI/UX & Web Implementation inspired by modern design principles.</p>
+            <p>© 2024 Spin-Photon Hybrid Clock Generators Project</p>
+        </footer>
+    </div>
+
+    <script>
+        // Initialize Mermaid
+        mermaid.initialize({ 
+            startOnLoad: true,
+            theme: 'base', 
+            themeVariables: {
+                primaryColor: getComputedStyle(document.documentElement).getPropertyValue('--diagram-element-bg').trim(),
+                primaryTextColor: getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim(),
+                primaryBorderColor: getComputedStyle(document.documentElement).getPropertyValue('--card-border').trim(),
+                lineColor: getComputedStyle(document.documentElement).getPropertyValue('--icon-color').trim(),
+                secondaryColor: getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim(),
+                tertiaryColor: getComputedStyle(document.documentElement).getPropertyValue('--bg-color').trim(),
+                // Sequence Diagram specific theming
+                sequenceActor: getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim(),
+                sequenceActorText: '#fff', 
+                sequenceActorBorder: getComputedStyle(document.documentElement).getPropertyValue('--accent-color-darker').trim(),
+                sequenceMessageText: getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim(),
+                sequenceNoteText: getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim(),
+                sequenceNoteBackground: getComputedStyle(document.documentElement).getPropertyValue('--diagram-element-bg').trim(),
+            },
+            flowchart: { 
+                htmlLabels: true,
+                nodeSpacing: 50,
+                rankSpacing: 50
+            },
+            sequence: {
+                actorFontFamily: getComputedStyle(document.documentElement).getPropertyValue('--font-primary').trim(),
+                messageFontFamily: getComputedStyle(document.documentElement).getPropertyValue('--font-primary').trim(),
+                noteFontFamily: getComputedStyle(document.documentElement).getPropertyValue('--font-primary').trim(),
+                actorFontWeight: '500',
+                messageFontWeight: 'normal',
+                noteFontWeight: 'normal',
+            },
+            fontFamily: getComputedStyle(document.documentElement).getPropertyValue('--font-primary').trim(),
+        });
+
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Theme Switcher
+            const lightModeBtn = document.getElementById('light-mode-btn');
+            const darkModeBtn = document.getElementById('dark-mode-btn');
+            const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+
+            function updateMermaidTheme() {
+                const currentPrimaryColor = getComputedStyle(document.documentElement).getPropertyValue('--diagram-element-bg').trim();
+                const currentTextColor = getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim();
+                const currentBorderColor = getComputedStyle(document.documentElement).getPropertyValue('--card-border').trim();
+                const currentLineColor = getComputedStyle(document.documentElement).getPropertyValue('--icon-color').trim();
+                const currentAccentColor = getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim();
+                const currentAccentDarkerColor = getComputedStyle(document.documentElement).getPropertyValue('--accent-color-darker').trim();
+                const currentBgColor = getComputedStyle(document.documentElement).getPropertyValue('--bg-color').trim();
+                
+                let actorTextColor = '#fff'; 
+                if (document.documentElement.classList.contains('dark-mode')) {
+                    // For most of our dark mode accents, white text is fine.
+                    // If an accent color like a very light teal (#A7FFEB) was used, black text would be better.
+                    // For #5C6BC0 (current dark accent), white is fine.
+                }
+
+
+                mermaid.initialize({
+                    theme: 'base',
+                    themeVariables: {
+                        primaryColor: currentPrimaryColor,
+                        primaryTextColor: currentTextColor,
+                        primaryBorderColor: currentBorderColor,
+                        lineColor: currentLineColor,
+                        secondaryColor: currentAccentColor,
+                        tertiaryColor: currentBgColor,
+                        sequenceActor: currentAccentColor,
+                        sequenceActorText: actorTextColor, 
+                        sequenceActorBorder: currentAccentDarkerColor,
+                        sequenceMessageText: currentTextColor,
+                        sequenceNoteText: currentTextColor,
+                        sequenceNoteBackground: currentPrimaryColor,
+                    }
+                });
+                document.querySelectorAll('.mermaid[data-processed="true"]').forEach((el, i) => {
+                    const code = el.textContent || el.innerText;
+                    const id = `mermaid-graph-${Date.now()}-${i}`;
+                    el.removeAttribute('data-processed');
+                    el.innerHTML = code;
+                    try {
+                         mermaid.init(undefined, el);
+                    } catch (e) {
+                        console.error("Error re-rendering Mermaid diagram:", e);
+                    }
+                });
+            }
+
+            function setTheme(theme) {
+                if (theme === 'dark') {
+                    document.documentElement.classList.add('dark-mode');
+                    localStorage.setItem('theme', 'dark');
+                } else {
+                    document.documentElement.classList.remove('dark-mode');
+                    localStorage.setItem('theme', 'light');
+                }
+                updateMermaidTheme();
+            }
+
+            lightModeBtn.addEventListener('click', () => setTheme('light'));
+            darkModeBtn.addEventListener('click', () => setTheme('dark'));
+
+            const currentTheme = localStorage.getItem('theme');
+            if (currentTheme) {
+                setTheme(currentTheme);
+            } else if (prefersDarkScheme.matches) {
+                setTheme('dark');
+            } else {
+                setTheme('light'); 
+            }
+            
+            // Scroll Animations for sections
+            const sections = document.querySelectorAll('.content-section, .abstract-section'); // Include abstract
+            // No HRs between sections in this MD
+            const observerOptions = {
+                root: null, 
+                rootMargin: '0px',
+                threshold: 0.1 
+            };
+
+            const observer = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('is-visible');
+                    }
+                });
+            }, observerOptions);
+
+            sections.forEach(section => {
+                observer.observe(section);
+            });
+        });
+    </script>
+</body>
+</html>

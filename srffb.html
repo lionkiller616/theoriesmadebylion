@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Superconducting RF Filter Banks</title>
+
+    <!-- MathJax Configuration -->
+    <script>
+        MathJax = {
+          tex: {
+            inlineMath: [['$', '$'], ['\\(', '\\)']],
+            displayMath: [['$$', '$$'], ['\\[', '\\]'], ['```math', '```']],
+            processEscapes: true,
+            tags: 'ams',
+            macros: { // Define custom macros if needed
+                rm: ['{\\rm #1}', 1] // for \rm
+            }
+          },
+          svg: {
+            fontCache: 'global'
+          }
+        };
+    </script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <!-- Mermaid JS for diagrams -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Google Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons|Material+Icons+Outlined|Material+Icons+Round" rel="stylesheet">
+
+    <style>
+        :root {
+            --font-primary: 'Inter', sans-serif;
+            --font-headings: 'Poppins', sans-serif;
+
+            --ease-out-quad: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            --ease-in-out-cubic: cubic-bezier(0.645, 0.045, 0.355, 1);
+
+            /* Light Mode (Default) */
+            --bg-color: #F0F2F5;
+            --text-color: #1d1d1f;
+            --heading-color: #000000;
+            --accent-color: #0277BD; /* Cool Metallic Blue for Superconductivity */
+            --accent-color-darker: #01579B;
+            --card-bg: rgba(255, 255, 255, 0.6);
+            --card-border: rgba(0, 0, 0, 0.1);
+            --card-shadow-1: rgba(0, 0, 0, 0.05);
+            --card-shadow-2: rgba(0, 0, 0, 0.02);
+            --neumorphic-shadow-light: -6px -6px 12px rgba(255, 255, 255, 0.8), 6px 6px 12px rgba(0, 0, 0, 0.1);
+            --neumorphic-shadow-light-inset: inset -4px -4px 8px rgba(255, 255, 255, 0.7), inset 4px 4px 8px rgba(0, 0, 0, 0.08);
+            --icon-color: #555;
+            --diagram-element-bg: rgba(128,128,128,0.05);
+            --code-bg: #f7f7f7;
+            --code-text: #333;
+            --hr-color: rgba(0,0,0,0.1);
+            --table-header-bg: rgba(0,0,0,0.03);
+            --table-row-hover-bg: rgba(0,0,0,0.02);
+        }
+
+        html.dark-mode {
+            --bg-color: #161616;
+            --text-color: #E0E0E0;
+            --heading-color: #FFFFFF;
+            --accent-color: #29B6F6; /* Lighter Cool Blue for dark mode */
+            --accent-color-darker: #039BE5;
+            --card-bg: rgba(35, 35, 35, 0.6);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --card-shadow-1: rgba(255, 255, 255, 0.03);
+            --card-shadow-2: rgba(0, 0, 0, 0.1);
+            --neumorphic-shadow-light: -6px -6px 12px rgba(40, 40, 40, 0.7), 6px 6px 12px rgba(0, 0, 0, 0.3);
+            --neumorphic-shadow-light-inset: inset -4px -4px 8px rgba(40, 40, 40, 0.6), inset 4px 4px 8px rgba(0, 0, 0, 0.25);
+            --icon-color: #bbb;
+            --diagram-element-bg: rgba(200,200,200,0.05);
+            --code-bg: #2a2a2a;
+            --code-text: #ccc;
+            --hr-color: rgba(255,255,255,0.1);
+            --table-header-bg: rgba(255,255,255,0.03);
+            --table-row-hover-bg: rgba(255,255,255,0.02);
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 16px;
+        }
+
+        body {
+            font-family: var(--font-primary);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.7;
+            transition: background-color 0.3s var(--ease-out-quad), color 0.3s var(--ease-out-quad);
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem 0;
+        }
+
+        header {
+            padding: 2rem 0 1rem;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .main-title {
+            font-family: var(--font-headings);
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--heading-color);
+            margin-bottom: 0.5rem;
+            letter-spacing: -1px;
+        }
+
+        .tagline {
+            font-size: 1.1rem;
+            color: var(--text-color);
+            opacity: 0.8;
+            margin-bottom: 1.5rem;
+        }
+        
+        hr {
+            border: none;
+            height: 1px;
+            background-color: var(--hr-color);
+            margin: 2rem auto;
+            width: 80%;
+        }
+
+
+        .theme-switcher {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 0.5rem;
+            border-radius: 50px;
+            box-shadow: 0 4px 15px var(--card-shadow-1);
+            display: flex;
+            align-items: center;
+        }
+
+        .theme-button {
+            background: none;
+            border: none;
+            color: var(--icon-color);
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 50%;
+            transition: background-color 0.2s ease, color 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .theme-button:hover {
+            background-color: rgba(128,128,128,0.1);
+        }
+        .theme-button .material-icons-round {
+            font-size: 24px;
+        }
+
+
+        .content-section {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            padding: 2rem 2.5rem;
+            margin-bottom: 2.5rem;
+            border-radius: 20px;
+            box-shadow: 0 8px 30px var(--card-shadow-1), 0 2px 8px var(--card-shadow-2);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s var(--ease-in-out-cubic), transform 0.6s var(--ease-in-out-cubic);
+        }
+
+        .content-section.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .content-section h2, .content-section h3, .content-section h4 {
+            font-family: var(--font-headings);
+            color: var(--heading-color);
+            margin-bottom: 1.2rem;
+            margin-top: 1.5rem;
+            position: relative;
+            padding-left: 1.5rem;
+        }
+        .content-section h2::before, .content-section h3::before, .content-section h4::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 6px;
+            height: 60%;
+            min-height: 18px;
+            background-color: var(--accent-color);
+            border-radius: 3px;
+        }
+
+
+        .content-section h2 { font-size: 1.8rem; font-weight: 700; }
+        .content-section h3 { font-size: 1.5rem; font-weight: 600; }
+        .content-section h4 { font-size: 1.2rem; font-weight: 600; }
+        .content-section h2:first-child, .content-section h3:first-child, .content-section h4:first-child {
+            margin-top: 0;
+        }
+
+        .content-section p {
+            margin-bottom: 1rem;
+            color: var(--text-color);
+        }
+
+        .content-section ul, .content-section ol {
+            list-style: none;
+            padding-left: 0;
+            margin-bottom: 1rem;
+        }
+         .content-section ol { 
+            counter-reset: list-item-counter;
+        }
+
+
+        .content-section li {
+            padding-left: 2em;
+            position: relative;
+            margin-bottom: 0.75rem;
+        }
+        
+        .content-section ul li::before { 
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 9px; 
+            width: 8px;
+            height: 8px;
+            background-color: var(--accent-color);
+            border-radius: 50%;
+        }
+
+        .content-section ol li::before { 
+            counter-increment: list-item-counter;
+            content: counter(list-item-counter) ".";
+            position: absolute;
+            left: 0;
+            top: 1px; 
+            font-weight: 600;
+            color: var(--accent-color);
+        }
+
+
+        .content-section strong {
+            font-weight: 600;
+            color: var(--heading-color);
+        }
+
+        .content-section .mjx-math, .content-section pre[class*="language-math"] { 
+            font-size: 1.1em !important; 
+            margin: 1.5rem 0;
+            padding: 1rem;
+            overflow-x: auto;
+            background-color: var(--diagram-element-bg);
+            border-radius: 8px;
+            border: 1px solid var(--card-border);
+        }
+        
+        .mermaid-diagram-container {
+            background-color: var(--diagram-element-bg);
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin: 1.5rem auto;
+            text-align: center;
+            border: 1px solid var(--card-border);
+        }
+        .mermaid-diagram-container svg {
+            max-width: 100%;
+            height: auto;
+        }
+        
+        .styled-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            font-size: 0.95em;
+        }
+        .styled-table th, .styled-table td {
+            border: 1px solid var(--card-border);
+            padding: 0.75rem 1rem;
+            text-align: left;
+        }
+        .styled-table th {
+            background-color: var(--table-header-bg);
+            font-weight: 600;
+            color: var(--heading-color);
+        }
+        .styled-table tr:hover {
+            background-color: var(--table-row-hover-bg);
+        }
+        .styled-table td:nth-child(1) {
+            font-weight: 500;
+        }
+
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 2rem 0;
+            margin-top: 2rem;
+            border-top: 1px solid var(--card-border);
+            font-size: 0.9rem;
+            color: var(--text-color);
+            opacity: 0.7;
+        }
+        footer strong {
+            font-weight: bold;
+            color: var(--accent-color);
+        }
+
+        /* Material Icons in text */
+        .icon-inline {
+            font-family: 'Material Icons Round';
+            font-size: 1.1em; 
+            vertical-align: -0.15em; 
+            margin-right: 0.2em;
+            color: var(--accent-color);
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .main-title { font-size: 2rem; }
+            .tagline { font-size: 1rem; }
+            .content-section { padding: 1.5rem; border-radius: 15px; }
+            .content-section h2 { font-size: 1.6rem; }
+            .content-section h3 { font-size: 1.3rem; }
+            .theme-switcher { top: 10px; right: 10px; padding: 0.3rem;}
+            .theme-button {padding: 0.4rem;}
+            .styled-table { font-size: 0.85em; }
+            .styled-table th, .styled-table td { padding: 0.5rem; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="theme-switcher">
+        <button id="light-mode-btn" class="theme-button" title="Switch to Light Mode">
+            <span class="material-icons-round">light_mode</span>
+        </button>
+        <button id="dark-mode-btn" class="theme-button" title="Switch to Dark Mode">
+            <span class="material-icons-round">dark_mode</span>
+        </button>
+    </div>
+
+    <div class="container">
+        <header>
+            <h1 class="main-title">Superconducting RF Filter Banks</h1>
+            <p class="tagline">Zero-loss channels for ultra-clean, high-selectivity communications</p>
+        </header>
+        <hr>
+
+        <main>
+            <section class="content-section" id="concept-overview">
+                <h2><span class="material-icons-round icon-inline">filter_list</span>Concept Overview</h2>
+                <p>Superconducting RF filter banks leverage <strong>zero-resistance superconducting resonators</strong> to create sharply defined, low-insertion-loss passbands. By arranging many high-Q superconducting bandpass filters in parallel (“banks”), one can separate, shape, and route RF channels with <strong>near-ideal frequency selectivity</strong>, minimal thermal noise, and essentially <strong>lossless transmission</strong>—ideal for quantum readout lines, radio astronomy, and next-gen wireless backhaul.</p>
+            </section>
+            <hr>
+
+            <section class="content-section" id="scientific-principles">
+                <h2><span class="material-icons-round icon-inline">science</span>Scientific Principles</h2>
+                <h3>1. Superconductivity & Kinetic Inductance</h3>
+                <ul>
+                    <li>Below critical temperature $T_c$, materials like Nb, NbTiN, or NbN exhibit zero DC resistance.</li>
+                    <li>RF currents still see a <strong>kinetic inductance</strong> $L_k$ associated with Cooper-pair inertia:
+                    \[
+                      L_k = \frac{m^*}{n_s e^2 A}
+                    \]
+                    where $m^*$ is Cooper-pair mass, $n_s$ density, and $A$ cross-section.</li>
+                </ul>
+                <h3>2. High-Q Resonators</h3>
+                <ul>
+                    <li>A half-wave superconducting microstrip or coplanar waveguide resonator has unloaded Q:
+                    \[
+                      Q_0 = \frac{\omega_0 L}{R_{\rm eff} + \omega_0^2 L^2 G}
+                    \approx \frac{1}{\alpha_{\rm surf}\, \lambda_L}
+                    \]
+                    dominated by surface resistance $R_s$ → near zero at mK temperatures.</li>
+                </ul>
+                <h3>3. Bandpass Filter Design</h3>
+                <ul>
+                    <li>Each channel uses a coupled-resonator topology (e.g. Butterworth, Chebyshev):
+                    \[
+                      S_{21}(\omega) = \frac{\prod_i j(\omega/\omega_{0,i})}{P(\omega)}
+                    \]
+                    with polynomial $P(\omega)$ set by filter prototype.</li>
+                </ul>
+                 <h3>4. Thermal Noise Suppression</h3>
+                <ul>
+                    <li>Johnson noise $V_{\rm rms} = \sqrt{4 k_B T R \Delta f}$ vanishes for $R \to 0$.</li>
+                    <li>Quantum noise floor set by zero-point fluctuations $ \sim\hbar\omega/2 $.</li>
+                </ul>
+            </section>
+            <hr>
+
+            <section class="content-section" id="device-architecture">
+                <h2><span class="material-icons-round icon-inline">developer_board</span>Device Architecture</h2>
+                <div class="mermaid-diagram-container">
+                    <pre class="mermaid">
+graph TD
+  Input[RF Input Line] --> Bank
+  subgraph Bank [Filter Bank]
+    direction LR
+    F1[Resonator 1: f₁] --> C1((Coupler))
+    F2[Resonator 2: f₂] --> C2((Coupler))
+    F3[Resonator 3: f₃] --> C3((Coupler))
+    Fdots[...]
+    Fn[Resonator n: fₙ] --> Cn((Coupler))
+  end
+  C1 --> Output1[Channel 1 Out]
+  C2 --> Output2[Channel 2 Out]
+  C3 --> Output3[Channel 3 Out]
+  Cn --> Outputn[Channel n Out]
+
+  classDef input_output fill:#E1F5FE,stroke:#0277BD,color:#000;
+  classDef resonator fill:#B3E5FC,stroke:#0288D1,color:#000,shape:rect;
+  classDef coupler fill:#E8EAF6,stroke:#303F9F,color:#000,shape:circle;
+  
+  class Input,Output1,Output2,Output3,Outputn input_output;
+  class F1,F2,F3,Fdots,Fn resonator;
+  class C1,C2,C3,Cn coupler;
+                    </pre>
+                </div>
+                <ul>
+                    <li><strong>Resonators</strong>: quarter- or half-wave lines patterned in NbTiN on sapphire</li>
+                    <li><strong>Couplers</strong>: interdigitated capacitors or gap-coupled CPW sections</li>
+                    <li><strong>Outputs</strong>: individual matched feedlines to detectors or amplifiers</li>
+                </ul>
+            </section>
+            <hr>
+
+            <section class="content-section" id="key-equations">
+                <h2><span class="material-icons-round icon-inline">functions</span>Key Equations</h2>
+                <h3>1. Resonant Frequency</h3>
+                $$
+                  \omega_0 = \frac{\pi}{l\sqrt{L_k C}}
+                $$
+                <p>with resonator length $l$, total inductance $L_k$, and capacitance $C$.</p>
+                <h3>2. Coupling Coefficient</h3>
+                $$
+                  k_{ij} = \frac{\omega_0}{2Q_c}
+                $$
+                <p>where $Q_c$ is coupling-limited Q, tuning passband ripple and bandwidth $\Delta f = f_0/Q$.</p>
+                <h3>3. Insertion Loss (Ideal)</h3>
+                $$
+                  IL = -20\log_{10}\!\bigl|\!S_{21}(\omega_0)\bigr| \approx 0\ \text{dB (superconducting)}
+                $$
+                <h3>4. Selectivity (skirt)</h3>
+                $$
+                  \text{Skirt Slope} = \frac{d\,\bigl|S_{21}\bigr|}{d\,f}\bigg|_{f=f_{\rm edge}}
+                $$
+                <p>extremely steep for high-order prototypes.</p>
+            </section>
+            <hr>
+
+            <section class="content-section" id="control-logic-tuning">
+                <h2><span class="material-icons-round icon-inline">tune</span>Control Logic & Tuning Flow</h2>
+                <div class="mermaid-diagram-container">
+                     <pre class="mermaid">
+flowchart TD
+  Start([Cool to T < T<sub>nom</sub>]) --> Measure{Resonator f₀ Check}
+  Measure -- Shifted --> Tune[Adjust Magnetic Flux or Bias Current]
+  Tune --> Measure
+  Measure -- On-target --> Route[Route Channels to DAQ/Amplifiers]
+  Route --> Monitor[Continuously Monitor Q & f₀ Stability]
+  Monitor -- Drift Detected --> Tune
+  Monitor -- Stable --> End([Operational])
+
+  classDef start_end fill:#E0F7FA,stroke:#00796B,color:#000,shape:stadium;
+  classDef decision fill:#B2EBF2,stroke:#0097A7,color:#000,shape:diamond;
+  classDef process fill:#E0F2F1,stroke:#00897B,color:#000,shape:rect;
+    
+  class Start,End start_end;
+  class Measure,Monitor decision;
+  class Tune,Route process;
+                    </pre>
+                </div>
+                <ul>
+                    <li><strong>Tuning</strong> via local DC current loops (kinetic-inductance tuning) or small applied magnetic field.</li>
+                    <li><strong>Feedback</strong> from probe tones and cryogenic amplifiers ensures channel frequencies remain locked.</li>
+                </ul>
+            </section>
+            <hr>
+            
+            <section class="content-section" id="materials-fabrication">
+                <h2><span class="material-icons-round icon-inline">precision_manufacturing</span>Materials & Fabrication</h2>
+                <ul>
+                    <li><strong>Superconductors</strong>: NbTiN, Nb, Al</li>
+                    <li><strong>Substrate</strong>: Sapphire or high-resistivity Si</li>
+                    <li><strong>Patterning</strong>: Electron-beam lithography + reactive-ion etching</li>
+                    <li><strong>Packaging</strong>: Gold-plated, magnetic-shielded cryogenic housing</li>
+                </ul>
+            </section>
+            <hr>
+
+            <section class="content-section" id="applications-table">
+                <h2><span class="material-icons-round icon-inline">apps</span>Applications</h2>
+                <table class="styled-table">
+                    <thead>
+                        <tr>
+                            <th>Use Case</th>
+                            <th>Benefit</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Quantum processor readout</strong></td>
+                            <td>Isolate many qubit readout tones with zero loss</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Radio astronomy spectrometers</strong></td>
+                            <td>Ultra-narrow channels, minimal system noise</td>
+                        </tr>
+                        <tr>
+                            <td><strong>5G/6G backhaul</strong></td>
+                            <td>Multi-band demultiplexing with negligible loss</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Secure RF links</strong></td>
+                            <td>Eliminate passive eavesdropping noise floor</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+            <hr>
+            
+            <section class="content-section" id="advantages-challenges">
+                <h2><span class="material-icons-round icon-inline">balance</span>Advantages & Challenges</h2>
+                <table class="styled-table">
+                    <thead>
+                        <tr>
+                            <th>Aspect</th>
+                            <th>Advantage</th>
+                            <th>Challenge</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Insertion loss</strong></td>
+                            <td>≈ 0 dB → maximal signal-to-noise</td>
+                            <td>Requires cryogenic cooling (mK–K range)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Frequency selectivity</strong></td>
+                            <td>Q > 10⁵–10⁶ yields kHz-wide passbands</td>
+                            <td>Fabrication tolerances < 0.1 % on feature sizes</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Thermal noise</strong></td>
+                            <td>Suppressed Johnson noise</td>
+                            <td>Requires low-vibration, shielded cryostats</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Scalability</strong></td>
+                            <td>Many filters in compact planar arrays</td>
+                            <td>Multiplexing feedlines and packaging complexity</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+            <hr>
+
+            <section class="content-section" id="future-directions">
+                <h2><span class="material-icons-round icon-inline">rocket_launch</span>Future Directions</h2>
+                <ul>
+                    <li><strong>Fluxonium-style tunable elements</strong> for rapid channel reconfiguration</li>
+                    <li><strong>3D integration</strong> with superconducting qubits and cryo-CMOS</li>
+                    <li><strong>High-temperature superconductors (YBCO)</strong> for operation above 20 K</li>
+                    <li><strong>On-chip quantum-limited amplifiers</strong> integrated at each filter output</li>
+                </ul>
+            </section>
+            <hr>
+
+            <section class="content-section" id="references">
+                <h2><span class="material-icons-round icon-inline">menu_book</span>References</h2>
+                <ol>
+                    <li>Zmuidzinas, J. (2012). “Superconducting Microresonators: Physics and Applications,” <em>Annual Review of Condensed Matter Physics</em>, <strong>3</strong>, 169–214.</li>
+                    <li>Gao, J., et al. (2008). “Experimental evidence for a surface distribution of two-level systems in superconducting lithographed microwave resonators,” <em>Applied Physics Letters</em>, <strong>92</strong>, 152505.</li>
+                    <li>Day, P. K., et al. (2003). “A broadband superconducting detector suitable for use in large arrays,” <em>Nature</em>, <strong>425</strong>, 817–821.</li>
+                </ol>
+            </section>
+        </main>
+
+        <footer>
+            <p>Scientific concept and logic by <strong>Lion</strong>.</p>
+            <p>UI/UX & Web Implementation inspired by modern design principles.</p>
+            <p>© 2024 Superconducting RF Filter Banks Project</p>
+        </footer>
+    </div>
+
+    <script>
+        // Initialize Mermaid
+        mermaid.initialize({ 
+            startOnLoad: true,
+            theme: 'base', 
+            themeVariables: {
+                primaryColor: getComputedStyle(document.documentElement).getPropertyValue('--diagram-element-bg').trim(),
+                primaryTextColor: getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim(),
+                primaryBorderColor: getComputedStyle(document.documentElement).getPropertyValue('--card-border').trim(),
+                lineColor: getComputedStyle(document.documentElement).getPropertyValue('--icon-color').trim(),
+                secondaryColor: getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim(),
+                tertiaryColor: getComputedStyle(document.documentElement).getPropertyValue('--bg-color').trim()
+            },
+            flowchart: { 
+                htmlLabels: true, // Allows rich text in flowchart nodes
+                nodeSpacing: 50,
+                rankSpacing: 50
+            },
+            fontFamily: getComputedStyle(document.documentElement).getPropertyValue('--font-primary').trim(),
+        });
+
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Theme Switcher
+            const lightModeBtn = document.getElementById('light-mode-btn');
+            const darkModeBtn = document.getElementById('dark-mode-btn');
+            const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+
+            function updateMermaidTheme() {
+                const currentPrimaryColor = getComputedStyle(document.documentElement).getPropertyValue('--diagram-element-bg').trim();
+                const currentTextColor = getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim();
+                const currentBorderColor = getComputedStyle(document.documentElement).getPropertyValue('--card-border').trim();
+                const currentLineColor = getComputedStyle(document.documentElement).getPropertyValue('--icon-color').trim();
+                const currentAccentColor = getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim();
+                const currentBgColor = getComputedStyle(document.documentElement).getPropertyValue('--bg-color').trim();
+                
+                mermaid.initialize({
+                    theme: 'base',
+                    themeVariables: {
+                        primaryColor: currentPrimaryColor,
+                        primaryTextColor: currentTextColor,
+                        primaryBorderColor: currentBorderColor,
+                        lineColor: currentLineColor,
+                        secondaryColor: currentAccentColor,
+                        tertiaryColor: currentBgColor
+                    }
+                });
+                document.querySelectorAll('.mermaid[data-processed="true"]').forEach((el, i) => {
+                    const code = el.textContent || el.innerText;
+                    const id = `mermaid-graph-${Date.now()}-${i}`;
+                    el.removeAttribute('data-processed');
+                    el.innerHTML = code;
+                    try {
+                         mermaid.init(undefined, el);
+                    } catch (e) {
+                        console.error("Error re-rendering Mermaid diagram:", e);
+                    }
+                });
+            }
+
+            function setTheme(theme) {
+                if (theme === 'dark') {
+                    document.documentElement.classList.add('dark-mode');
+                    localStorage.setItem('theme', 'dark');
+                } else {
+                    document.documentElement.classList.remove('dark-mode');
+                    localStorage.setItem('theme', 'light');
+                }
+                updateMermaidTheme();
+            }
+
+            lightModeBtn.addEventListener('click', () => setTheme('light'));
+            darkModeBtn.addEventListener('click', () => setTheme('dark'));
+
+            const currentTheme = localStorage.getItem('theme');
+            if (currentTheme) {
+                setTheme(currentTheme);
+            } else if (prefersDarkScheme.matches) {
+                setTheme('dark');
+            } else {
+                setTheme('light'); 
+            }
+            
+            // Scroll Animations for sections
+            const sections = document.querySelectorAll('.content-section');
+            const hrs = document.querySelectorAll('hr');
+            const observerOptions = {
+                root: null, 
+                rootMargin: '0px',
+                threshold: 0.1 
+            };
+
+            const observer = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('is-visible');
+                    }
+                });
+            }, observerOptions);
+
+            sections.forEach(section => {
+                observer.observe(section);
+            });
+            hrs.forEach(hr => { 
+                hr.style.opacity = 0; hr.style.transition = 'opacity 0.8s var(--ease-in-out-cubic) 0.2s';
+                observer.observe(hr);
+            });
+        });
+    </script>
+</body>
+</html>

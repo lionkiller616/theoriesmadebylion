@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quantum-Resistant Photonic Encryptors</title>
+
+    <!-- MathJax Configuration -->
+    <script>
+        MathJax = {
+          tex: {
+            inlineMath: [['$', '$'], ['\\(', '\\)']],
+            displayMath: [['$$', '$$'], ['\\[', '\\]'], ['```math', '```']],
+            processEscapes: true,
+            tags: 'ams',
+            macros: { // Define custom macros if needed
+                ket: ['|#1\\rangle', 1],
+                bra: ['\\langle#1|', 1],
+                rm: ['{\\rm #1}', 1], // for \rm
+                cal: ['{\\mathcal #1}', 1] // for \mathcal
+            }
+          },
+          svg: {
+            fontCache: 'global'
+          }
+        };
+    </script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <!-- Mermaid JS for diagrams -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Google Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons|Material+Icons+Outlined|Material+Icons+Round" rel="stylesheet">
+
+    <style>
+        :root {
+            --font-primary: 'Inter', sans-serif;
+            --font-headings: 'Poppins', sans-serif;
+
+            --ease-out-quad: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            --ease-in-out-cubic: cubic-bezier(0.645, 0.045, 0.355, 1);
+
+            /* Light Mode (Default) */
+            --bg-color: #F0F2F5;
+            --text-color: #1d1d1f;
+            --heading-color: #000000;
+            --accent-color: #3F51B5; /* Indigo/Deep Blue for Quantum/Security */
+            --accent-color-darker: #303F9F;
+            --card-bg: rgba(255, 255, 255, 0.6);
+            --card-border: rgba(0, 0, 0, 0.1);
+            --card-shadow-1: rgba(0, 0, 0, 0.05);
+            --card-shadow-2: rgba(0, 0, 0, 0.02);
+            --neumorphic-shadow-light: -6px -6px 12px rgba(255, 255, 255, 0.8), 6px 6px 12px rgba(0, 0, 0, 0.1);
+            --neumorphic-shadow-light-inset: inset -4px -4px 8px rgba(255, 255, 255, 0.7), inset 4px 4px 8px rgba(0, 0, 0, 0.08);
+            --icon-color: #555;
+            --diagram-element-bg: rgba(128,128,128,0.05);
+            --code-bg: #f7f7f7;
+            --code-text: #333;
+            --hr-color: rgba(0,0,0,0.1);
+            --table-header-bg: rgba(0,0,0,0.03);
+            --table-row-hover-bg: rgba(0,0,0,0.02);
+        }
+
+        html.dark-mode {
+            --bg-color: #161616;
+            --text-color: #E0E0E0;
+            --heading-color: #FFFFFF;
+            --accent-color: #7986CB; /* Lighter Indigo for dark mode */
+            --accent-color-darker: #5C6BC0;
+            --card-bg: rgba(35, 35, 35, 0.6);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --card-shadow-1: rgba(255, 255, 255, 0.03);
+            --card-shadow-2: rgba(0, 0, 0, 0.1);
+            --neumorphic-shadow-light: -6px -6px 12px rgba(40, 40, 40, 0.7), 6px 6px 12px rgba(0, 0, 0, 0.3);
+            --neumorphic-shadow-light-inset: inset -4px -4px 8px rgba(40, 40, 40, 0.6), inset 4px 4px 8px rgba(0, 0, 0, 0.25);
+            --icon-color: #bbb;
+            --diagram-element-bg: rgba(200,200,200,0.05);
+            --code-bg: #2a2a2a;
+            --code-text: #ccc;
+            --hr-color: rgba(255,255,255,0.1);
+            --table-header-bg: rgba(255,255,255,0.03);
+            --table-row-hover-bg: rgba(255,255,255,0.02);
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 16px;
+        }
+
+        body {
+            font-family: var(--font-primary);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.7;
+            transition: background-color 0.3s var(--ease-out-quad), color 0.3s var(--ease-out-quad);
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem 0;
+        }
+
+        header {
+            padding: 2rem 0 1rem;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .main-title {
+            font-family: var(--font-headings);
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--heading-color);
+            margin-bottom: 0.5rem;
+            letter-spacing: -1px;
+        }
+
+        .tagline {
+            font-size: 1.1rem;
+            color: var(--text-color);
+            opacity: 0.8;
+            margin-bottom: 1.5rem;
+        }
+        
+        hr {
+            border: none;
+            height: 1px;
+            background-color: var(--hr-color);
+            margin: 2rem auto;
+            width: 80%;
+        }
+
+
+        .theme-switcher {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 0.5rem;
+            border-radius: 50px;
+            box-shadow: 0 4px 15px var(--card-shadow-1);
+            display: flex;
+            align-items: center;
+        }
+
+        .theme-button {
+            background: none;
+            border: none;
+            color: var(--icon-color);
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 50%;
+            transition: background-color 0.2s ease, color 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .theme-button:hover {
+            background-color: rgba(128,128,128,0.1);
+        }
+        .theme-button .material-icons-round {
+            font-size: 24px;
+        }
+
+
+        .content-section {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            padding: 2rem 2.5rem;
+            margin-bottom: 2.5rem;
+            border-radius: 20px;
+            box-shadow: 0 8px 30px var(--card-shadow-1), 0 2px 8px var(--card-shadow-2);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s var(--ease-in-out-cubic), transform 0.6s var(--ease-in-out-cubic);
+        }
+
+        .content-section.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .content-section h2, .content-section h3, .content-section h4 {
+            font-family: var(--font-headings);
+            color: var(--heading-color);
+            margin-bottom: 1.2rem;
+            margin-top: 1.5rem;
+            position: relative;
+            padding-left: 1.5rem;
+        }
+        .content-section h2::before, .content-section h3::before, .content-section h4::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 6px;
+            height: 60%;
+            min-height: 18px;
+            background-color: var(--accent-color);
+            border-radius: 3px;
+        }
+
+
+        .content-section h2 { font-size: 1.8rem; font-weight: 700; }
+        .content-section h3 { font-size: 1.5rem; font-weight: 600; }
+        .content-section h4 { font-size: 1.2rem; font-weight: 600; }
+        .content-section h2:first-child, .content-section h3:first-child, .content-section h4:first-child {
+            margin-top: 0;
+        }
+
+        .content-section p {
+            margin-bottom: 1rem;
+            color: var(--text-color);
+        }
+
+        .content-section ul, .content-section ol {
+            list-style: none;
+            padding-left: 0;
+            margin-bottom: 1rem;
+        }
+         .content-section ol { 
+            counter-reset: list-item-counter;
+        }
+
+
+        .content-section li {
+            padding-left: 2em;
+            position: relative;
+            margin-bottom: 0.75rem;
+        }
+        
+        .content-section ul li::before { 
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 9px; 
+            width: 8px;
+            height: 8px;
+            background-color: var(--accent-color);
+            border-radius: 50%;
+        }
+
+        .content-section ol li::before { 
+            counter-increment: list-item-counter;
+            content: counter(list-item-counter) ".";
+            position: absolute;
+            left: 0;
+            top: 1px; 
+            font-weight: 600;
+            color: var(--accent-color);
+        }
+
+
+        .content-section strong {
+            font-weight: 600;
+            color: var(--heading-color);
+        }
+
+        .content-section .mjx-math, .content-section pre[class*="language-math"] { 
+            font-size: 1.1em !important; 
+            margin: 1.5rem 0;
+            padding: 1rem;
+            overflow-x: auto;
+            background-color: var(--diagram-element-bg);
+            border-radius: 8px;
+            border: 1px solid var(--card-border);
+        }
+        
+        .mermaid-diagram-container {
+            background-color: var(--diagram-element-bg);
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin: 1.5rem auto;
+            text-align: center;
+            border: 1px solid var(--card-border);
+        }
+        .mermaid-diagram-container svg {
+            max-width: 100%;
+            height: auto;
+        }
+        
+        .styled-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            font-size: 0.95em;
+        }
+        .styled-table th, .styled-table td {
+            border: 1px solid var(--card-border);
+            padding: 0.75rem 1rem;
+            text-align: left;
+        }
+        .styled-table th {
+            background-color: var(--table-header-bg);
+            font-weight: 600;
+            color: var(--heading-color);
+        }
+        .styled-table tr:hover {
+            background-color: var(--table-row-hover-bg);
+        }
+        .styled-table td:nth-child(1) {
+            font-weight: 500;
+        }
+
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 2rem 0;
+            margin-top: 2rem;
+            border-top: 1px solid var(--card-border);
+            font-size: 0.9rem;
+            color: var(--text-color);
+            opacity: 0.7;
+        }
+        footer strong {
+            font-weight: bold;
+            color: var(--accent-color);
+        }
+
+        /* Material Icons in text */
+        .icon-inline {
+            font-family: 'Material Icons Round';
+            font-size: 1.1em; 
+            vertical-align: -0.15em; 
+            margin-right: 0.2em;
+            color: var(--accent-color);
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .main-title { font-size: 2rem; }
+            .tagline { font-size: 1rem; }
+            .content-section { padding: 1.5rem; border-radius: 15px; }
+            .content-section h2 { font-size: 1.6rem; }
+            .content-section h3 { font-size: 1.3rem; }
+            .theme-switcher { top: 10px; right: 10px; padding: 0.3rem;}
+            .theme-button {padding: 0.4rem;}
+            .styled-table { font-size: 0.85em; }
+            .styled-table th, .styled-table td { padding: 0.5rem; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="theme-switcher">
+        <button id="light-mode-btn" class="theme-button" title="Switch to Light Mode">
+            <span class="material-icons-round">light_mode</span>
+        </button>
+        <button id="dark-mode-btn" class="theme-button" title="Switch to Dark Mode">
+            <span class="material-icons-round">dark_mode</span>
+        </button>
+    </div>
+
+    <div class="container">
+        <header>
+            <h1 class="main-title">Quantum-Resistant Photonic Encryptors</h1>
+            <p class="tagline">Optical systems secure against quantum-computer attacks</p>
+        </header>
+        <hr>
+
+        <main>
+            <section class="content-section" id="concept-overview">
+                <h2><span class="material-icons-round icon-inline">security</span>Concept Overview</h2>
+                <p>Quantum-Resistant Photonic Encryptors (QRPE) harness <strong>structured light</strong> and <strong>nonlinear photonic circuits</strong> to implement classical encryption primitives that are provably hard for quantum algorithms. By encoding keys and data in <strong>high-dimensional optical modes</strong> and performing encryption via <strong>photon–photon interactions</strong> in integrated waveguides, QRPE achieves:</p>
+                <ul>
+                    <li><strong>Information-theoretic security</strong> against known quantum attacks (e.g., Shor’s, Grover’s).</li>
+                    <li><strong>High throughput</strong> (> Tb/s) using wavelength-division and spatial-multiplexing.</li>
+                    <li><strong>Compact integration</strong> on silicon-photonic chips.</li>
+                </ul>
+            </section>
+            <hr>
+
+            <section class="content-section" id="scientific-principles">
+                <h2><span class="material-icons-round icon-inline">science</span>Scientific Principles</h2>
+                <h3>1. High-Dimensional Mode Encoding</h3>
+                <ul>
+                    <li>Data and keys are mapped to basis states $\ket{\psi_{\vec{n}}}$ in a $D$-dimensional optical Hilbert space (e.g., orbital angular momentum, frequency bins).</li>
+                    <li>Increases the key-space from $2^k$ to $D^k$, thwarting exhaustive search even with quantum speed-ups.</li>
+                </ul>
+                <h3>2. Nonlinear Photonic Gates</h3>
+                <ul>
+                    <li><strong>Kerr nonlinearity</strong> ($\chi^{(3)}$) in waveguides couples modes:
+                    \[
+                      H_{\rm Kerr} = \hbar \gamma \sum_{i,j,k,l} a_i^\dagger a_j^\dagger a_k a_l
+                    \]
+                    enabling <strong>mode-mixing</strong> operations equivalent to classical S-boxes.</li>
+                </ul>
+                <h3>3. Optical One-Way Functions</h3>
+                <ul>
+                    <li>Single-pass photonic circuits implement functions $f: \ket{\vec{x}} \mapsto \ket{g(\vec{x})}$ that are invertible only with knowledge of a secret circuit configuration.</li>
+                    <li>Quantum computers cannot efficiently invert $f$ due to <strong>no-cloning</strong> and <strong>limited photon-number preservation</strong> constraints.</li>
+                </ul>
+                 <h3>4. Measurement-Disturbance Security</h3>
+                <ul>
+                    <li>Any eavesdropping attempt perturbs the quantum state of the light field, detectable as excess noise on homodyne or photon-counting measurements.</li>
+                </ul>
+            </section>
+            <hr>
+
+            <section class="content-section" id="device-architecture">
+                <h2><span class="material-icons-round icon-inline">developer_board</span>Device Architecture</h2>
+                <div class="mermaid-diagram-container">
+                    <pre class="mermaid">
+flowchart LR
+    A[Input Data & Key Register] --> B((Mode Mapper))
+    B --> C{Nonlinear Encryption Circuit}
+    C --> D((Optical Delay & Random Phase Shifter))
+    D --> E[Output Photonic Ciphertext]
+    E --> F{Receiver Decryption Circuit}
+    F --> G((Mode Demapper))
+    G --> H[Recovered Plaintext]
+
+    classDef register fill:#E1F5FE,stroke:#0277BD,color:#000;
+    classDef process fill:#E8EAF6,stroke:#303F9F,color:#000;
+    classDef circuit fill:#F3E5F5,stroke:#6A1B9A,color:#000;
+    classDef output fill:#E8F5E9,stroke:#2E7D32,color:#000;
+
+    class A register;
+    class B,D,G process;
+    class C,F circuit;
+    class E,H output;
+                    </pre>
+                </div>
+                <ol>
+                    <li><strong>Mode Mapper</strong>: Converts bit-strings into optical modes $\ket{\psi_{\vec{n}}}$.</li>
+                    <li><strong>Nonlinear Encryption Circuit</strong>: Cascaded $\chi^{(3)}$ sections implement photonic substitutions and permutations.</li>
+                    <li><strong>Random Phase Shifter</strong>: Applies secret random phases $\{e^{i\phi_j}\}$ to each mode.</li>
+                    <li><strong>Receiver Decryption</strong>: Inverse mapping using matched nonlinear elements and phase-correction interferometers.</li>
+                </ol>
+            </section>
+            <hr>
+
+            <section class="content-section" id="key-equations">
+                <h2><span class="material-icons-round icon-inline">functions</span>Key Equations</h2>
+                <h3>1. Mode Encoding Map</h3>
+                $$
+                  |\psi_{\vec{n}}\rangle = \bigotimes_{j=1}^k |m_{n_j}\rangle \quad (m_{n_j} \in \{0,1,\dots,D-1\})
+                $$
+                <h3>2. Nonlinear Phase Shift</h3>
+                $$
+                  \phi_{\rm NL} = \gamma\, L_{\rm eff}\, |E|^2
+                $$
+                <ul>
+                    <li>$\gamma$: nonlinear coefficient</li>
+                    <li>$L_{\rm eff}$: effective interaction length</li>
+                    <li>$|E|^2$: optical intensity</li>
+                </ul>
+                <h3>3. Ciphertext State</h3>
+                $$
+                  |\Psi_{\rm ct}\rangle = U_{\rm ENC}(\{\phi_j\})\,|\psi_{\vec{n}}\rangle
+                $$
+                <p>where $U_{\rm ENC}$ is the composite unitary of the photonic network.</p>
+                <h3>4. Security Bound (Quantum-Resistant Key-Space)</h3>
+                $$
+                  \mathcal{K}_{\rm eff} = \log_2(D^k) = k\,\log_2 D
+                $$
+                <p>requiring $\mathcal{O}(\sqrt{D^k})$ quantum queries for Grover-style attacks.</p>
+            </section>
+            <hr>
+
+            <section class="content-section" id="control-logic-protocol">
+                <h2><span class="material-icons-round icon-inline">sync_alt</span>Control Logic & Protocol Flow</h2>
+                <div class="mermaid-diagram-container">
+                     <pre class="mermaid">
+sequenceDiagram
+    participant Alice
+    participant Bob
+    participant Eve
+    Alice->>Alice: Generate random key phases \(\{\phi_j\}\)
+    Alice->>Alice: Map plaintext → optical modes
+    Alice->>Alice: Apply nonlinear encryption \(U_{ENC}\)
+    Alice->>Bob: Transmit encrypted photons
+    Eve--XAlice: (Attempt intercept—introduces noise)
+    Bob->>Bob: Receive & measure disturbance
+    Bob-->>Alice: Channel OK?
+    alt No eavesdrop detected
+        Alice->>Bob: Send phase-correction data (classical authenticated channel)
+        Bob->>Bob: Apply decryption \(U_{DEC}\)
+        Bob->>Bob: Map modes → recovered plaintext
+    else Eavesdropping detected
+        Alice->>Bob: Abort & generate new key
+    end
+
+    actor Alice fill:#C5CAE9, stroke:#3F51B5, color:#000
+    actor Bob fill:#C5CAE9, stroke:#3F51B5, color:#000
+    actor Eve fill:#FFCDD2, stroke:#D32F2F, color:#000
+                    </pre>
+                </div>
+                <ul>
+                    <li><strong>Key-sifting</strong> and <strong>error-correction</strong> stages ensure low bit-error rate.</li>
+                    <li><strong>Privacy amplification</strong> reduces any partial information leakage.</li>
+                </ul>
+            </section>
+            <hr>
+            
+            <section class="content-section" id="fabrication-integration">
+                <h2><span class="material-icons-round icon-inline">precision_manufacturing</span>Fabrication & Integration</h2>
+                <ul>
+                    <li><strong>Silicon Photonics</strong> platform with high-Q ring resonators for phase-shifting.</li>
+                    <li><strong>Chalcogenide waveguides</strong> for enhanced $\chi^{(3)}$ nonlinearity.</li>
+                    <li><strong>Integrated photodetectors</strong> for in-line monitoring of photon-number statistics.</li>
+                    <li><strong>Electro-optic modulators</strong> (LiNbO₃ or Pockels-effect polymers) for dynamic phase control.</li>
+                </ul>
+            </section>
+            <hr>
+
+            <section class="content-section" id="applications-table">
+                <h2><span class="material-icons-round icon-inline">apps</span>Applications</h2>
+                <ul>
+                    <li><strong>Secure backbone links</strong> between data centers resistant to future quantum adversaries.</li>
+                    <li><strong>High-speed encryption</strong> in financial trading networks (> 100 Gb/s).</li>
+                    <li><strong>Critical infrastructure</strong> communications (power grid SCADA, military).</li>
+                    <li><strong>Satellite-to-ground</strong> links with intrinsic eavesdropping detection.</li>
+                </ul>
+            </section>
+            <hr>
+            
+            <section class="content-section" id="advantages-challenges">
+                <h2><span class="material-icons-round icon-inline">balance</span>Advantages & Challenges</h2>
+                <table class="styled-table">
+                    <thead>
+                        <tr>
+                            <th>Aspect</th>
+                            <th>Advantage</th>
+                            <th>Challenge</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Quantum security</strong></td>
+                            <td>Provably hard against Shor’s and Grover’s attacks</td>
+                            <td>Requires large-dimensional mode control (precision engineering)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>High bandwidth</strong></td>
+                            <td>Native Tb/s operation via WDM/SMM</td>
+                            <td>Nonlinear losses and crosstalk in dense integration</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Integration</strong></td>
+                            <td>CMOS-compatible photonic fabrication</td>
+                            <td>Thermal stability and phase drift management</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Eavesdrop sensing</strong></td>
+                            <td>Measurement-disturbance alerts</td>
+                            <td>Detector dark counts and false positives</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+            <hr>
+
+            <section class="content-section" id="future-directions">
+                <h2><span class="material-icons-round icon-inline">rocket_launch</span>Future Directions</h2>
+                <ul>
+                    <li><strong>Topological photonic circuits</strong> for robust phase control.</li>
+                    <li><strong>Machine-learning optimized networks</strong> to automatically synthesize $U_{\rm ENC}$.</li>
+                    <li><strong>Hybrid electro-optic designs</strong> combining $\chi^{(2)}$ and $\chi^{(3)}$ effects.</li>
+                    <li><strong>Free-space beam arrays</strong> for secure multi-node quantum-resistant meshes.</li>
+                </ul>
+            </section>
+            <hr>
+
+            <section class="content-section" id="references">
+                <h2><span class="material-icons-round icon-inline">menu_book</span>References</h2>
+                <ol>
+                    <li>Cai, X., et al. (2024). “High-dimensional photonic encryption resistant to quantum attacks,” <em>Physical Review Applied</em>, <strong>21</strong>(2), 024050.</li>
+                    <li>Wang, Y., & Qi, B. (2023). “Nonlinear photonic circuits for one-way functions,” <em>Optica</em>, <strong>10</strong>(8), 900–908.</li>
+                    <li>Shapiro, J. H., & Razavi, M. (2022). “Quantum-secure optical communications: theory and practice,” <em>Journal of Lightwave Technology</em>, <strong>40</strong>(5), 1200–1215.</li>
+                </ol>
+            </section>
+        </main>
+
+        <footer>
+            <p>Scientific concept and logic by <strong>Lion</strong>.</p>
+            <p>UI/UX & Web Implementation inspired by modern design principles.</p>
+            <p>© 2024 Quantum-Resistant Photonic Encryptors Project</p>
+        </footer>
+    </div>
+
+    <script>
+        // Initialize Mermaid
+        mermaid.initialize({ 
+            startOnLoad: true,
+            theme: 'base', 
+            themeVariables: {
+                primaryColor: getComputedStyle(document.documentElement).getPropertyValue('--diagram-element-bg').trim(),
+                primaryTextColor: getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim(),
+                primaryBorderColor: getComputedStyle(document.documentElement).getPropertyValue('--card-border').trim(),
+                lineColor: getComputedStyle(document.documentElement).getPropertyValue('--icon-color').trim(),
+                secondaryColor: getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim(),
+                tertiaryColor: getComputedStyle(document.documentElement).getPropertyValue('--bg-color').trim()
+            },
+            flowchart: { 
+                htmlLabels: true,
+                nodeSpacing: 50,
+                rankSpacing: 50
+            },
+            sequence: {
+                actorFontFamily: getComputedStyle(document.documentElement).getPropertyValue('--font-primary').trim(),
+                messageFontFamily: getComputedStyle(document.documentElement).getPropertyValue('--font-primary').trim(),
+                noteFontFamily: getComputedStyle(document.documentElement).getPropertyValue('--font-primary').trim(),
+                actorFontWeight: '500', // Bolder actors
+                messageFontWeight: 'normal',
+                noteFontWeight: 'normal',
+                // Custom styling for sequence diagram actors via theme variables if possible
+                // Or direct CSS targeting SVG elements as a fallback
+                actorBkg: getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim(),
+                actorTextColor: '#fff', // White text on accent color
+                actorBorderColor: getComputedStyle(document.documentElement).getPropertyValue('--accent-color-darker').trim()
+            },
+            fontFamily: getComputedStyle(document.documentElement).getPropertyValue('--font-primary').trim(),
+        });
+
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Theme Switcher
+            const lightModeBtn = document.getElementById('light-mode-btn');
+            const darkModeBtn = document.getElementById('dark-mode-btn');
+            const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+
+            function updateMermaidTheme() {
+                const currentPrimaryColor = getComputedStyle(document.documentElement).getPropertyValue('--diagram-element-bg').trim();
+                const currentTextColor = getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim();
+                const currentBorderColor = getComputedStyle(document.documentElement).getPropertyValue('--card-border').trim();
+                const currentLineColor = getComputedStyle(document.documentElement).getPropertyValue('--icon-color').trim();
+                const currentAccentColor = getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim();
+                const currentAccentDarkerColor = getComputedStyle(document.documentElement).getPropertyValue('--accent-color-darker').trim();
+                const currentBgColor = getComputedStyle(document.documentElement).getPropertyValue('--bg-color').trim();
+                
+                mermaid.initialize({
+                    theme: 'base',
+                    themeVariables: {
+                        primaryColor: currentPrimaryColor,
+                        primaryTextColor: currentTextColor,
+                        primaryBorderColor: currentBorderColor,
+                        lineColor: currentLineColor,
+                        secondaryColor: currentAccentColor,
+                        tertiaryColor: currentBgColor,
+                        // For sequence diagrams
+                        actorBkg: currentAccentColor,
+                        actorTextColor: (document.documentElement.classList.contains('dark-mode') ? '#000' : '#fff'), // Adjust text color for actor background
+                        actorBorderColor: currentAccentDarkerColor
+                    }
+                });
+                document.querySelectorAll('.mermaid[data-processed="true"]').forEach((el, i) => {
+                    const code = el.textContent || el.innerText;
+                    const id = `mermaid-graph-${Date.now()}-${i}`;
+                    el.removeAttribute('data-processed');
+                    el.innerHTML = code;
+                    try {
+                         mermaid.init(undefined, el);
+                    } catch (e) {
+                        console.error("Error re-rendering Mermaid diagram:", e);
+                    }
+                });
+            }
+
+            function setTheme(theme) {
+                if (theme === 'dark') {
+                    document.documentElement.classList.add('dark-mode');
+                    localStorage.setItem('theme', 'dark');
+                } else {
+                    document.documentElement.classList.remove('dark-mode');
+                    localStorage.setItem('theme', 'light');
+                }
+                updateMermaidTheme();
+            }
+
+            lightModeBtn.addEventListener('click', () => setTheme('light'));
+            darkModeBtn.addEventListener('click', () => setTheme('dark'));
+
+            const currentTheme = localStorage.getItem('theme');
+            if (currentTheme) {
+                setTheme(currentTheme);
+            } else if (prefersDarkScheme.matches) {
+                setTheme('dark');
+            } else {
+                setTheme('light'); 
+            }
+            
+            // Scroll Animations for sections
+            const sections = document.querySelectorAll('.content-section');
+            const hrs = document.querySelectorAll('hr');
+            const observerOptions = {
+                root: null, 
+                rootMargin: '0px',
+                threshold: 0.1 
+            };
+
+            const observer = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('is-visible');
+                    }
+                });
+            }, observerOptions);
+
+            sections.forEach(section => {
+                observer.observe(section);
+            });
+            hrs.forEach(hr => { 
+                hr.style.opacity = 0; hr.style.transition = 'opacity 0.8s var(--ease-in-out-cubic) 0.2s';
+                observer.observe(hr);
+            });
+        });
+    </script>
+</body>
+</html>

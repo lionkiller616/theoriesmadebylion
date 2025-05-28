@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acoustic-Force Microscopy (AFM) Chips</title>
+
+    <!-- MathJax Configuration -->
+    <script>
+        MathJax = {
+          tex: {
+            inlineMath: [['$', '$'], ['\\(', '\\)']],
+            displayMath: [['$$', '$$'], ['\\[', '\\]'], ['```math', '```']],
+            processEscapes: true,
+            tags: 'ams',
+            macros: { // Define custom macros if needed
+                // No specific macros from content, but can add if needed
+            }
+          },
+          svg: {
+            fontCache: 'global'
+          }
+        };
+    </script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <!-- Mermaid JS for diagrams -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Google Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons|Material+Icons+Outlined|Material+Icons+Round" rel="stylesheet">
+
+    <style>
+        :root {
+            --font-primary: 'Inter', sans-serif;
+            --font-headings: 'Poppins', sans-serif;
+
+            --ease-out-quad: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            --ease-in-out-cubic: cubic-bezier(0.645, 0.045, 0.355, 1);
+
+            /* Light Mode (Default) */
+            --bg-color: #F0F2F5;
+            --text-color: #1d1d1f;
+            --heading-color: #000000;
+            --accent-color: #1976D2; /* Blue for Acoustics/Precision */
+            --accent-color-darker: #0D47A1;
+            --card-bg: rgba(255, 255, 255, 0.6);
+            --card-border: rgba(0, 0, 0, 0.1);
+            --card-shadow-1: rgba(0, 0, 0, 0.05);
+            --card-shadow-2: rgba(0, 0, 0, 0.02);
+            --neumorphic-shadow-light: -6px -6px 12px rgba(255, 255, 255, 0.8), 6px 6px 12px rgba(0, 0, 0, 0.1);
+            --neumorphic-shadow-light-inset: inset -4px -4px 8px rgba(255, 255, 255, 0.7), inset 4px 4px 8px rgba(0, 0, 0, 0.08);
+            --icon-color: #555;
+            --diagram-element-bg: rgba(128,128,128,0.05);
+            --code-bg: #f7f7f7;
+            --code-text: #333;
+            --hr-color: rgba(0,0,0,0.1);
+        }
+
+        html.dark-mode {
+            --bg-color: #161616;
+            --text-color: #E0E0E0;
+            --heading-color: #FFFFFF;
+            --accent-color: #42A5F5; /* Lighter Blue for dark mode */
+            --accent-color-darker: #1E88E5;
+            --card-bg: rgba(35, 35, 35, 0.6);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --card-shadow-1: rgba(255, 255, 255, 0.03);
+            --card-shadow-2: rgba(0, 0, 0, 0.1);
+            --neumorphic-shadow-light: -6px -6px 12px rgba(40, 40, 40, 0.7), 6px 6px 12px rgba(0, 0, 0, 0.3);
+            --neumorphic-shadow-light-inset: inset -4px -4px 8px rgba(40, 40, 40, 0.6), inset 4px 4px 8px rgba(0, 0, 0, 0.25);
+            --icon-color: #bbb;
+            --diagram-element-bg: rgba(200,200,200,0.05);
+            --code-bg: #2a2a2a;
+            --code-text: #ccc;
+            --hr-color: rgba(255,255,255,0.1);
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 16px;
+        }
+
+        body {
+            font-family: var(--font-primary);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.7;
+            transition: background-color 0.3s var(--ease-out-quad), color 0.3s var(--ease-out-quad);
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem 0;
+        }
+
+        header {
+            padding: 2rem 0 1rem;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .main-title {
+            font-family: var(--font-headings);
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--heading-color);
+            margin-bottom: 0.5rem;
+            letter-spacing: -1px;
+        }
+
+        .tagline {
+            font-size: 1.1rem;
+            color: var(--text-color);
+            opacity: 0.8;
+            margin-bottom: 1.5rem;
+        }
+        
+        hr {
+            border: none;
+            height: 1px;
+            background-color: var(--hr-color);
+            margin: 2rem auto;
+            width: 80%;
+        }
+
+
+        .theme-switcher {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 0.5rem;
+            border-radius: 50px;
+            box-shadow: 0 4px 15px var(--card-shadow-1);
+            display: flex;
+            align-items: center;
+        }
+
+        .theme-button {
+            background: none;
+            border: none;
+            color: var(--icon-color);
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 50%;
+            transition: background-color 0.2s ease, color 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .theme-button:hover {
+            background-color: rgba(128,128,128,0.1);
+        }
+        .theme-button .material-icons-round {
+            font-size: 24px;
+        }
+
+
+        .content-section {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            padding: 2rem 2.5rem;
+            margin-bottom: 2.5rem;
+            border-radius: 20px;
+            box-shadow: 0 8px 30px var(--card-shadow-1), 0 2px 8px var(--card-shadow-2);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s var(--ease-in-out-cubic), transform 0.6s var(--ease-in-out-cubic);
+        }
+
+        .content-section.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .content-section h2, .content-section h3, .content-section h4 {
+            font-family: var(--font-headings);
+            color: var(--heading-color);
+            margin-bottom: 1.2rem;
+            margin-top: 1.5rem;
+            position: relative;
+            padding-left: 1.5rem;
+        }
+        .content-section h2::before, .content-section h3::before, .content-section h4::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 6px;
+            height: 60%;
+            min-height: 18px;
+            background-color: var(--accent-color);
+            border-radius: 3px;
+        }
+
+
+        .content-section h2 { font-size: 1.8rem; font-weight: 700; }
+        .content-section h3 { font-size: 1.5rem; font-weight: 600; }
+        .content-section h4 { font-size: 1.2rem; font-weight: 600; }
+        .content-section h2:first-child, .content-section h3:first-child, .content-section h4:first-child {
+            margin-top: 0;
+        }
+
+        .content-section p {
+            margin-bottom: 1rem;
+            color: var(--text-color);
+        }
+
+        .content-section ul, .content-section ol {
+            list-style: none;
+            padding-left: 0;
+            margin-bottom: 1rem;
+        }
+         .content-section ol { 
+            counter-reset: list-item-counter;
+        }
+
+
+        .content-section li {
+            padding-left: 2em;
+            position: relative;
+            margin-bottom: 0.75rem;
+        }
+        
+        .content-section ul li::before { 
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 9px; 
+            width: 8px;
+            height: 8px;
+            background-color: var(--accent-color);
+            border-radius: 50%;
+        }
+
+        .content-section ol li::before { 
+            counter-increment: list-item-counter;
+            content: counter(list-item-counter) ".";
+            position: absolute;
+            left: 0;
+            top: 1px; 
+            font-weight: 600;
+            color: var(--accent-color);
+        }
+
+
+        .content-section strong {
+            font-weight: 600;
+            color: var(--heading-color);
+        }
+
+        .content-section .mjx-math, .content-section pre[class*="language-math"] { 
+            font-size: 1.1em !important; 
+            margin: 1.5rem 0;
+            padding: 1rem;
+            overflow-x: auto;
+            background-color: var(--diagram-element-bg);
+            border-radius: 8px;
+            border: 1px solid var(--card-border);
+        }
+        
+        .mermaid-diagram-container {
+            background-color: var(--diagram-element-bg);
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin: 1.5rem auto;
+            text-align: center;
+            border: 1px solid var(--card-border);
+        }
+        .mermaid-diagram-container svg {
+            max-width: 100%;
+            height: auto;
+        }
+        
+        .placeholder-image-container {
+            text-align: center;
+            margin: 1.5rem 0;
+        }
+        .placeholder-image-container img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 12px;
+            border: 1px solid var(--card-border);
+            box-shadow: 0 4px 10px var(--card-shadow-1);
+        }
+
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 2rem 0;
+            margin-top: 2rem;
+            border-top: 1px solid var(--card-border);
+            font-size: 0.9rem;
+            color: var(--text-color);
+            opacity: 0.7;
+        }
+        footer strong {
+            font-weight: bold;
+            color: var(--accent-color);
+        }
+
+        /* Material Icons in text */
+        .icon-inline {
+            font-family: 'Material Icons Round';
+            font-size: 1.1em; 
+            vertical-align: -0.15em; 
+            margin-right: 0.2em;
+            color: var(--accent-color);
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .main-title { font-size: 2rem; }
+            .tagline { font-size: 1rem; }
+            .content-section { padding: 1.5rem; border-radius: 15px; }
+            .content-section h2 { font-size: 1.6rem; }
+            .content-section h3 { font-size: 1.3rem; }
+            .theme-switcher { top: 10px; right: 10px; padding: 0.3rem;}
+            .theme-button {padding: 0.4rem;}
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="theme-switcher">
+        <button id="light-mode-btn" class="theme-button" title="Switch to Light Mode">
+            <span class="material-icons-round">light_mode</span>
+        </button>
+        <button id="dark-mode-btn" class="theme-button" title="Switch to Dark Mode">
+            <span class="material-icons-round">dark_mode</span>
+        </button>
+    </div>
+
+    <div class="container">
+        <header>
+            <h1 class="main-title">Acoustic-Force Microscopy (AFM) Chips</h1>
+            <p class="tagline">Microfabricated sensor arrays using ultrasonic excitation and acoustic radiation forces to achieve tip–sample interactions analogous to atomic force microscopy for surface and subsurface characterization.</p>
+        </header>
+        <hr>
+
+        <main>
+            <section class="content-section" id="introduction">
+                <h2><span class="material-icons-round icon-inline">waves</span>1. Introduction</h2>
+                <p>Conventional atomic force microscopy (AFM) relies on mechanical deflection of a cantilever tip. <strong>Acoustic-Force Microscopy (AFM) Chips</strong> replace mechanical actuation with ultrasonic standing waves in a microfluidic or solid medium, generating acoustic radiation forces on micro- or nano-probes to sense topography, stiffness, and subsurface features. On-chip integration enables parallelized, high-throughput surface metrology.</p>
+            </section>
+            <hr>
+
+            <section class="content-section" id="principles-acoustic-radiation-force">
+                <h2><span class="material-icons-round icon-inline">filter_center_focus</span>2. Principles of Acoustic Radiation Force</h2>
+                <h4>Acoustic Field</h4>
+                <p>A standing wave of frequency $f$ and pressure amplitude $p_0$ in a medium of density $\rho$ and speed $c$:</p>
+                ```math
+                p(x,t) = p_0 \cos(kx) \cos(2\pi f t)
+                ```
+                <ul>
+                    <li>$k = 2\pi/\lambda$: wavenumber, $\lambda = c/f$</li>
+                </ul>
+                <h4>Radiation Force on a Sphere (Gor’kov potential):</h4>
+                ```math
+                F_{rad}(x) = -\nabla U_{ac}(x),\quad U_{ac} = \frac{2\pi a^3}{3}\Bigl\{\frac{1}{2}f_1 \frac{p_0^2}{\rho c^2} \cos^2(kx) - \frac{3}{4}f_2 \rho v_0^2 \sin^2(kx)\Bigr\}
+                ```
+                <ul>
+                    <li>$a$: probe radius, $v_0 = p_0/(\rho c)$ particle velocity amplitude</li>
+                    <li>$f_1 = 1 - \frac{\kappa_p}{\kappa_m},\ f_2 = \frac{2(\rho_p-\rho_m)}{2\rho_p+\rho_m}$</li>
+                </ul>
+            </section>
+            <hr>
+
+            <section class="content-section" id="acoustic-force-probe-dynamics">
+                <h2><span class="material-icons-round icon-inline">vibration</span>3. Acoustic-Force Probe Dynamics</h2>
+                <h3>3.1 Equation of Motion</h3>
+                <p>Probe displacement $u(t)$ under radiation force and mechanical restoring force $k$:</p>
+                ```math
+                m\ddot{u} + b\dot{u} + k u = F_{rad}(x_0 + u,t)
+                ```
+                <ul>
+                    <li>$m$: effective mass, $b$: damping coefficient</li>
+                </ul>
+                <h3>3.2 Resonant Enhancement</h3>
+                <p>Driving frequency tuned near probe’s mechanical resonance $\omega_0=\sqrt{k/m}$ amplifies response:</p>
+                ```math
+                H(\omega)=\frac{1}{k - m\omega^2 + j b \omega}
+                ```
+            </section>
+            <hr>
+
+            <section class="content-section" id="on-chip-integration-sensing-logic">
+                <h2><span class="material-icons-round icon-inline">memory</span>4. On-Chip Integration and Sensing Logic</h2>
+                <ol>
+                    <li><strong>Ultrasonic Transducer Array</strong> embedded beneath sensing surface generates standing waves.</li>
+                    <li><strong>Probe Array</strong>: Microcantilevers or particles trapped in acoustic nodes act as force sensors.</li>
+                    <li><strong>Detection</strong>: Optical interferometry or piezoresistive readout measures probe displacement $u(t)$.</li>
+                    <li><strong>Scanning</strong>: Lateral sample translation or phased-array beam steering for 2D mapping.</li>
+                    <li><strong>Data Processing</strong>: Lock-in amplification extracts amplitude and phase, reconstructing surface height and material contrast.</li>
+                </ol>
+                <div class="mermaid-diagram-container">
+                    <pre class="mermaid">
+flowchart LR
+  U[Ultrasonic Transducer] --> A((Acoustic Field))
+  A --> P{Probe Array}
+  P --> D[Displacement Readout]
+  D --> C(Lock-In Amplifier)
+  C --> R[Reconstruction: topography, stiffness]
+
+  classDef source fill:#E3F2FD,stroke:#1565C0,color:#000;
+  classDef process fill:#E8EAF6,stroke:#303F9F,color:#000;
+  classDef output fill:#C8E6C9,stroke:#2E7D32,color:#000;
+
+  class U source;
+  class A,P,D,C process;
+  class R output;
+                    </pre>
+                </div>
+            </section>
+            <hr>
+
+            <section class="content-section" id="resolution-sensitivity">
+                <h2><span class="material-icons-round icon-inline">insights</span>5. Resolution and Sensitivity</h2>
+                <ul>
+                    <li><strong>Spatial Resolution</strong> limited by probe size $a$ and acoustic wavelength $\lambda$.</li>
+                    <li><strong>Force Sensitivity</strong>:
+                    ```math
+                    S_F = \sqrt{4 k_B T b}\quad (\mathrm{N}/\sqrt{\mathrm{Hz}})
+                    ```
+                    </li>
+                    <li>Optimized by low damping $b$, cryogenic operation, and high-Q mechanical designs.</li>
+                </ul>
+            </section>
+            <hr>
+
+            <section class="content-section" id="applications">
+                <h2><span class="material-icons-round icon-inline">widgets</span>6. Applications</h2>
+                <ul>
+                    <li><strong>High-Throughput Surface Metrology</strong> for MEMS and wafers.</li>
+                    <li><strong>Subsurface Defect Detection</strong> in thin films via acoustic contrast.</li>
+                    <li><strong>Live-Cell Mechanobiology</strong>: non-contact cell stiffness mapping in fluid.</li>
+                </ul>
+            </section>
+            <hr>
+
+            <section class="content-section" id="illustrative-diagrams">
+                <h2><span class="material-icons-round icon-inline">perm_media</span>7. Illustrative Diagrams</h2>
+                <div class="mermaid-diagram-container">
+                     <pre class="mermaid">
+graph TB
+  subgraph Chip Cross-Section
+    direction TB
+    UT[Ultrasonic Transducer] --- M(Medium Layer)
+    M --- SA[Sample Surface]
+    M --- P(Probe)
+    P -.-> D[Optical/Piezoresistive Detector]
+  end
+  
+  style UT fill:var(--accent-color),stroke:var(--accent-color-darker),color:#fff
+  style M fill:var(--diagram-element-bg),stroke:var(--icon-color),color:var(--text-color)
+  style SA fill:#BDBDBD,stroke:#616161,color:#000
+  style P fill:#FFCA28,stroke:#FFA000,color:#000,shape:circle
+  style D fill:#90CAF9,stroke:#1E88E5,color:#000
+                    </pre>
+                </div>
+                <div class="placeholder-image-container">
+                    <img src="https://placehold.co/600x200?text=Frequency+Response" alt="Probe Displacement vs. Frequency">
+                </div>
+            </section>
+            <hr>
+
+            <section class="content-section" id="conclusion">
+                <h2><span class="material-icons-round icon-inline">verified</span>8. Conclusion</h2>
+                <p>Acoustic-Force Microscopy Chips use ultrasonic radiation forces to drive and read out micro-probe interactions, providing a scalable, non-contact alternative to conventional AFM. By integrating transducers, probes, and readouts on-chip, they enable fast, parallel surface and subsurface characterization with tunable resolution and sensitivity.</p>
+            </section>
+            <hr>
+            
+            <section class="content-section" id="references">
+                <h2><span class="material-icons-round icon-inline">menu_book</span>References</h2>
+                <ol>
+                    <li>Bruus, H. "Acoustofluidics 7: The acoustic radiation force on small particles," <em>Lab on a Chip</em>, 2012.</li>
+                    <li>Lee, J. et al. "Ultrasonic Force Microscopy: Theory and Application," <em>Appl. Phys. Lett.</em>, 2001.</li>
+                    <li>Collins, D. et al. "On-chip acoustic sensing for nanoscale metrology," <em>Nanotechnology</em>, 2020.</li>
+                </ol>
+            </section>
+        </main>
+
+        <footer>
+            <p>Scientific concept and logic by <strong>Lion</strong>.</p>
+            <p>UI/UX & Web Implementation inspired by modern design principles.</p>
+            <p>© 2024 Acoustic-Force Microscopy Chips Project</p>
+        </footer>
+    </div>
+
+    <script>
+        // Initialize Mermaid
+        mermaid.initialize({ 
+            startOnLoad: true,
+            theme: 'base', 
+            themeVariables: {
+                primaryColor: getComputedStyle(document.documentElement).getPropertyValue('--diagram-element-bg').trim(),
+                primaryTextColor: getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim(),
+                primaryBorderColor: getComputedStyle(document.documentElement).getPropertyValue('--card-border').trim(),
+                lineColor: getComputedStyle(document.documentElement).getPropertyValue('--icon-color').trim(),
+                secondaryColor: getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim(),
+                tertiaryColor: getComputedStyle(document.documentElement).getPropertyValue('--bg-color').trim()
+            },
+            flowchart: { 
+                htmlLabels: true,
+                nodeSpacing: 50,
+                rankSpacing: 50
+            },
+            fontFamily: getComputedStyle(document.documentElement).getPropertyValue('--font-primary').trim(),
+        });
+
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Theme Switcher
+            const lightModeBtn = document.getElementById('light-mode-btn');
+            const darkModeBtn = document.getElementById('dark-mode-btn');
+            const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+
+            function updateMermaidTheme() {
+                const currentPrimaryColor = getComputedStyle(document.documentElement).getPropertyValue('--diagram-element-bg').trim();
+                const currentTextColor = getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim();
+                const currentBorderColor = getComputedStyle(document.documentElement).getPropertyValue('--card-border').trim();
+                const currentLineColor = getComputedStyle(document.documentElement).getPropertyValue('--icon-color').trim();
+                const currentAccentColor = getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim();
+                const currentBgColor = getComputedStyle(document.documentElement).getPropertyValue('--bg-color').trim();
+                
+                mermaid.initialize({
+                    theme: 'base',
+                    themeVariables: {
+                        primaryColor: currentPrimaryColor,
+                        primaryTextColor: currentTextColor,
+                        primaryBorderColor: currentBorderColor,
+                        lineColor: currentLineColor,
+                        secondaryColor: currentAccentColor,
+                        tertiaryColor: currentBgColor
+                    }
+                });
+                document.querySelectorAll('.mermaid[data-processed="true"]').forEach((el, i) => {
+                    const code = el.textContent || el.innerText;
+                    const id = `mermaid-graph-${Date.now()}-${i}`;
+                    el.removeAttribute('data-processed');
+                    el.innerHTML = code;
+                    try {
+                         mermaid.init(undefined, el);
+                    } catch (e) {
+                        console.error("Error re-rendering Mermaid diagram:", e);
+                    }
+                });
+            }
+
+            function setTheme(theme) {
+                if (theme === 'dark') {
+                    document.documentElement.classList.add('dark-mode');
+                    localStorage.setItem('theme', 'dark');
+                } else {
+                    document.documentElement.classList.remove('dark-mode');
+                    localStorage.setItem('theme', 'light');
+                }
+                updateMermaidTheme();
+            }
+
+            lightModeBtn.addEventListener('click', () => setTheme('light'));
+            darkModeBtn.addEventListener('click', () => setTheme('dark'));
+
+            const currentTheme = localStorage.getItem('theme');
+            if (currentTheme) {
+                setTheme(currentTheme);
+            } else if (prefersDarkScheme.matches) {
+                setTheme('dark');
+            } else {
+                setTheme('light'); 
+            }
+            
+            // Scroll Animations for sections
+            const sections = document.querySelectorAll('.content-section');
+            const hrs = document.querySelectorAll('hr');
+            const observerOptions = {
+                root: null, 
+                rootMargin: '0px',
+                threshold: 0.1 
+            };
+
+            const observer = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('is-visible');
+                    }
+                });
+            }, observerOptions);
+
+            sections.forEach(section => {
+                observer.observe(section);
+            });
+            hrs.forEach(hr => { 
+                hr.style.opacity = 0; hr.style.transition = 'opacity 0.8s var(--ease-in-out-cubic) 0.2s';
+                observer.observe(hr);
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LionOS & Creative Kernel: Ultimate Synthesis</title>
+
+    <!-- MathJax Configuration (Fixed Macro Issue) -->
+    <script>
+        MathJax = {
+          tex: {
+            inlineMath: [['$', '$'], ['\\(', '\\)']],
+            displayMath: [['$$', '$$'], ['\\[', '\\]']],
+            processEscapes: true,
+            tags: 'ams',
+            macros: {
+                text: ['\\text{#1}', 1],  // Fixed recursive macro definition
+                mathbb: ['\\mathbb{#1}', 1],
+                mathcal: ['\\mathcal{#1}', 1]
+            }
+          },
+          svg: {
+            fontCache: 'global'
+          },
+          options: {
+            maxMacros: 10000  // Increased macro limit
+          }
+        };
+    </script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <!-- Mermaid.js for Diagrams -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <script>
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'base',
+            themeVariables: {
+                primaryColor: '#4D4DFF',
+                primaryBorderColor: '#303F9F',
+                primaryTextColor: '#1A1A1D',
+                lineColor: '#4D4DFF',
+                textColor: '#1A1A1D',
+                fontSize: '14px'
+            },
+            darkMode: false
+        });
+    </script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@700;800;900&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <!-- Google Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+
+    <style>
+        :root {
+            --font-primary: 'Inter', sans-serif;
+            --font-headings: 'Poppins', sans-serif;
+            --font-mono: 'Roboto Mono', 'SF Mono', 'Consolas', 'Liberation Mono', Menlo, Courier, monospace;
+
+            --ease-out-quad: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            --ease-in-out-cubic: cubic-bezier(0.645, 0.045, 0.355, 1);
+
+            /* Light Mode (Default) */
+            --bg-color: #F0F2F5; 
+            --text-color: #1A1A1D; 
+            --heading-color: #0B0C10; 
+            --accent-color-primary: #303F9F;
+            --accent-color-secondary: #4D4DFF;
+            --accent-color-tertiary: #7A7AFF;
+            --card-bg: rgba(255, 255, 255, 0.7); 
+            --card-border: rgba(0, 0, 0, 0.08);
+            --card-shadow-1: rgba(0, 0, 0, 0.04);
+            --card-shadow-2: rgba(0, 0, 0, 0.01);
+            --icon-color: var(--accent-color-secondary);
+            --hr-color: rgba(0,0,0,0.07);
+            --code-block-bg: #EAEAF0;
+            --code-block-text: #222;
+            --inline-math-bg: rgba(77, 77, 255, 0.05); 
+            --inline-math-border: rgba(77, 77, 255, 0.2);
+            --table-header-bg: rgba(0,0,0,0.03);
+            --table-row-hover-bg: rgba(0,0,0,0.02);
+            --diagram-element-bg: #f5f5ff;
+            --mermaid-bg: #ffffff;
+            --mermaid-text: #1A1A1D;
+        }
+
+        html.dark-mode {
+            --bg-color: #0A0A0F;
+            --text-color: #C5C6C7;
+            --heading-color: #FFFFFF;
+            --accent-color-primary: #5C6BC0;
+            --accent-color-secondary: #7A7AFF;
+            --accent-color-tertiary: #A3A3FF;
+            --card-bg: rgba(20, 20, 30, 0.7); 
+            --card-border: rgba(255, 255, 255, 0.08);
+            --card-shadow-1: rgba(255, 255, 255, 0.02);
+            --card-shadow-2: rgba(0, 0, 0, 0.2);
+            --icon-color: var(--accent-color-secondary);
+            --hr-color: rgba(255,255,255,0.07);
+            --code-block-bg: #1A1A1D;
+            --code-block-text: #E0E0E0;
+            --inline-math-bg: rgba(122, 122, 255, 0.1);
+            --inline-math-border: rgba(122, 122, 255, 0.3);
+            --table-header-bg: rgba(255,255,255,0.03);
+            --table-row-hover-bg: rgba(255,255,255,0.02);
+            --diagram-element-bg: #1a1a2e;
+            --mermaid-bg: #1A1A2E;
+            --mermaid-text: #C5C6C7;
+        }
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html { scroll-behavior: smooth; font-size: 16px; }
+
+        body {
+            font-family: var(--font-primary);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.75; 
+            transition: background-color 0.3s var(--ease-out-quad), color 0.3s var(--ease-out-quad);
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 900px; 
+            margin: 0 auto;
+            padding: 2rem 0;
+        }
+
+        header {
+            padding: 3rem 0 2rem;
+            text-align: center;
+            margin-bottom: 2.5rem;
+            background: linear-gradient(135deg, var(--accent-color-primary) 0%, var(--accent-color-secondary) 100%);
+            color: white;
+            border-radius: 0 0 30px 30px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+
+        .main-title {
+            font-family: var(--font-headings);
+            font-size: 2.8rem; 
+            font-weight: 900; 
+            color: #FFFFFF;
+            margin-bottom: 0.75rem;
+            letter-spacing: -1.5px; 
+            line-height: 1.1;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+        }
+
+        .tagline {
+            font-size: 1.25rem; 
+            font-weight: 600;
+            color: #E0E0FF;
+            opacity: 0.9;
+            margin-bottom: 2rem;
+        }
+        
+        hr {
+            border: none;
+            height: 2px; 
+            background: linear-gradient(to right, transparent, var(--accent-color-secondary), transparent); 
+            margin: 3rem auto; 
+            width: 70%;
+            opacity: 0.5;
+        }
+
+        .theme-switcher {
+            position: fixed; top: 20px; right: 20px; z-index: 1000;
+            background-color: var(--card-bg); border: 1px solid var(--card-border);
+            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+            padding: 0.5rem; border-radius: 50px;
+            box-shadow: 0 4px 15px var(--card-shadow-1);
+            display: flex; align-items: center;
+        }
+        .theme-button {
+            background: none; border: none; color: var(--icon-color); cursor: pointer;
+            padding: 0.5rem; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            transition: background-color 0.2s ease, color 0.2s ease;
+        }
+        .theme-button:hover { background-color: rgba(128,128,128,0.1); }
+        .theme-button .material-icons-round { font-size: 24px; }
+
+        .content-section {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            padding: 2.5rem; 
+            margin-bottom: 3rem; 
+            border-radius: 24px; 
+            box-shadow: 0 10px 35px var(--card-shadow-1), 0 3px 10px var(--card-shadow-2);
+            backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+            opacity: 0; transform: translateY(30px);
+            transition: opacity 0.7s var(--ease-in-out-cubic), transform 0.7s var(--ease-in-out-cubic);
+        }
+        .content-section.is-visible { opacity: 1; transform: translateY(0); }
+
+        .content-section h2, .content-section h3, .content-section h4 {
+            font-family: var(--font-headings);
+            color: var(--heading-color);
+            margin-bottom: 1.5rem; 
+            margin-top: 2rem;
+            position: relative;
+            padding-left: 1.8rem; 
+            font-weight: 800; 
+        }
+        .content-section h2::before, .content-section h3::before, .content-section h4::before {
+            content: ''; position: absolute; left: 0; top: 50%; transform: translateY(-50%);
+            width: 8px; 
+            height: 70%; min-height: 22px;
+            background-color: var(--accent-color-secondary);
+            border-radius: 4px;
+        }
+        .content-section h2 { font-size: 2rem; } 
+        .content-section h3 { font-size: 1.6rem; }
+        .content-section h4 { font-size: 1.3rem; padding-left: 1.5rem; }
+        .content-section h4::before { width: 6px; height: 60%; min-height: 18px; }
+        .content-section h2:first-child, .content-section h3:first-child, .content-section h4:first-child { margin-top: 0; }
+
+        .content-section p { margin-bottom: 1.25rem; color: var(--text-color); }
+        .content-section ul, .content-section ol { list-style: none; padding-left: 0; margin-bottom: 1.25rem; }
+        .content-section ol { counter-reset: list-item-counter; }
+        .content-section li {
+            padding-left: 2.2em; 
+            position: relative;
+            margin-bottom: 0.85rem;
+        }
+        .content-section ul li::before { 
+            content: ''; position: absolute; left: 0.5em; 
+            top: 10px; width: 10px; height: 10px; 
+            background-color: var(--accent-color-secondary);
+            border-radius: 50%; box-shadow: 0 0 5px var(--accent-color-secondary); 
+        }
+        .content-section ol li::before { 
+            counter-increment: list-item-counter; content: counter(list-item-counter) ".";
+            position: absolute; left: 0; top: 1px; 
+            font-weight: 700; color: var(--accent-color-secondary); font-size: 1.1em;
+        }
+        .content-section strong { font-weight: 700; color: var(--accent-color-tertiary); } 
+        
+        .inline-math-style {
+            font-family: var(--font-mono);
+            background-color: var(--inline-math-bg);
+            border: 1px solid var(--inline-math-border);
+            padding: 0.2em 0.4em;
+            border-radius: 4px;
+            font-size: 0.95em;
+            color: var(--accent-color-primary);
+            word-wrap: break-word; 
+        }
+        html.dark-mode .inline-math-style {
+             color: var(--accent-color-tertiary);
+        }
+
+        .content-section .mjx-math {
+            background-color: var(--diagram-element-bg);
+            border: 1px solid var(--card-border);
+            padding: 1rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 1.5rem 0;
+        }
+        
+        .blueprint-container {
+            background-color: var(--code-block-bg);
+            color: var(--code-block-text);
+            padding: 1.5rem;
+            border-radius: 12px;
+            font-family: var(--font-mono);
+            font-size: 0.9em;
+            line-height: 1.6;
+            overflow-x: auto;
+            white-space: pre; 
+            border: 1px solid var(--card-border);
+            margin: 1.5rem 0;
+            box-shadow: inset 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .blueprint-container strong {
+            color: var(--accent-color-secondary);
+            font-weight: bold;
+        }
+        html.dark-mode .blueprint-container strong {
+            color: var(--accent-color-tertiary);
+        }
+
+        .styled-table {
+            width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.95em;
+        }
+        .styled-table th, .styled-table td {
+            border: 1px solid var(--card-border); padding: 0.85rem 1.1rem; text-align: left;
+        }
+        .styled-table th {
+            background-color: var(--table-header-bg); font-weight: 700; color: var(--heading-color);
+        }
+        .styled-table tr:hover { background-color: var(--table-row-hover-bg); }
+        .styled-table td:nth-child(1) { font-weight: 600; }
+
+        /* Mermaid Diagram Styling */
+        .mermaid-container {
+            background-color: var(--mermaid-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            overflow: auto;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+        .mermaid-container svg {
+            display: block;
+            margin: 0 auto;
+            max-width: 100%;
+        }
+        .mermaid-container .node rect,
+        .mermaid-container .node circle,
+        .mermaid-container .node polygon {
+            fill: var(--diagram-element-bg);
+            stroke: var(--accent-color-secondary);
+            stroke-width: 2px;
+        }
+        .mermaid-container .edgePath path {
+            stroke: var(--accent-color-secondary);
+            stroke-width: 2px;
+        }
+        .mermaid-container .cluster rect {
+            fill: rgba(77, 77, 255, 0.05);
+            stroke: var(--accent-color-secondary);
+            stroke-width: 1.5px;
+            stroke-dasharray: 5,5;
+        }
+        .mermaid-container text {
+            fill: var(--mermaid-text);
+            font-family: var(--font-mono);
+        }
+
+        footer {
+            text-align: center; padding: 3rem 0 2rem; margin-top: 3rem;
+            border-top: 1px solid var(--hr-color);
+            font-size: 0.95rem; color: var(--text-color); opacity: 0.75;
+        }
+        footer strong { font-weight: bold; color: var(--accent-color-secondary); }
+
+        .icon-inline {
+            font-family: 'Material Icons Round'; font-size: 1.2em; 
+            vertical-align: -0.2em; margin-right: 0.3em;
+            color: var(--accent-color-secondary);
+        }
+        
+        @media (max-width: 768px) {
+            .main-title { font-size: 2.2rem; }
+            .tagline { font-size: 1.1rem; }
+            .content-section { padding: 1.8rem; border-radius: 20px; }
+            .content-section h2 { font-size: 1.7rem; }
+            .content-section h3 { font-size: 1.4rem; }
+            .content-section h4 { font-size: 1.2rem; }
+            .theme-switcher { top: 10px; right: 10px; padding: 0.3rem;}
+            .theme-button {padding: 0.4rem;}
+            .blueprint-container { font-size: 0.8em; }
+            .styled-table { font-size: 0.85em; }
+            .styled-table th, .styled-table td { padding: 0.6rem 0.8rem; }
+            .mermaid-container { padding: 1rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="theme-switcher">
+        <button id="light-mode-btn" class="theme-button" title="Switch to Light Mode">
+            <span class="material-icons-round">light_mode</span>
+        </button>
+        <button id="dark-mode-btn" class="theme-button" title="Switch to Dark Mode">
+            <span class="material-icons-round">dark_mode</span>
+        </button>
+    </div>
+
+    <div class="container">
+        <header>
+            <h1 class="main-title">LionOS & Creative Kernel: Ultimate Synthesis</h1>
+            <p class="tagline"><em>A unified blueprint for redefining computing across all devices</em></p>
+        </header>
+        <hr>
+
+        <main>
+            <section class="content-section" id="logics-principles">
+                <h2><span class="material-icons-round icon-inline">psychology</span>A. Logics & Principles</h2>
+                <h4>Core Theories</h4>
+                <ul>
+                    <li><strong>Quantum-Conscious Design:</strong>
+                        <ul>
+                            <li><strong>Logic:</strong> Assume quantum supremacy is imminent; all security and scheduling algorithms are post-quantum resistant.</li>
+                            <li><strong>Principle:</strong> Use lattice-based cryptography and quantum annealing for optimization tasks.</li>
+                        </ul>
+                    </li>
+                    <li><strong>Entropic Minimalism:</strong>
+                        <ul>
+                            <li><strong>Logic:</strong> Every bit of computation must justify its energy cost relative to system entropy.</li>
+                            <li><strong>Equation:</strong>
+                            \[
+                            \text{Validity Score } (V) = \frac{\text{Information Gain}}{\text{Energy Used} \times \text{Entropy Delta}}
+                            \]
+                            Tasks with $V < 1.0$ are terminated.</li>
+                        </ul>
+                    </li>
+                    <li><strong>Bio-Mimetic Resilience:</strong>
+                        <ul>
+                            <li><strong>Logic:</strong> Mimic biological systems (e.g., immune response) for self-healing.</li>
+                            <li><strong>Mechanism:</strong>
+                                <ul>
+                                    <li><strong>Digital Phagocytes:</strong> Kernel threads that "eat" corrupted memory blocks.</li>
+                                    <li><strong>Neural Repair Nets:</strong> AI that rewrites buggy code in real-time.</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </section>
+            <hr>
+
+            <section class="content-section" id="scientific-foundations">
+                <h2><span class="material-icons-round icon-inline">science</span>B. Scientific Foundations</h2>
+                <ul>
+                    <li><strong>Quantum Thermodynamics:</strong>
+                        <ul>
+                            <li>Use quantum tunneling in <strong>Ambient Quantum Cooling</strong> to reduce heat by converting it into harmless RF waves.</li>
+                            <li><strong>Equation:</strong>
+                            \[
+                            Q_{\text{dissipated}} = \frac{h \cdot f_{\text{RF}}}{\ln(1 + \frac{T_{\text{chip}}}{T_{\text{ambient}}}}}
+                            \]
+                            Where $h$ = Planck's constant, $f_{\text{RF}}$ = RF frequency.</li>
+                        </ul>
+                    </li>
+                    <li><strong>Photonic Data Transfer:</strong>
+                        <ul>
+                            <li>Replace copper with photonic interconnects using <strong>plasmonic waveguides</strong> for zero resistive loss.</li>
+                            <li><strong>Metric:</strong> 0.05pJ/bit (vs. 10pJ/bit in DDR5).</li>
+                        </ul>
+                    </li>
+                    <li><strong>Leakage-Free Transistors:</strong>
+                        <ul>
+                            <li><strong>Subatomic Power Gating</strong> uses reverse biasing to eliminate leakage current in idle "nanoslices".</li>
+                            <li><strong>Science:</strong> Leverage FinFET back-gate biasing at 3nm node.</li>
+                        </ul>
+                    </li>
+                </ul>
+            </section>
+            <hr>
+
+            <section class="content-section" id="metrics-equations">
+                <h2><span class="material-icons-round icon-inline">speed</span>C. Metrics & Equations</h2>
+                <table class="styled-table">
+                    <thead>
+                        <tr>
+                            <th>Metric</th>
+                            <th>Formula</th>
+                            <th>Target</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Perf/Watt² (PPW²)</strong></td>
+                            <td>\( \frac{\text{Benchmark} \times \text{Battery Life}}{\text{Avg Power}^2} \)</td>
+                            <td>\( \geq 1 \times 10^{12} \)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Cache Residency (CRR)</strong></td>
+                            <td>\( \frac{\text{Cache Cycles}}{\text{Total Cycles}} \)</td>
+                            <td>\( \geq 0.92 \)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Thermal Absorption</strong></td>
+                            <td>\( \frac{\text{mW Dissipated}}{\text{mm}^2} \)</td>
+                            <td>\( \geq 500 \)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Interrupt Shadow Time</strong></td>
+                            <td>\( T_{\text{IRQ}} - T_{\text{Ack}} \)</td>
+                            <td>\( \leq 5ns \)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+            <hr>
+
+            <section class="content-section" id="architectural-diagrams">
+                <h2><span class="material-icons-round icon-inline">architecture</span>D. Architectural Diagrams</h2>
+                <h4>LionOS Full Stack</h4>
+                <div class="mermaid-container">
+                    <div class="mermaid">
+graph TD
+    subgraph LionOS_User_Space["LionOS User Space"]
+        NovaXR["NovaXR<br>(AR/VR UI)"]
+        Aether["Aether<br>(Network)"]
+        Ion["Ion<br>(Storage)"]
+        Forge["Forge<br>(Dev Tools)"]
+        GlassoMono["Glasso-Mono UI"]
+    end
+    
+    subgraph Creative_Kernel["Creative Kernel"]
+        QuantumScheduler["Quantum Scheduler<br>(QARA, Morphogenetic)"]
+        EntropicSecurity["Entropic Security<br>(Key Regeneration)"]
+        SelfHealing["Self-Healing<br>(Phagocytes)"]
+    end
+    
+    subgraph Nanokernel_HAL["Nanokernel HAL"]
+        PhotonicBus["Photonic Bus"]
+        SubatomicGating["Subatomic Gating"]
+        FPGA_ISR["FPGA ISR"]
+        QuantumCooling["Quantum Cooling"]
+    end
+    
+    LionOS_User_Space -->|API Calls| Creative_Kernel
+    Creative_Kernel -->|Hardware Abstraction| Nanokernel_HAL
+    GlassoMono -->|Rendering| NovaXR
+                    </div>
+                </div>
+            </section>
+            <hr>
+
+            <section class="content-section" id="continents-services">
+                <h2><span class="material-icons-round icon-inline">apps</span>E. Continents & Services</h2>
+                <ul>
+                    <li><strong>NovaXR:</strong> Spatial computing (AR/VR) with 3D UI toolkit.</li>
+                    <li><strong>Aether:</strong> Decentralized mesh networking + quantum VPN.</li>
+                    <li><strong>Ion:</strong> Self-repairing ZFS storage with homomorphic encryption.</li>
+                    <li><strong>Pulse:</strong> AI-optimized audio/video pipelines (e.g., 16K 240Hz rendering).</li>
+                    <li><strong>Eco:</strong> Carbon-aware scheduling + hardware lifespan optimizer.</li>
+                </ul>
+            </section>
+            <hr>
+
+            <section class="content-section" id="features-durability">
+                <h2><span class="material-icons-round icon-inline">verified_user</span>F. Features & Durability</h2>
+                 <ul>
+                    <li><strong>Self-Healing FS:</strong> Automatically repairs corrupted sectors using erasure coding.</li>
+                    <li><strong>10-Year Durability:</strong>
+                        <ul>
+                            <li><strong>Quantum Cooling</strong> reduces thermal wear by 90%.</li>
+                            <li><strong>Capacitive Energy Recycling</strong> extends battery lifespan.</li>
+                        </ul>
+                    </li>
+                    <li><strong>Corrosion Resistance:</strong> Optional graphene-coated PCB support for industrial use.</li>
+                </ul>
+            </section>
+            <hr>
+            
+            <section class="content-section" id="device-compatibility">
+                <h2><span class="material-icons-round icon-inline">devices_other</span>G. Device Compatibility</h2>
+                <table class="styled-table">
+                    <thead>
+                        <tr>
+                            <th>Device</th>
+                            <th>Optimization</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Mobile</strong></td>
+                            <td>0.1W idle power, 1ms latency for 5G mmWave.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Tablet</strong></td>
+                            <td>Glasso-Mono inking with 0.1μs pen latency.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Laptop</strong></td>
+                            <td>30W TDP for 8K gaming via FPGA upscaling.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>PC</strong></td>
+                            <td>128-core HECO support + photonic PCIe 7.0.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Embedded</strong></td>
+                            <td>100μW LionOS Edge variant with LoRaWAN.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+            <hr>
+
+            <section class="content-section" id="why-lionos-better">
+                <h2><span class="material-icons-round icon-inline">rocket_launch</span>H. Why LionOS is Better</h2>
+                <ul>
+                    <li><strong>Speed:</strong> 5ns interrupts, 11ns syscalls, 0.1μs UI latency.</li>
+                    <li><strong>Efficiency:</strong> 0.01W idle on mobile, 35% energy recaptured.</li>
+                    <li><strong>Security:</strong> Quantum-resistant + zero CVEs via self-healing.</li>
+                    <li><strong>Eco:</strong> Reduces e-waste via 10-year durability guarantees.</li>
+                </ul>
+            </section>
+            <hr>
+
+            <section class="content-section" id="creative-kernel-deep-dive">
+                <h2><span class="material-icons-round icon-inline">developer_mode</span>I. Creative Kernel Deep Dive</h2>
+                <h4>A. Layers</h4>
+                <ol>
+                    <li><strong>Nanokernel HAL (10 KiB):</strong>
+                        <ul>
+                            <li><strong>Role:</strong> Hardware abstraction with photonic/quantum drivers.</li>
+                            <li><strong>Logic:</strong>
+                                <ul>
+                                    <li>ISRs pre-handled by FPGA.</li>
+                                    <li><strong>Equation:</strong> \( T_{\text{ISR}} = \frac{\text{FPGA Precycles}}{\text{Clock Speed}} \).</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                    <li><strong>Microkernel Core (50 KiB):</strong>
+                        <ul>
+                            <li><strong>Role:</strong> Threads, capabilities, VM.</li>
+                            <li><strong>Logic:</strong>
+                                <ul>
+                                    <li><strong>Morphogenetic Scheduler:</strong> Evolves task DNA every 10ms.</li>
+                                    <li><strong>Capability Math:</strong>
+                                    \[
+                                    \text{Access} = \prod_{i=1}^{n} \frac{C_{\text{valid}}}{\text{Threat Level}_i}
+                                    \]
+                                    </li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                    <li><strong>ExoMode++:</strong>
+                        <ul>
+                            <li><strong>Role:</strong> Direct hardware access for AI/quantum tasks.</li>
+                            <li><strong>Logic:</strong>
+                                <ul>
+                                    <li><strong>QUBO Solver:</strong>
+                                    \[
+                                    \text{Minimize } \sum Q_{i,j}x_i x_j \text{ where } x_i \in \{0,1\}
+                                    \]
+                                    </li>
+                                    <li><strong>Photonic DMA:</strong> Zero-copy GPU/FPGA transfers.</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                </ol>
+                <h4>B. Kernel Workflow Diagram</h4>
+                <div class="mermaid-container">
+                    <div class="mermaid">
+flowchart LR
+    Hardware[("Hardware<br>(Photonic Qubits)")] -->|Interrupts| NanoHAL["Nano HAL<br>(ISR, PCIe)"]
+    NanoHAL -->|Abstraction| Microkernel["Microkernel<br>(Threads, Capabilities)"]
+    Microkernel -->|System Calls| UserServices["User Services<br>(Aether, Ion)"]
+    Microkernel -->|Direct Access| ExoMode["ExoMode++<br>(QUBO, FPGA)"]
+    ExoMode -->|Results| UserServices
+    UserServices -->|Requests| Microkernel
+                    </div>
+                </div>
+            </section>
+            <hr>
+
+            <section class="content-section" id="power-management-diagram">
+                <h2><span class="material-icons-round icon-inline">battery_charging_full</span>J. Power Management Diagram</h2>
+                <div class="mermaid-container">
+                    <div class="mermaid">
+flowchart TB
+    subgraph PowerManagement["Power Management System"]
+        direction TB
+        TaskProfiler["Task Profiler<br>(DNA Analysis)"] --> EntropicDVFS["Entropic DVFS<br>(Voltage Scaling)"]
+        EntropicDVFS --> QuantumCooling["Quantum Cooling<br>(Heat → RF)"]
+        TaskProfiler --> HECOMapper["HECO Mapper<br>(CPU/FPGA/QC)"]
+        QuantumCooling --> EnergyRecycler["Energy Recycler<br>(Capacitive)"]
+        EnergyRecycler --> HECOMapper
+        EntropicDVFS --> LeakageNegation["Leakage Negation<br>(Nanoslice OFF)"]
+        LeakageNegation --> EnergyRecycler
+    end
+                    </div>
+                </div>
+            </section>
+            <hr>
+            
+            <section class="content-section" id="conclusion">
+                <h2><span class="material-icons-round icon-inline">verified</span>K. Conclusion</h2>
+                <p>LionOS and the Creative Kernel represent a <strong>paradigm shift</strong> in computing:</p>
+                <ul>
+                    <li><strong>Science:</strong> Quantum cooling, photonics, and entropic security.</li>
+                    <li><strong>Logics:</strong> Self-evolving schedulers, bio-mimetic healing.</li>
+                    <li><strong>Metrics:</strong> PPW², CRR, and TAR for accountability.</li>
+                    <li><strong>Durability:</strong> 10-year lifespan, corrosion resistance.</li>
+                    <li><strong>Universality:</strong> From 100μW embedded to 128-core photonic PCs.</li>
+                </ul>
+                <p>This is not just an OS—it's a <strong>computational organism</strong> that grows, heals, and optimizes itself while challenging the limits of physics.</p>
+            </section>
+        </main>
+
+        <footer>
+            <p>Scientific concept and logic by <strong>Lion</strong>.</p>
+            <p>UI/UX & Web Implementation inspired by modern design principles.</p>
+            <p>© 2024 LionOS & Creative Kernel: Ultimate Synthesis Project</p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Theme Switcher
+            const lightModeBtn = document.getElementById('light-mode-btn');
+            const darkModeBtn = document.getElementById('dark-mode-btn');
+            const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+
+            function setTheme(theme) {
+                if (theme === 'dark') {
+                    document.documentElement.classList.add('dark-mode');
+                    localStorage.setItem('theme', 'dark');
+                    // Update Mermaid theme
+                    mermaid.initialize({
+                        theme: 'dark',
+                        themeVariables: {
+                            primaryColor: '#5C6BC0',
+                            primaryBorderColor: '#7A7AFF',
+                            primaryTextColor: '#C5C6C7',
+                            lineColor: '#7A7AFF',
+                            textColor: '#C5C6C7'
+                        }
+                    });
+                } else {
+                    document.documentElement.classList.remove('dark-mode');
+                    localStorage.setItem('theme', 'light');
+                    // Update Mermaid theme
+                    mermaid.initialize({
+                        theme: 'default',
+                        themeVariables: {
+                            primaryColor: '#4D4DFF',
+                            primaryBorderColor: '#303F9F',
+                            primaryTextColor: '#1A1A1D',
+                            lineColor: '#4D4DFF',
+                            textColor: '#1A1A1D'
+                        }
+                    });
+                }
+                // Re-render Mermaid diagrams
+                mermaid.contentLoaded();
+            }
+
+            lightModeBtn.addEventListener('click', () => setTheme('light'));
+            darkModeBtn.addEventListener('click', () => setTheme('dark'));
+
+            const currentTheme = localStorage.getItem('theme');
+            if (currentTheme) {
+                setTheme(currentTheme);
+            } else if (prefersDarkScheme.matches) {
+                setTheme('dark');
+            } else {
+                setTheme('light'); 
+            }
+            
+            // Scroll Animations for sections
+            const sections = document.querySelectorAll('.content-section');
+            const hrs = document.querySelectorAll('hr'); 
+            const observerOptions = {
+                root: null, 
+                rootMargin: '0px',
+                threshold: 0.05
+            };
+
+            const observer = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('is-visible');
+                        if (entry.target.tagName === 'HR') {
+                            entry.target.style.opacity = '1';
+                        }
+                    }
+                });
+            }, observerOptions);
+
+            sections.forEach(section => {
+                observer.observe(section);
+            });
+            hrs.forEach(hr => { 
+                hr.style.opacity = '0'; 
+                hr.style.transition = 'opacity 0.8s var(--ease-in-out-cubic) 0.2s';
+                observer.observe(hr);
+            });
+        });
+    </script>
+</body>
+</html>

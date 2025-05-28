@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Photonic–Rydberg Logic Gates</title>
+
+    <!-- MathJax Configuration -->
+    <script>
+        MathJax = {
+          tex: {
+            inlineMath: [['$', '$'], ['\\(', '\\)']],
+            displayMath: [['$$', '$$'], ['\\[', '\\]'], ['```math', '```']],
+            processEscapes: true,
+            tags: 'ams',
+            macros: { // Define custom macros if needed
+                ket: ['|#1\\rangle', 1],
+                bra: ['\\langle#1|', 1],
+                text: ['{\\text{#1}}', 1] // for \text{h.c.}
+            }
+          },
+          svg: {
+            fontCache: 'global'
+          }
+        };
+    </script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <!-- Mermaid JS for diagrams -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Google Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons|Material+Icons+Outlined|Material+Icons+Round" rel="stylesheet">
+
+    <style>
+        :root {
+            --font-primary: 'Inter', sans-serif;
+            --font-headings: 'Poppins', sans-serif;
+
+            --ease-out-quad: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            --ease-in-out-cubic: cubic-bezier(0.645, 0.045, 0.355, 1);
+
+            /* Light Mode (Default) */
+            --bg-color: #F0F2F5;
+            --text-color: #1d1d1f;
+            --heading-color: #000000;
+            --accent-color: #5E35B1; /* Deep, Ethereal Violet for Quantum/Rydberg */
+            --accent-color-darker: #4527A0;
+            --card-bg: rgba(255, 255, 255, 0.6);
+            --card-border: rgba(0, 0, 0, 0.1);
+            --card-shadow-1: rgba(0, 0, 0, 0.05);
+            --card-shadow-2: rgba(0, 0, 0, 0.02);
+            --neumorphic-shadow-light: -6px -6px 12px rgba(255, 255, 255, 0.8), 6px 6px 12px rgba(0, 0, 0, 0.1);
+            --neumorphic-shadow-light-inset: inset -4px -4px 8px rgba(255, 255, 255, 0.7), inset 4px 4px 8px rgba(0, 0, 0, 0.08);
+            --icon-color: #555;
+            --diagram-element-bg: rgba(128,128,128,0.05);
+            --code-bg: #f7f7f7;
+            --code-text: #333;
+            --hr-color: rgba(0,0,0,0.1); 
+            --table-header-bg: rgba(0,0,0,0.03);
+            --table-row-hover-bg: rgba(0,0,0,0.02);
+        }
+
+        html.dark-mode {
+            --bg-color: #161616;
+            --text-color: #E0E0E0;
+            --heading-color: #FFFFFF;
+            --accent-color: #9575CD; /* Lighter Violet for dark mode */
+            --accent-color-darker: #7E57C2;
+            --card-bg: rgba(35, 35, 35, 0.6);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --card-shadow-1: rgba(255, 255, 255, 0.03);
+            --card-shadow-2: rgba(0, 0, 0, 0.1);
+            --neumorphic-shadow-light: -6px -6px 12px rgba(40, 40, 40, 0.7), 6px 6px 12px rgba(0, 0, 0, 0.3);
+            --neumorphic-shadow-light-inset: inset -4px -4px 8px rgba(40, 40, 40, 0.6), inset 4px 4px 8px rgba(0, 0, 0, 0.25);
+            --icon-color: #bbb;
+            --diagram-element-bg: rgba(200,200,200,0.05);
+            --code-bg: #2a2a2a;
+            --code-text: #ccc;
+            --hr-color: rgba(255,255,255,0.1);
+            --table-header-bg: rgba(255,255,255,0.03);
+            --table-row-hover-bg: rgba(255,255,255,0.02);
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 16px;
+        }
+
+        body {
+            font-family: var(--font-primary);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.7;
+            transition: background-color 0.3s var(--ease-out-quad), color 0.3s var(--ease-out-quad);
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem 0;
+        }
+
+        header {
+            padding: 2rem 0 1rem;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .main-title {
+            font-family: var(--font-headings);
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--heading-color);
+            margin-bottom: 0.5rem;
+            letter-spacing: -1px;
+        }
+        .tagline { 
+            font-size: 1.1rem;
+            color: var(--text-color);
+            opacity: 0.8;
+            margin-bottom: 1.5rem;
+        }
+        
+        hr.section-divider { 
+            border: none;
+            height: 1px;
+            background-color: var(--hr-color);
+            margin: 2rem auto;
+            width: 80%;
+        }
+        hr.document-end-divider { 
+            border: none;
+            height: 2px;
+            background: linear-gradient(to right, transparent, var(--accent-color), transparent);
+            margin: 3rem auto 1rem;
+            width: 60%;
+            opacity: 0.6;
+        }
+
+
+        .theme-switcher {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 0.5rem;
+            border-radius: 50px;
+            box-shadow: 0 4px 15px var(--card-shadow-1);
+            display: flex;
+            align-items: center;
+        }
+
+        .theme-button {
+            background: none;
+            border: none;
+            color: var(--icon-color);
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 50%;
+            transition: background-color 0.2s ease, color 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .theme-button:hover {
+            background-color: rgba(128,128,128,0.1);
+        }
+        .theme-button .material-icons-round {
+            font-size: 24px;
+        }
+
+
+        .content-section {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            padding: 2rem 2.5rem;
+            margin-bottom: 2.5rem;
+            border-radius: 20px;
+            box-shadow: 0 8px 30px var(--card-shadow-1), 0 2px 8px var(--card-shadow-2);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s var(--ease-in-out-cubic), transform 0.6s var(--ease-in-out-cubic);
+        }
+
+        .content-section.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .content-section h2, .content-section h3, .content-section h4 {
+            font-family: var(--font-headings);
+            color: var(--heading-color);
+            margin-bottom: 1.2rem;
+            margin-top: 1.5rem;
+            position: relative;
+            padding-left: 1.5rem;
+        }
+        .content-section h2::before, .content-section h3::before, .content-section h4::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 6px;
+            height: 60%;
+            min-height: 18px;
+            background-color: var(--accent-color);
+            border-radius: 3px;
+        }
+
+
+        .content-section h2 { font-size: 1.8rem; font-weight: 700; }
+        .content-section h3 { font-size: 1.5rem; font-weight: 600; }
+        .content-section h4 { font-size: 1.2rem; font-weight: 600; }
+        .content-section h2:first-child, .content-section h3:first-child, .content-section h4:first-child {
+            margin-top: 0;
+        }
+
+        .content-section p {
+            margin-bottom: 1rem;
+            color: var(--text-color);
+        }
+
+        .content-section ul, .content-section ol {
+            list-style: none;
+            padding-left: 0;
+            margin-bottom: 1rem;
+        }
+         .content-section ol { 
+            counter-reset: list-item-counter;
+        }
+
+
+        .content-section li {
+            padding-left: 2em;
+            position: relative;
+            margin-bottom: 0.75rem;
+        }
+        
+        .content-section ul li::before { 
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 9px; 
+            width: 8px;
+            height: 8px;
+            background-color: var(--accent-color);
+            border-radius: 50%;
+        }
+
+        .content-section ol li::before { 
+            counter-increment: list-item-counter;
+            content: counter(list-item-counter) ".";
+            position: absolute;
+            left: 0;
+            top: 1px; 
+            font-weight: 600;
+            color: var(--accent-color);
+        }
+
+
+        .content-section strong {
+            font-weight: 600;
+            color: var(--heading-color);
+        }
+
+        .content-section .mjx-math, .content-section pre[class*="language-math"] { 
+            font-size: 1.1em !important; 
+            margin: 1.5rem 0;
+            padding: 1rem;
+            overflow-x: auto;
+            background-color: var(--diagram-element-bg);
+            border-radius: 8px;
+            border: 1px solid var(--card-border);
+        }
+        
+        .mermaid-diagram-container {
+            background-color: var(--diagram-element-bg);
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin: 1.5rem auto;
+            text-align: center;
+            border: 1px solid var(--card-border);
+        }
+        .mermaid-diagram-container svg {
+            max-width: 100%;
+            height: auto;
+        }
+        
+        .styled-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            font-size: 0.95em;
+        }
+        .styled-table th, .styled-table td {
+            border: 1px solid var(--card-border);
+            padding: 0.75rem 1rem;
+            text-align: left;
+        }
+        .styled-table th {
+            background-color: var(--table-header-bg);
+            font-weight: 600;
+            color: var(--heading-color);
+        }
+        .styled-table tr:hover {
+            background-color: var(--table-row-hover-bg);
+        }
+        .styled-table td:nth-child(1) {
+            font-weight: 500;
+        }
+
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 2rem 0;
+            margin-top: 2rem;
+            border-top: 1px solid var(--hr-color); 
+            font-size: 0.9rem;
+            color: var(--text-color);
+            opacity: 0.7;
+        }
+        footer strong {
+            font-weight: bold;
+            color: var(--accent-color);
+        }
+
+        /* Material Icons in text */
+        .icon-inline {
+            font-family: 'Material Icons Round';
+            font-size: 1.1em; 
+            vertical-align: -0.15em; 
+            margin-right: 0.2em;
+            color: var(--accent-color);
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .main-title { font-size: 2rem; }
+            .tagline { font-size: 1rem; }
+            .content-section { padding: 1.5rem; border-radius: 15px; }
+            .content-section h2 { font-size: 1.6rem; }
+            .content-section h3 { font-size: 1.3rem; }
+            .theme-switcher { top: 10px; right: 10px; padding: 0.3rem;}
+            .theme-button {padding: 0.4rem;}
+            .styled-table { font-size: 0.85em; }
+            .styled-table th, .styled-table td { padding: 0.5rem; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="theme-switcher">
+        <button id="light-mode-btn" class="theme-button" title="Switch to Light Mode">
+            <span class="material-icons-round">light_mode</span>
+        </button>
+        <button id="dark-mode-btn" class="theme-button" title="Switch to Dark Mode">
+            <span class="material-icons-round">dark_mode</span>
+        </button>
+    </div>
+
+    <div class="container">
+        <header>
+            <h1 class="main-title">Photonic–Rydberg Logic Gates</h1>
+            <p class="tagline">Deterministic Photon–Photon Interactions via Rydberg Blockade</p>
+        </header>
+        <hr class="section-divider">
+
+        <main>
+            <section class="content-section" id="introduction">
+                <h2><span class="material-icons-round icon-inline">hdr_strong</span>1. Introduction</h2>
+                <p>Photonic–Rydberg logic gates harness strong, long-range interactions between atoms excited to Rydberg states to mediate deterministic interactions between individual photons. By mapping photons onto atomic excitations in an ultracold ensemble or cavity, and using the Rydberg blockade effect, one can realize high-fidelity two-photon gates—essential for photonic quantum computing and networking.</p>
+                <p>This theoretical document covers the physical principles, level schemes, Hamiltonian descriptions, gate protocols, key equations, experimental architectures, fabrication/implementation considerations, performance metrics, applications, and advantages.</p>
+            </section>
+            <!-- No HR after intro as per MD -->
+
+            <section class="content-section" id="background-rydberg-eit">
+                <h2><span class="material-icons-round icon-inline">science</span>2. Background: Rydberg Blockade and EIT Storage</h2>
+                <h3>2.1. Rydberg Blockade Effect</h3>
+                <ul>
+                    <li><strong>Rydberg states</strong>: High principal quantum number $n$, with dipole moments scaling as $n^2$ and interaction energy $V_{dd}\propto n^{11}/R^6$.</li>
+                    <li><strong>Blockade radius</strong> $R_b$: Distance at which $V_{dd}(R_b)=\hbar \Omega$, where $\Omega$ is Rabi frequency of Rydberg coupling.</li>
+                    <li>Within $R_b$, only one Rydberg excitation can exist, prohibiting multiple simultaneous excitations.</li>
+                </ul>
+                <h3>2.2. Electromagnetically Induced Transparency (EIT) Storage</h3>
+                <ul>
+                    <li><strong>Three-level $\Lambda$ scheme</strong>: Ground $\ket{g}$, intermediate $\ket{e}$, Rydberg $\ket{r}$.</li>
+                    <li><strong>Control field</strong> with Rabi frequency $\Omega_c$ and probe photon coupling $g_p$.</li>
+                    <li>Under EIT, a slow-light polariton maps probe photon into collective $\ket{r}$ excitation.</li>
+                </ul>
+            </section>
+            <!-- No HR here -->
+
+            <section class="content-section" id="theoretical-framework">
+                <h2><span class="material-icons-round icon-inline">functions</span>3. Theoretical Framework</h2>
+                <h3>3.1. System Hamiltonian</h3>
+                <p>For two photons in an ensemble of $N$ atoms:</p>
+                $$
+                H = H_0 + H_{int},
+                $$
+                <p>where</p>
+                $$
+                H_0 = \sum_{j=1}^N \Bigl( -\Delta_p \ket{e_j}\bra{e_j} - (\Delta_p+\Delta_c)\ket{r_j}\bra{r_j} \Bigr)
+                - \sum_j \Bigl(g_p a \ket{e_j}\bra{g_j} + \Omega_c \ket{r_j}\bra{e_j} + \mathrm{h.c.}\Bigr),
+                $$
+                <p>and</p>
+                $$
+                H_{int} = \sum_{i<j} V_{ij} \ket{r_i r_j}\bra{r_i r_j},
+                $$
+                <p>with $a$ photon annihilation, detunings $\Delta_p,\Delta_c$, and van der Waals interaction $V_{ij}=C_6/|\mathbf{r}_i-\mathbf{r}_j|^6$.</p>
+                
+                <h3>3.2. Gate Protocols</h3>
+                <h4>3.2.1. Controlled-Phase Gate</h4>
+                <ol>
+                    <li><strong>Photon 1</strong> enters: mapped to $\ket{r}_1$ within blockade sphere.</li>
+                    <li><strong>Photon 2</strong> enters: if within $R_b$, its EIT is shifted off-resonant by $V_{dd}$, acquiring phase $\pi$.</li>
+                    <li><strong>Readout</strong>: Reverse mapping yields a controlled-$Z$ gate.</li>
+                </ol>
+                <p>Phase acquired:</p>
+                $$
+                \phi = \int_0^{T} \frac{g_p^2}{\Delta_{eff}(t)} dt, \quad \Delta_{eff}=\Delta_p+V_{dd},
+                $$
+                <p>with interaction time $T\approx L/(v_g)$ and group velocity $v_g$.</p>
+                <h4>3.2.2. Photon–Photon SWAP Gate</h4>
+                <p>Sequence of beam-splitter interactions and blockade-mediated phase shifts to swap photon paths deterministically.</p>
+            </section>
+            <!-- No HR here -->
+            
+            <section class="content-section" id="experimental-architectures-diagrams">
+                <h2><span class="material-icons-round icon-inline">developer_board</span>4. Experimental Architectures & Diagrams</h2>
+                <div class="mermaid-diagram-container">
+                    <pre class="mermaid">
+flowchart TB
+  subgraph Photonic_IO [Photonic In/Out]
+    direction LR
+    P1[Input Photon A] --> M1((Beam Splitter / Coupler))
+    P2[Input Photon B] --> M1
+  end
+  
+  subgraph Atomic_Interface [Atomic Interface]
+    direction TB
+    C[Cold Atomic Ensemble (e.g., ⁸⁷Rb in Dipole Trap / Hollow-Core Fiber)]
+    D((Quantum Memory - EIT Storage & Retrieval))
+    ControlBeams[Control Laser Beams (Rydberg Transition)] -.-> C
+  end
+
+  M1 --> C
+  C --> D
+  D --> M2((Beam Splitter / Coupler))
+  M2 --> O1[Output Photon A']
+  M2 --> O2[Output Photon B']
+
+  classDef photon_io fill:#EDE7F6,stroke:#5E35B1,color:#000;
+  classDef atomic_ensemble fill:#D1C4E9,stroke:#673AB7,color:#000,shape:cylinder;
+  classDef control_beam fill:#B39DDB,stroke:#7E57C2,color:#000,shape:parallelogram;
+  
+  class P1,P2,M1,M2,O1,O2 photon_io;
+  class C,D atomic_ensemble;
+  class ControlBeams control_beam;
+                    </pre>
+                </div>
+                <ul>
+                    <li><strong>Atomic ensemble</strong>: Ultracold $^{87}$Rb in optical dipole trap or hollow-core fiber.</li>
+                    <li><strong>Control beams</strong>: Counter-propagating at Rydberg transition (e.g., $5P\to nS$).</li>
+                    <li><strong>Optical cavities</strong>: Enhance light–atom coupling $g_p$.</li>
+                </ul>
+            </section>
+            <!-- No HR here -->
+
+            <section class="content-section" id="implementation-considerations">
+                <h2><span class="material-icons-round icon-inline">build</span>5. Implementation Considerations</h2>
+                 <ul>
+                    <li><strong>Principal quantum number</strong> $n\approx100$ for $\mu$m-scale $R_b$.</li>
+                    <li><strong>Optical depth</strong>: $\mathrm{OD}>50$ for high storage efficiency.</li>
+                    <li><strong>Detunings</strong>: Large $\Delta_p$ to suppress spontaneous emission $\gamma_e$.</li>
+                    <li><strong>Temperature</strong>: <10 $\mu$K to reduce Doppler broadening.</li>
+                </ul>
+            </section>
+            <!-- No HR here -->
+
+            <section class="content-section" id="performance-metrics">
+                <h2><span class="material-icons-round icon-inline">speed</span>6. Performance Metrics</h2>
+                <table class="styled-table">
+                    <thead>
+                        <tr>
+                            <th>Metric</th>
+                            <th>Target Value</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Gate fidelity</td>
+                            <td>> 0.90</td>
+                        </tr>
+                        <tr>
+                            <td>Gate time $T$</td>
+                            <td>100–500 ns</td>
+                        </tr>
+                        <tr>
+                            <td>Photon loss per gate</td>
+                            <td>< 5%</td>
+                        </tr>
+                        <tr>
+                            <td>Rydberg coherence time</td>
+                            <td>> 100 µs</td>
+                        </tr>
+                        <tr>
+                            <td>Blockade radius $R_b$</td>
+                            <td>5–10 µm</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+            <!-- No HR here -->
+            
+            <section class="content-section" id="applications-advantages">
+                <h2><span class="material-icons-round icon-inline">apps</span>7. Applications & Advantages</h2>
+                 <ul>
+                    <li><strong>Photonic quantum computing</strong>: Deterministic two-photon gates without measurement-induced nondeterminism.</li>
+                    <li><strong>Quantum networking</strong>: Entanglement swapping and teleportation at single-photon level.</li>
+                    <li><strong>Quantum repeaters</strong>: Gate-based purification modules.</li>
+                </ul>
+                <p><strong>Advantages</strong>:</p>
+                <ol>
+                    <li><strong>Deterministic</strong>: No probabilistic linear-optics approaches.</li>
+                    <li><strong>Scalable</strong>: Photons as flying qubits interfaced with atomic registers.</li>
+                    <li><strong>Room for integration</strong>: Hollow-core fibers or photonic chips with atomic vapor cells.</li>
+                </ol>
+            </section>
+            <!-- No HR here -->
+            
+            <section class="content-section" id="challenges-future">
+                <h2><span class="material-icons-round icon-inline">report_problem</span>8. Challenges & Future Directions</h2>
+                 <ul>
+                    <li><strong>Photon–Atom coupling</strong>: Enhancing $g_p$ via nanophotonic resonators.</li>
+                    <li><strong>Multi-photon gates</strong>: Extending to three or four photon interactions using cascade blockade spheres.</li>
+                    <li><strong>Integration</strong>: Hybrid platforms combining cold atoms and on-chip waveguides.</li>
+                    <li><strong>Error correction</strong>: Incorporating gate operations into fault-tolerant photonic codes.</li>
+                </ul>
+            </section>
+            <!-- No HR here, References section is missing in the input -->
+            
+            <hr class="document-end-divider">
+            <p style="text-align:center; font-style:italic; opacity:0.7;">*End of theoretical design document for Photonic–Rydberg Logic Gates.*</p>
+
+        </main>
+
+        <footer>
+            <p>Scientific concept and logic by <strong>Lion</strong>.</p>
+            <p>UI/UX & Web Implementation inspired by modern design principles.</p>
+            <p>© 2024 Photonic–Rydberg Logic Gates Project</p>
+        </footer>
+    </div>
+
+    <script>
+        // Initialize Mermaid
+        mermaid.initialize({ 
+            startOnLoad: true,
+            theme: 'base', 
+            themeVariables: {
+                primaryColor: getComputedStyle(document.documentElement).getPropertyValue('--diagram-element-bg').trim(),
+                primaryTextColor: getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim(),
+                primaryBorderColor: getComputedStyle(document.documentElement).getPropertyValue('--card-border').trim(),
+                lineColor: getComputedStyle(document.documentElement).getPropertyValue('--icon-color').trim(),
+                secondaryColor: getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim(),
+                tertiaryColor: getComputedStyle(document.documentElement).getPropertyValue('--bg-color').trim()
+            },
+            flowchart: { 
+                htmlLabels: true, 
+                nodeSpacing: 50,
+                rankSpacing: 50
+            },
+            fontFamily: getComputedStyle(document.documentElement).getPropertyValue('--font-primary').trim(),
+        });
+
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Theme Switcher
+            const lightModeBtn = document.getElementById('light-mode-btn');
+            const darkModeBtn = document.getElementById('dark-mode-btn');
+            const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+
+            function updateMermaidTheme() {
+                const currentPrimaryColor = getComputedStyle(document.documentElement).getPropertyValue('--diagram-element-bg').trim();
+                const currentTextColor = getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim();
+                const currentBorderColor = getComputedStyle(document.documentElement).getPropertyValue('--card-border').trim();
+                const currentLineColor = getComputedStyle(document.documentElement).getPropertyValue('--icon-color').trim();
+                const currentAccentColor = getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim();
+                const currentBgColor = getComputedStyle(document.documentElement).getPropertyValue('--bg-color').trim();
+                
+                mermaid.initialize({
+                    theme: 'base',
+                    themeVariables: {
+                        primaryColor: currentPrimaryColor,
+                        primaryTextColor: currentTextColor,
+                        primaryBorderColor: currentBorderColor,
+                        lineColor: currentLineColor,
+                        secondaryColor: currentAccentColor,
+                        tertiaryColor: currentBgColor
+                    }
+                });
+                document.querySelectorAll('.mermaid[data-processed="true"]').forEach((el, i) => {
+                    const code = el.textContent || el.innerText;
+                    const id = `mermaid-graph-${Date.now()}-${i}`;
+                    el.removeAttribute('data-processed');
+                    el.innerHTML = code;
+                    try {
+                         mermaid.init(undefined, el);
+                    } catch (e) {
+                        console.error("Error re-rendering Mermaid diagram:", e);
+                    }
+                });
+            }
+
+            function setTheme(theme) {
+                if (theme === 'dark') {
+                    document.documentElement.classList.add('dark-mode');
+                    localStorage.setItem('theme', 'dark');
+                } else {
+                    document.documentElement.classList.remove('dark-mode');
+                    localStorage.setItem('theme', 'light');
+                }
+                updateMermaidTheme();
+            }
+
+            lightModeBtn.addEventListener('click', () => setTheme('light'));
+            darkModeBtn.addEventListener('click', () => setTheme('dark'));
+
+            const currentTheme = localStorage.getItem('theme');
+            if (currentTheme) {
+                setTheme(currentTheme);
+            } else if (prefersDarkScheme.matches) {
+                setTheme('dark');
+            } else {
+                setTheme('light'); 
+            }
+            
+            // Scroll Animations for sections
+            const sections = document.querySelectorAll('.content-section');
+            const hrs = document.querySelectorAll('hr.section-divider, hr.document-end-divider'); 
+            const observerOptions = {
+                root: null, 
+                rootMargin: '0px',
+                threshold: 0.1 
+            };
+
+            const observer = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('is-visible');
+                    }
+                });
+            }, observerOptions);
+
+            sections.forEach(section => {
+                observer.observe(section);
+            });
+             hrs.forEach(hr => { 
+                hr.style.opacity = 0; hr.style.transition = 'opacity 0.8s var(--ease-in-out-cubic) 0.2s';
+                observer.observe(hr);
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gravitational-Lens Analog Metamaterials</title>
+
+    <!-- MathJax Configuration -->
+    <script>
+        MathJax = {
+          tex: {
+            inlineMath: [['$', '$'], ['\\(', '\\)']],
+            displayMath: [['$$', '$$'], ['\\[', '\\]'], ['```math', '```']],
+            processEscapes: true,
+            tags: 'ams',
+            macros: { // Define custom macros if needed
+                boldsymbol: ['{\\boldsymbol{#1}}', 1]
+            }
+          },
+          svg: {
+            fontCache: 'global'
+          }
+        };
+    </script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <!-- Mermaid JS for diagrams -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Google Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons|Material+Icons+Outlined|Material+Icons+Round" rel="stylesheet">
+
+    <style>
+        :root {
+            --font-primary: 'Inter', sans-serif;
+            --font-headings: 'Poppins', sans-serif;
+
+            --ease-out-quad: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            --ease-in-out-cubic: cubic-bezier(0.645, 0.045, 0.355, 1);
+
+            /* Light Mode (Default) */
+            --bg-color: #F0F2F5;
+            --text-color: #1d1d1f;
+            --heading-color: #000000;
+            --accent-color: #4A00E0; /* Deep Cosmic Purple with Blue hint for Gravitational/Spacetime */
+            --accent-color-darker: #311B92;
+            --card-bg: rgba(255, 255, 255, 0.6);
+            --card-border: rgba(0, 0, 0, 0.1);
+            --card-shadow-1: rgba(0, 0, 0, 0.05);
+            --card-shadow-2: rgba(0, 0, 0, 0.02);
+            --neumorphic-shadow-light: -6px -6px 12px rgba(255, 255, 255, 0.8), 6px 6px 12px rgba(0, 0, 0, 0.1);
+            --neumorphic-shadow-light-inset: inset -4px -4px 8px rgba(255, 255, 255, 0.7), inset 4px 4px 8px rgba(0, 0, 0, 0.08);
+            --icon-color: #555;
+            --diagram-element-bg: rgba(128,128,128,0.05);
+            --code-bg: #f7f7f7;
+            --code-text: #333;
+            --hr-color: rgba(0,0,0,0.1); 
+        }
+
+        html.dark-mode {
+            --bg-color: #161616;
+            --text-color: #E0E0E0;
+            --heading-color: #FFFFFF;
+            --accent-color: #8E2DE2; /* Lighter Cosmic Purple for dark mode */
+            --accent-color-darker: #6A0DAD;
+            --card-bg: rgba(35, 35, 35, 0.6);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --card-shadow-1: rgba(255, 255, 255, 0.03);
+            --card-shadow-2: rgba(0, 0, 0, 0.1);
+            --neumorphic-shadow-light: -6px -6px 12px rgba(40, 40, 40, 0.7), 6px 6px 12px rgba(0, 0, 0, 0.3);
+            --neumorphic-shadow-light-inset: inset -4px -4px 8px rgba(40, 40, 40, 0.6), inset 4px 4px 8px rgba(0, 0, 0, 0.25);
+            --icon-color: #bbb;
+            --diagram-element-bg: rgba(200,200,200,0.05);
+            --code-bg: #2a2a2a;
+            --code-text: #ccc;
+            --hr-color: rgba(255,255,255,0.1);
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 16px;
+        }
+
+        body {
+            font-family: var(--font-primary);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.7;
+            transition: background-color 0.3s var(--ease-out-quad), color 0.3s var(--ease-out-quad);
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem 0;
+        }
+
+        header {
+            padding: 2rem 0 1rem;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .main-title {
+            font-family: var(--font-headings);
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--heading-color);
+            margin-bottom: 0.5rem;
+            letter-spacing: -1px;
+        }
+        .tagline { 
+            font-size: 1.1rem;
+            color: var(--text-color);
+            opacity: 0.8;
+            margin-bottom: 1.5rem;
+        }
+        
+        hr.section-divider { 
+            border: none;
+            height: 1px;
+            background-color: var(--hr-color);
+            margin: 2rem auto;
+            width: 80%;
+        }
+        hr.document-end-divider { 
+            border: none;
+            height: 2px;
+            background: linear-gradient(to right, transparent, var(--accent-color), transparent);
+            margin: 3rem auto 1rem;
+            width: 60%;
+            opacity: 0.6;
+        }
+
+
+        .theme-switcher {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 0.5rem;
+            border-radius: 50px;
+            box-shadow: 0 4px 15px var(--card-shadow-1);
+            display: flex;
+            align-items: center;
+        }
+
+        .theme-button {
+            background: none;
+            border: none;
+            color: var(--icon-color);
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 50%;
+            transition: background-color 0.2s ease, color 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .theme-button:hover {
+            background-color: rgba(128,128,128,0.1);
+        }
+        .theme-button .material-icons-round {
+            font-size: 24px;
+        }
+
+
+        .content-section {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            padding: 2rem 2.5rem;
+            margin-bottom: 2.5rem;
+            border-radius: 20px;
+            box-shadow: 0 8px 30px var(--card-shadow-1), 0 2px 8px var(--card-shadow-2);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s var(--ease-in-out-cubic), transform 0.6s var(--ease-in-out-cubic);
+        }
+
+        .content-section.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .content-section h2, .content-section h3, .content-section h4 {
+            font-family: var(--font-headings);
+            color: var(--heading-color);
+            margin-bottom: 1.2rem;
+            margin-top: 1.5rem;
+            position: relative;
+            padding-left: 1.5rem;
+        }
+        .content-section h2::before, .content-section h3::before, .content-section h4::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 6px;
+            height: 60%;
+            min-height: 18px;
+            background-color: var(--accent-color);
+            border-radius: 3px;
+        }
+
+
+        .content-section h2 { font-size: 1.8rem; font-weight: 700; }
+        .content-section h3 { font-size: 1.5rem; font-weight: 600; }
+        .content-section h4 { font-size: 1.2rem; font-weight: 600; }
+        .content-section h2:first-child, .content-section h3:first-child, .content-section h4:first-child {
+            margin-top: 0;
+        }
+
+        .content-section p {
+            margin-bottom: 1rem;
+            color: var(--text-color);
+        }
+
+        .content-section ul, .content-section ol {
+            list-style: none;
+            padding-left: 0;
+            margin-bottom: 1rem;
+        }
+         .content-section ol { 
+            counter-reset: list-item-counter;
+        }
+
+
+        .content-section li {
+            padding-left: 2em;
+            position: relative;
+            margin-bottom: 0.75rem;
+        }
+        
+        .content-section ul li::before { 
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 9px; 
+            width: 8px;
+            height: 8px;
+            background-color: var(--accent-color);
+            border-radius: 50%;
+        }
+
+        .content-section ol li::before { 
+            counter-increment: list-item-counter;
+            content: counter(list-item-counter) ".";
+            position: absolute;
+            left: 0;
+            top: 1px; 
+            font-weight: 600;
+            color: var(--accent-color);
+        }
+
+
+        .content-section strong {
+            font-weight: 600;
+            color: var(--heading-color);
+        }
+
+        .content-section .mjx-math, .content-section pre[class*="language-math"] { 
+            font-size: 1.1em !important; 
+            margin: 1.5rem 0;
+            padding: 1rem;
+            overflow-x: auto;
+            background-color: var(--diagram-element-bg);
+            border-radius: 8px;
+            border: 1px solid var(--card-border);
+        }
+        
+        .mermaid-diagram-container {
+            background-color: var(--diagram-element-bg);
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin: 1.5rem auto;
+            text-align: center;
+            border: 1px solid var(--card-border);
+        }
+        .mermaid-diagram-container svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 2rem 0;
+            margin-top: 2rem;
+            border-top: 1px solid var(--hr-color); 
+            font-size: 0.9rem;
+            color: var(--text-color);
+            opacity: 0.7;
+        }
+        footer strong {
+            font-weight: bold;
+            color: var(--accent-color);
+        }
+
+        /* Material Icons in text */
+        .icon-inline {
+            font-family: 'Material Icons Round';
+            font-size: 1.1em; 
+            vertical-align: -0.15em; 
+            margin-right: 0.2em;
+            color: var(--accent-color);
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .main-title { font-size: 2rem; }
+            .tagline { font-size: 1rem; }
+            .content-section { padding: 1.5rem; border-radius: 15px; }
+            .content-section h2 { font-size: 1.6rem; }
+            .content-section h3 { font-size: 1.3rem; }
+            .theme-switcher { top: 10px; right: 10px; padding: 0.3rem;}
+            .theme-button {padding: 0.4rem;}
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="theme-switcher">
+        <button id="light-mode-btn" class="theme-button" title="Switch to Light Mode">
+            <span class="material-icons-round">light_mode</span>
+        </button>
+        <button id="dark-mode-btn" class="theme-button" title="Switch to Dark Mode">
+            <span class="material-icons-round">dark_mode</span>
+        </button>
+    </div>
+
+    <div class="container">
+        <header>
+            <h1 class="main-title">Gravitational-Lens Analog Metamaterials</h1>
+            <p class="tagline">Curved-Space Optical Simulators in Flat Media</p>
+        </header>
+        <hr class="section-divider">
+
+        <main>
+            <section class="content-section" id="introduction">
+                <h2><span class="material-icons-round icon-inline">public</span>1. Introduction</h2>
+                <p>Gravitational-lens analog metamaterials mimic the optical behavior of spacetime curvature—such as that caused by massive bodies—using engineered refractive-index gradients in flat, anisotropic media. By tailoring subwavelength unit cells, these metamaterials guide light rays along trajectories analogous to geodesics in general relativity, enabling laboratory-scale simulation of gravitational lensing, wavefront distortion, and black-hole analogs.</p>
+                <p>This 100% theoretical document details the design principles, transformation-optics framework, unit-cell implementation, governing equations, fabrication approaches, operational protocols, applications, advantages, and future prospects.</p>
+            </section>
+            <!-- No HR after intro as per MD -->
+
+            <section class="content-section" id="background-motivation">
+                <h2><span class="material-icons-round icon-inline">lightbulb</span>2. Background & Motivation</h2>
+                <ul>
+                    <li><strong>Gravitational lensing</strong>: Light deflection by mass-induced spacetime curvature; key in astrophysics and cosmology.</li>
+                    <li><strong>Transformation optics</strong>: Maps coordinate transformations to material parameter distributions (permittivity $\varepsilon$, permeability $\mu$).</li>
+                    <li><strong>Metamaterials</strong>: Subwavelength resonators realize prescribed $\varepsilon(\mathbf{r}),\mu(\mathbf{r})$ in flat space.</li>
+                </ul>
+            </section>
+            <!-- No HR here -->
+
+            <section class="content-section" id="transformation-optics-framework">
+                <h2><span class="material-icons-round icon-inline">transform</span>3. Transformation-Optics Framework</h2>
+                <h3>3.1. Coordinate Mapping</h3>
+                <p>To emulate Schwarzschild metric in isotropic coordinates:</p>
+                $$
+                ds^2 = -\left(\frac{1-M/2r}{1+M/2r}\right)^2 c^2 dt^2 + \left(1+\frac{M}{2r}\right)^4 (dx^2+dy^2+dz^2),
+                $$
+                <p>where $M$ is mass parameter, and $r=\sqrt{x^2+y^2+z^2}$.
+                Use a spatial-only transformation for optics, neglecting time warp (approximation):</p>
+                $$
+                \mathbf{r}' = f(\mathbf{r}), \quad f(r) = r\left(1+\frac{M}{2r}\right)^2.
+                $$
+                
+                <h3>3.2. Material Parameter Prescription</h3>
+                <p>Under transformation, the effective permittivity and permeability tensors are:</p>
+                $$
+                \varepsilon^{ij}(\mathbf{r}) = \mu^{ij}(\mathbf{r}) = \det(\Lambda)^{-1} \Lambda^{i}_{\;k} \Lambda^{j}_{\;l} \delta^{kl},
+                $$
+                <p>with Jacobian $\Lambda^{i}_{\;j} = \partial x'^i/\partial x^j$. For radial symmetry:</p>
+                $$
+                \varepsilon_r(r) = \mu_r(r) = \frac{f'(r) f(r)^2}{r^2}, \quad
+                \varepsilon_\theta(r) = \mu_\theta(r) = f'(r),
+                $$
+                <p>where $\varepsilon_r$ radial and $\varepsilon_\theta$ tangential components.</p>
+            </section>
+            <!-- No HR here -->
+            
+            <section class="content-section" id="unit-cell-design-diagrams">
+                <h2><span class="material-icons-round icon-inline">view_in_ar</span>4. Unit-Cell Design & Diagrams</h2>
+                <div class="mermaid-diagram-container">
+                    <pre class="mermaid">
+flowchart LR
+  subgraph Metamaterial_Structure [Engineered Metamaterial Structure]
+    Cell[Anisotropic Unit Cell Design] -->|Controls \(\varepsilon_r\), \(\mu_r\)| RadialResonator[Radial Resonators (e.g., Multilayers/Wires)]
+    Cell -->|Controls \(\varepsilon_θ\), \(\mu_θ\)| TangentialResonator[Tangential Resonators (e.g., Rings/SRRs)]
+    RadialResonator -. Fabricated onto .-> Substrate[Low-Loss Dielectric Substrate]
+    TangentialResonator -. Fabricated onto .-> Substrate
+  end
+
+  style Metamaterial_Structure fill:#EDE7F6,stroke:#5E35B1,color:#000
+  style Cell fill:#D1C4E9,stroke:#673AB7,color:#000,shape:hexagon
+  style RadialResonator fill:#B39DDB,stroke:#7E57C2,color:#000,shape:rect
+  style TangentialResonator fill:#B39DDB,stroke:#7E57C2,color:#000,shape:rect
+  style Substrate fill:#F3E5F5,stroke:#AB47BC,color:#000,shape:folder
+                    </pre>
+                </div>
+                <ul>
+                    <li><strong>Radial resonators</strong>: Metal-dielectric multilayers or wire arrays aligned radially to adjust $\varepsilon_r$.</li>
+                    <li><strong>Tangential resonators</strong>: Rings or split-ring resonators around circumference for $\varepsilon_\theta$.</li>
+                    <li><strong>Gradient</strong>: Vary cell geometry with radial position to match required $\varepsilon(r)$.</li>
+                </ul>
+            </section>
+            <!-- No HR here -->
+
+            <section class="content-section" id="fabrication-materials">
+                <h2><span class="material-icons-round icon-inline">precision_manufacturing</span>5. Fabrication & Materials</h2>
+                 <ol>
+                    <li><strong>Substrate</strong>: Low-loss dielectric (e.g., quartz or silicon).</li>
+                    <li><strong>Resonator patterning</strong>: Electron-beam or photolithography to define metal patterns (Au, Cu).</li>
+                    <li><strong>Dielectric layers</strong>: Spin-coat or ALD of high-index materials (TiO₂, Si).</li>
+                    <li><strong>3D structuring</strong>: Multilayer stacking or grayscale lithography for continuous gradient.</li>
+                    <li><strong>Characterization</strong>: Near-field scanning optical microscopy (NSOM) to verify index profile.</li>
+                </ol>
+            </section>
+            <!-- No HR here -->
+
+            <section class="content-section" id="governing-equations-ray-trajectories">
+                <h2><span class="material-icons-round icon-inline">functions</span>6. Governing Equations & Ray Trajectories</h2>
+                <h3>6.1. Hamiltonian Optics</h3>
+                <p>Light rays follow eikonal equation:</p>
+                $$
+                |\nabla S|^2 = n^2(\mathbf{r}), \quad \mathbf{k}=\nabla S,
+                $$
+                <p>with refractive index $n(\mathbf{r}) = \sqrt{\varepsilon(\mathbf{r})\mu(\mathbf{r})}$. The ray equations:</p>
+                $$
+                \frac{d\mathbf{r}}{ds} = \mathbf{p}/n, \quad \frac{d\mathbf{p}}{ds} = \nabla n,
+                $$
+                <p>where $\mathbf{p}=n d\mathbf{r}/ds$ and $s$ arc length.</p>
+                <h3>6.2. Wave Equation</h3>
+                <p>Full-wave Maxwell’s equations in anisotropic medium:</p>
+                $$
+                \nabla \times (\mu^{-1}\nabla \times \mathbf{E}) - k_0^2 \varepsilon \mathbf{E} = 0.
+                $$
+                <p>Solve via finite-element methods for field simulations.</p>
+            </section>
+            <!-- No HR here -->
+            
+            <section class="content-section" id="operational-protocol">
+                <h2><span class="material-icons-round icon-inline">play_circle_outline</span>7. Operational Protocol</h2>
+                 <ol>
+                    <li><strong>Design</strong>: Compute $\varepsilon_r(r)$ and $\varepsilon_\theta(r)$ from transformation.</li>
+                    <li><strong>Discretization</strong>: Segment radial coordinate into N layers, assign cell geometries.</li>
+                    <li><strong>Fabrication</strong>: Pattern layers, verify via ellipsometry.</li>
+                    <li><strong>Testing</strong>: Illuminate with collimated beam, record deflection; compare to gravitational lens predictions.</li>
+                    <li><strong>Adjustment</strong>: Iteratively tune resonator dimensions for dispersion compensation.</li>
+                </ol>
+            </section>
+            <!-- No HR here -->
+
+            <section class="content-section" id="applications-advantages">
+                <h2><span class="material-icons-round icon-inline">apps</span>8. Applications & Advantages</h2>
+                 <ul>
+                    <li><strong>Laboratory Analogues</strong>: Study lensing by black holes, galaxy clusters at optical table scale.</li>
+                    <li><strong>Beam steering</strong>: Passive, frequency-dependent beam shaping for communications.</li>
+                    <li><strong>Imaging</strong>: Super-resolution via controlled wavefront distortion and inversion.</li>
+                 </ul>
+                 <p><strong>Advantages</strong>:</p>
+                <ol>
+                    <li><strong>Flat geometry</strong>: Compact and planar vs bulky lenses.</li>
+                    <li><strong>Tailorability</strong>: Arbitrary metric analogs via design.</li>
+                    <li><strong>Low-loss at microwaves/THz</strong>: Metal resonators behave well.</li>
+                </ol>
+            </section>
+            <!-- No HR here -->
+            
+            <section class="content-section" id="challenges-future">
+                <h2><span class="material-icons-round icon-inline">report_problem</span>9. Challenges & Future Directions</h2>
+                 <ul>
+                    <li><strong>Bandwidth</strong>: Achieving wideband response given resonant unit cells.</li>
+                    <li><strong>Losses</strong>: Metallic absorption, especially at optical frequencies.</li>
+                    <li><strong>3D Effects</strong>: Approximating full 3D metrics in planar sheets.</li>
+                    <li><strong>Scalability</strong>: Fabrication of large-area, smoothly varying gradients.</li>
+                </ul>
+                <p>Future avenues: nonreciprocal metamaterials for rotating black-hole analogs, time-dependent modulation for dynamic metrics, and active control for switchable lensing.</p>
+            </section>
+            
+            <hr class="document-end-divider">
+            <p style="text-align:center; font-style:italic; opacity:0.7;">*End of theoretical design document for Gravitational-Lens Analog Metamaterials.*</p>
+
+        </main>
+
+        <footer>
+            <p>Scientific concept and logic by <strong>Lion</strong>.</p>
+            <p>UI/UX & Web Implementation inspired by modern design principles.</p>
+            <p>© 2024 Gravitational-Lens Analog Metamaterials Project</p>
+        </footer>
+    </div>
+
+    <script>
+        // Initialize Mermaid
+        mermaid.initialize({ 
+            startOnLoad: true,
+            theme: 'base', 
+            themeVariables: {
+                primaryColor: getComputedStyle(document.documentElement).getPropertyValue('--diagram-element-bg').trim(),
+                primaryTextColor: getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim(),
+                primaryBorderColor: getComputedStyle(document.documentElement).getPropertyValue('--card-border').trim(),
+                lineColor: getComputedStyle(document.documentElement).getPropertyValue('--icon-color').trim(),
+                secondaryColor: getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim(),
+                tertiaryColor: getComputedStyle(document.documentElement).getPropertyValue('--bg-color').trim()
+            },
+            flowchart: { 
+                htmlLabels: true, 
+                nodeSpacing: 50,
+                rankSpacing: 50
+            },
+            fontFamily: getComputedStyle(document.documentElement).getPropertyValue('--font-primary').trim(),
+        });
+
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Theme Switcher
+            const lightModeBtn = document.getElementById('light-mode-btn');
+            const darkModeBtn = document.getElementById('dark-mode-btn');
+            const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+
+            function updateMermaidTheme() {
+                const currentPrimaryColor = getComputedStyle(document.documentElement).getPropertyValue('--diagram-element-bg').trim();
+                const currentTextColor = getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim();
+                const currentBorderColor = getComputedStyle(document.documentElement).getPropertyValue('--card-border').trim();
+                const currentLineColor = getComputedStyle(document.documentElement).getPropertyValue('--icon-color').trim();
+                const currentAccentColor = getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim();
+                const currentBgColor = getComputedStyle(document.documentElement).getPropertyValue('--bg-color').trim();
+                
+                mermaid.initialize({
+                    theme: 'base',
+                    themeVariables: {
+                        primaryColor: currentPrimaryColor,
+                        primaryTextColor: currentTextColor,
+                        primaryBorderColor: currentBorderColor,
+                        lineColor: currentLineColor,
+                        secondaryColor: currentAccentColor,
+                        tertiaryColor: currentBgColor
+                    }
+                });
+                document.querySelectorAll('.mermaid[data-processed="true"]').forEach((el, i) => {
+                    const code = el.textContent || el.innerText;
+                    const id = `mermaid-graph-${Date.now()}-${i}`;
+                    el.removeAttribute('data-processed');
+                    el.innerHTML = code;
+                    try {
+                         mermaid.init(undefined, el);
+                    } catch (e) {
+                        console.error("Error re-rendering Mermaid diagram:", e);
+                    }
+                });
+            }
+
+            function setTheme(theme) {
+                if (theme === 'dark') {
+                    document.documentElement.classList.add('dark-mode');
+                    localStorage.setItem('theme', 'dark');
+                } else {
+                    document.documentElement.classList.remove('dark-mode');
+                    localStorage.setItem('theme', 'light');
+                }
+                updateMermaidTheme();
+            }
+
+            lightModeBtn.addEventListener('click', () => setTheme('light'));
+            darkModeBtn.addEventListener('click', () => setTheme('dark'));
+
+            const currentTheme = localStorage.getItem('theme');
+            if (currentTheme) {
+                setTheme(currentTheme);
+            } else if (prefersDarkScheme.matches) {
+                setTheme('dark');
+            } else {
+                setTheme('light'); 
+            }
+            
+            // Scroll Animations for sections
+            const sections = document.querySelectorAll('.content-section');
+            const hrs = document.querySelectorAll('hr.section-divider, hr.document-end-divider'); 
+            const observerOptions = {
+                root: null, 
+                rootMargin: '0px',
+                threshold: 0.1 
+            };
+
+            const observer = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('is-visible');
+                    }
+                });
+            }, observerOptions);
+
+            sections.forEach(section => {
+                observer.observe(section);
+            });
+             hrs.forEach(hr => { 
+                hr.style.opacity = 0; hr.style.transition = 'opacity 0.8s var(--ease-in-out-cubic) 0.2s';
+                observer.observe(hr);
+            });
+        });
+    </script>
+</body>
+</html>

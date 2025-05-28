@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Photon-Phonon Coherent Converters</title>
+
+    <!-- MathJax Configuration -->
+    <script>
+        MathJax = {
+          tex: {
+            inlineMath: [['$', '$'], ['\\(', '\\)']],
+            displayMath: [['$$', '$$'], ['\\[', '\\]'], ['```math', '```']],
+            processEscapes: true,
+            tags: 'ams',
+            macros: { // Define custom macros if needed
+                rm: ['{\\rm #1}', 1], // for \rm (e.g., \rm int)
+                text: ['{\\text{#1}}', 1] // for \text{h.c.}
+            }
+          },
+          svg: {
+            fontCache: 'global'
+          }
+        };
+    </script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <!-- Mermaid JS for diagrams -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Google Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons|Material+Icons+Outlined|Material+Icons+Round" rel="stylesheet">
+
+    <style>
+        :root {
+            --font-primary: 'Inter', sans-serif;
+            --font-headings: 'Poppins', sans-serif;
+
+            --ease-out-quad: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            --ease-in-out-cubic: cubic-bezier(0.645, 0.045, 0.355, 1);
+
+            /* Light Mode (Default) */
+            --bg-color: #F0F2F5;
+            --text-color: #1d1d1f;
+            --heading-color: #000000;
+            --accent-color: #00ACC1; /* Vibrant Cyan for Photon/Phonon */
+            --accent-color-darker: #00838F;
+            --card-bg: rgba(255, 255, 255, 0.6);
+            --card-border: rgba(0, 0, 0, 0.1);
+            --card-shadow-1: rgba(0, 0, 0, 0.05);
+            --card-shadow-2: rgba(0, 0, 0, 0.02);
+            --neumorphic-shadow-light: -6px -6px 12px rgba(255, 255, 255, 0.8), 6px 6px 12px rgba(0, 0, 0, 0.1);
+            --neumorphic-shadow-light-inset: inset -4px -4px 8px rgba(255, 255, 255, 0.7), inset 4px 4px 8px rgba(0, 0, 0, 0.08);
+            --icon-color: #555;
+            --diagram-element-bg: rgba(128,128,128,0.05);
+            --code-bg: #f7f7f7;
+            --code-text: #333;
+            --hr-color: rgba(0,0,0,0.1);
+            --table-header-bg: rgba(0,0,0,0.03);
+            --table-row-hover-bg: rgba(0,0,0,0.02);
+        }
+
+        html.dark-mode {
+            --bg-color: #161616;
+            --text-color: #E0E0E0;
+            --heading-color: #FFFFFF;
+            --accent-color: #4DD0E1; /* Lighter Cyan for dark mode */
+            --accent-color-darker: #26C6DA;
+            --card-bg: rgba(35, 35, 35, 0.6);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --card-shadow-1: rgba(255, 255, 255, 0.03);
+            --card-shadow-2: rgba(0, 0, 0, 0.1);
+            --neumorphic-shadow-light: -6px -6px 12px rgba(40, 40, 40, 0.7), 6px 6px 12px rgba(0, 0, 0, 0.3);
+            --neumorphic-shadow-light-inset: inset -4px -4px 8px rgba(40, 40, 40, 0.6), inset 4px 4px 8px rgba(0, 0, 0, 0.25);
+            --icon-color: #bbb;
+            --diagram-element-bg: rgba(200,200,200,0.05);
+            --code-bg: #2a2a2a;
+            --code-text: #ccc;
+            --hr-color: rgba(255,255,255,0.1);
+            --table-header-bg: rgba(255,255,255,0.03);
+            --table-row-hover-bg: rgba(255,255,255,0.02);
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 16px;
+        }
+
+        body {
+            font-family: var(--font-primary);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.7;
+            transition: background-color 0.3s var(--ease-out-quad), color 0.3s var(--ease-out-quad);
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem 0;
+        }
+
+        header {
+            padding: 2rem 0 1rem;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .main-title {
+            font-family: var(--font-headings);
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--heading-color);
+            margin-bottom: 0.5rem;
+            letter-spacing: -1px;
+        }
+
+        .tagline {
+            font-size: 1.1rem;
+            color: var(--text-color);
+            opacity: 0.8;
+            margin-bottom: 1.5rem;
+        }
+        
+        hr {
+            border: none;
+            height: 1px;
+            background-color: var(--hr-color);
+            margin: 2rem auto;
+            width: 80%;
+        }
+
+
+        .theme-switcher {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 0.5rem;
+            border-radius: 50px;
+            box-shadow: 0 4px 15px var(--card-shadow-1);
+            display: flex;
+            align-items: center;
+        }
+
+        .theme-button {
+            background: none;
+            border: none;
+            color: var(--icon-color);
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 50%;
+            transition: background-color 0.2s ease, color 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .theme-button:hover {
+            background-color: rgba(128,128,128,0.1);
+        }
+        .theme-button .material-icons-round {
+            font-size: 24px;
+        }
+
+
+        .content-section {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            padding: 2rem 2.5rem;
+            margin-bottom: 2.5rem;
+            border-radius: 20px;
+            box-shadow: 0 8px 30px var(--card-shadow-1), 0 2px 8px var(--card-shadow-2);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s var(--ease-in-out-cubic), transform 0.6s var(--ease-in-out-cubic);
+        }
+
+        .content-section.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .content-section h2, .content-section h3, .content-section h4 {
+            font-family: var(--font-headings);
+            color: var(--heading-color);
+            margin-bottom: 1.2rem;
+            margin-top: 1.5rem;
+            position: relative;
+            padding-left: 1.5rem;
+        }
+        .content-section h2::before, .content-section h3::before, .content-section h4::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 6px;
+            height: 60%;
+            min-height: 18px;
+            background-color: var(--accent-color);
+            border-radius: 3px;
+        }
+
+
+        .content-section h2 { font-size: 1.8rem; font-weight: 700; }
+        .content-section h3 { font-size: 1.5rem; font-weight: 600; }
+        .content-section h4 { font-size: 1.2rem; font-weight: 600; }
+        .content-section h2:first-child, .content-section h3:first-child, .content-section h4:first-child {
+            margin-top: 0;
+        }
+
+        .content-section p {
+            margin-bottom: 1rem;
+            color: var(--text-color);
+        }
+
+        .content-section ul, .content-section ol {
+            list-style: none;
+            padding-left: 0;
+            margin-bottom: 1rem;
+        }
+         .content-section ol { 
+            counter-reset: list-item-counter;
+        }
+
+
+        .content-section li {
+            padding-left: 2em;
+            position: relative;
+            margin-bottom: 0.75rem;
+        }
+        
+        .content-section ul li::before { 
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 9px; 
+            width: 8px;
+            height: 8px;
+            background-color: var(--accent-color);
+            border-radius: 50%;
+        }
+
+        .content-section ol li::before { 
+            counter-increment: list-item-counter;
+            content: counter(list-item-counter) ".";
+            position: absolute;
+            left: 0;
+            top: 1px; 
+            font-weight: 600;
+            color: var(--accent-color);
+        }
+
+
+        .content-section strong {
+            font-weight: 600;
+            color: var(--heading-color);
+        }
+
+        .content-section .mjx-math, .content-section pre[class*="language-math"] { 
+            font-size: 1.1em !important; 
+            margin: 1.5rem 0;
+            padding: 1rem;
+            overflow-x: auto;
+            background-color: var(--diagram-element-bg);
+            border-radius: 8px;
+            border: 1px solid var(--card-border);
+        }
+        
+        .mermaid-diagram-container {
+            background-color: var(--diagram-element-bg);
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin: 1.5rem auto;
+            text-align: center;
+            border: 1px solid var(--card-border);
+        }
+        .mermaid-diagram-container svg {
+            max-width: 100%;
+            height: auto;
+        }
+        
+        .styled-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            font-size: 0.95em;
+        }
+        .styled-table th, .styled-table td {
+            border: 1px solid var(--card-border);
+            padding: 0.75rem 1rem;
+            text-align: left;
+        }
+        .styled-table th {
+            background-color: var(--table-header-bg);
+            font-weight: 600;
+            color: var(--heading-color);
+        }
+        .styled-table tr:hover {
+            background-color: var(--table-row-hover-bg);
+        }
+        .styled-table td:nth-child(1) {
+            font-weight: 500;
+        }
+
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 2rem 0;
+            margin-top: 2rem;
+            border-top: 1px solid var(--card-border);
+            font-size: 0.9rem;
+            color: var(--text-color);
+            opacity: 0.7;
+        }
+        footer strong {
+            font-weight: bold;
+            color: var(--accent-color);
+        }
+
+        /* Material Icons in text */
+        .icon-inline {
+            font-family: 'Material Icons Round';
+            font-size: 1.1em; 
+            vertical-align: -0.15em; 
+            margin-right: 0.2em;
+            color: var(--accent-color);
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .main-title { font-size: 2rem; }
+            .tagline { font-size: 1rem; }
+            .content-section { padding: 1.5rem; border-radius: 15px; }
+            .content-section h2 { font-size: 1.6rem; }
+            .content-section h3 { font-size: 1.3rem; }
+            .theme-switcher { top: 10px; right: 10px; padding: 0.3rem;}
+            .theme-button {padding: 0.4rem;}
+            .styled-table { font-size: 0.85em; }
+            .styled-table th, .styled-table td { padding: 0.5rem; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="theme-switcher">
+        <button id="light-mode-btn" class="theme-button" title="Switch to Light Mode">
+            <span class="material-icons-round">light_mode</span>
+        </button>
+        <button id="dark-mode-btn" class="theme-button" title="Switch to Dark Mode">
+            <span class="material-icons-round">dark_mode</span>
+        </button>
+    </div>
+
+    <div class="container">
+        <header>
+            <h1 class="main-title">Photon–Phonon Coherent Converters</h1>
+            <p class="tagline">Bidirectional transduction between optical photons and acoustic phonons at the quantum limit</p>
+        </header>
+        <hr>
+
+        <main>
+            <section class="content-section" id="concept-overview">
+                <h2><span class="material-icons-round icon-inline">sync_alt</span>Concept Overview</h2>
+                <p>Photon–Phonon Coherent Converters (PPCCs) exploit <strong>stimulated Brillouin</strong> or <strong>optomechanical coupling</strong> in engineered cavities or waveguides to exchange quantum excitations between light and sound modes with near–unity efficiency and minimal added noise. They form the backbone of future <strong>quantum networks</strong>, <strong>microwave–optical interconnects</strong>, and <strong>ultra-sensitive sensors</strong>.</p>
+                <p>Key features:</p>
+                <ul>
+                    <li><strong>Reversible</strong>, phase-preserving conversion</li>
+                    <li><strong>Quantum-limited</strong> performance (added noise ≲½ phonon/quanta)</li>
+                    <li><strong>On-chip integration</strong> in photonic–phononic circuits</li>
+                </ul>
+            </section>
+            <hr>
+
+            <section class="content-section" id="scientific-principles">
+                <h2><span class="material-icons-round icon-inline">science</span>Scientific Principles</h2>
+                <h3>1. Optomechanical Interaction</h3>
+                <ul>
+                    <li>Radiation pressure or photoelastic effect couples a cavity’s optical mode $a$ (frequency $\omega_o$) to a mechanical mode $b$ (frequency $\Omega_m$):
+                    \[
+                      H_{\rm int} = \hbar g_0\,a^\dagger a\,(b + b^\dagger)
+                    \]
+                    $g_0$ is the single-photon coupling rate.</li>
+                </ul>
+                <h3>2. Brillouin Scattering</h3>
+                <ul>
+                    <li>In a waveguide, pump photons ($\omega_p$) scatter off a traveling acoustic phonon ($\Omega_B$), generating a Stokes ($\omega_s=\omega_p-\Omega_B$) or anti-Stokes ($\omega_{as}=\omega_p+\Omega_B$) photon:
+                    \[
+                      H_{\rm B} = \hbar G\,a_p^\dagger a_s\,b^\dagger + \text{h.c.}
+                    \]
+                    $G$ is the pump-enhanced Brillouin rate.</li>
+                </ul>
+                <h3>3. Quantum Conversion Efficiency</h3>
+                <ul>
+                    <li>In the resolved-sideband, strong-drive regime, the beam-splitter–type interaction
+                    \[
+                      H_{\rm BS} = \hbar G_{\rm eff}\,(a^\dagger b + a\,b^\dagger)
+                    \]
+                    yields bidirectional exchange with efficiency
+                    \[
+                      \eta = \frac{4C}{(1 + C)^2},\quad C=\frac{4G_{\rm eff}^2}{\kappa\,\Gamma}
+                    \]
+                    where $\kappa$ and $\Gamma$ are the optical and mechanical linewidths.</li>
+                </ul>
+                 <h3>4. Quantum Noise</h3>
+                <ul>
+                    <li>Added noise quanta
+                    \[
+                      n_{\rm add} \approx \frac{1}{2}\,\frac{1 + C}{C}
+                    \]
+                    approaching ½ in the high-cooperativity limit $C\gg1$.</li>
+                </ul>
+            </section>
+            <hr>
+
+            <section class="content-section" id="device-architecture">
+                <h2><span class="material-icons-round icon-inline">developer_board</span>Device Architecture</h2>
+                <div class="mermaid-diagram-container">
+                    <pre class="mermaid">
+graph LR
+  subgraph Optical [Optical Pump & Readout]
+    direction LR
+    P[Laser Pump] --> M1[Modulator / Filter]
+    M1 --> IC[Input Waveguide]
+  end
+  
+  subgraph Mechanical [Mechanical Drive & Readout]
+    direction LR
+    Q[Phonon Source / Detector] --> MC[Acoustic Waveguide]
+  end
+
+  CAV((Coupled Optomechanical Resonator / Cavity))
+  
+  IC --> CAV
+  MC --> CAV
+
+  CAV --> OC[Output Optical Waveguide] --> OC2[Detector or Fiber]
+  CAV --> MC2[Output Acoustic Waveguide] --> Q_Out[Phonon Transducer]
+
+  CAV -.-> Control[Feedback & Control Electronics]
+
+  classDef source fill:#E0F7FA,stroke:#00796B,color:#000;
+  classDef component fill:#B2DFDB,stroke:#00897B,color:#000;
+  classDef cavity_node fill:#A7FFEB,stroke:#00BFA5,color:#000,shape:cylinder;
+  classDef control_node fill:#CFD8DC,stroke:#455A64,color:#000;
+  
+  class P,Q source;
+  class M1,IC,MC,OC,OC2,MC2,Q_Out component;
+  class CAV cavity_node;
+  class Control control_node;
+                    </pre>
+                </div>
+                <ul>
+                    <li><strong>Coupled resonator</strong>: high-Q optical microtoroid, photonic crystal cavity, or suspended waveguide with co-localized acoustic mode</li>
+                    <li><strong>Pump scheme</strong>: red- or blue-detuned control laser sets beam-splitter interaction</li>
+                    <li><strong>Readout</strong>: heterodyne detection for optical sidebands; transducers for phonons (piezoelectric or optical readout)</li>
+                </ul>
+            </section>
+            <hr>
+
+            <section class="content-section" id="key-equations">
+                <h2><span class="material-icons-round icon-inline">functions</span>Key Equations</h2>
+                <h3>1. Linearized Interaction</h3>
+                $$
+                  H_{\rm lin} = \hbar G_{\rm eff}\,(a^\dagger b + a\,b^\dagger),\quad
+                  G_{\rm eff} = g_0\sqrt{n_{\rm cav}}
+                $$
+                <h3>2. Conversion Efficiency</h3>
+                $$
+                  \eta_{\rm opt\to mech} = \frac{\kappa_{\rm ex}\Gamma_{\rm ex}}{(\kappa/2)(\Gamma/2)}\,\frac{4G_{\rm eff}^2}{(\kappa + \Gamma)^2 + 4\Delta^2}
+                $$
+                <p>under impedance-matched condition $\kappa_{\rm ex}=\Gamma_{\rm ex}$, $\Delta=0$.</p>
+                <h3>3. Cooperativity</h3>
+                $$
+                  C = \frac{4G_{\rm eff}^2}{\kappa\,\Gamma}
+                $$
+                <h3>4. Added Noise</h3>
+                $$
+                  n_{\rm add} = \frac{1}{2}\Bigl(\frac{\kappa}{4G_{\rm eff}^2/\Gamma}+1\Bigr)
+                $$
+            </section>
+            <hr>
+
+            <section class="content-section" id="control-logic-operation">
+                <h2><span class="material-icons-round icon-inline">settings_input_component</span>Control Logic & Operation Flow</h2>
+                <div class="mermaid-diagram-container">
+                     <pre class="mermaid">
+flowchart TD
+  Start([Initialize Laser, Cryogenics & Electronics]) --> Lock{Lock Laser Detuning to Cavity/Sideband?}
+  Lock -- No --> PDH[Engage Pound-Drever-Hall / Sideband Lock] --> Lock
+  Lock -- Yes --> RampPump[Set Pump Power to Target \(n_{cav}\)]
+  RampPump --> TuneCooperativity{Cooperativity C ≈ Target (e.g., >1)?}
+  TuneCooperativity -- No --> AdjustPower[Increase/Decrease Pump Power] --> TuneCooperativity
+  TuneCooperativity -- Yes --> Convert[Enable Bidirectional Photon-Phonon Conversion Mode]
+  Convert --> Monitor[Measure Conversion Efficiency η & Added Noise \(n_{add}\)]
+  Monitor --> Feedback{Performance Metrics OK (η high, \(n_{add}\) low)?}
+  Feedback -- No --> Optimize[Adjust Detuning/Power/Coupling Parameters] --> TuneCooperativity
+  Feedback -- Yes --> Run([Steady-State Quantum Operation])
+  Run --> |External Trigger or Timeout| Start
+
+  classDef start_end fill:#E0F2F1,stroke:#00897B,color:#000,shape:stadium;
+  classDef decision fill:#B2EBF2,stroke:#0097A7,color:#000,shape:diamond;
+  classDef process fill:#E0F7FA,stroke:#00796B,color:#000,shape:rect;
+    
+  class Start,Run start_end;
+  class Lock,TuneCooperativity,Feedback decision;
+  class PDH,RampPump,AdjustPower,Convert,Monitor,Optimize process;
+                    </pre>
+                </div>
+                <ul>
+                    <li><strong>Locking</strong>: maintain detuning $\Delta=\pm\Omega_m$ for anti-Stokes/Stokes processes</li>
+                    <li><strong>Pump tuning</strong>: balance cooperativity vs. heating and excess noise</li>
+                    <li><strong>Feedback</strong>: real-time monitoring of conversion efficiency and noise floor</li>
+                </ul>
+            </section>
+            <hr>
+            
+            <section class="content-section" id="materials-fabrication">
+                <h2><span class="material-icons-round icon-inline">build</span>Materials & Fabrication</h2>
+                <ul>
+                    <li><strong>Platforms</strong>: silicon, silicon nitride, diamond, silicon carbide</li>
+                    <li><strong>Cavities</strong>: photonic-phononic crystal defects, whispering-gallery resonators, suspended nanobeams</li>
+                    <li><strong>Transducers</strong>: piezoelectric thin films (AlN, LiNbO₃) or optical evanescent couplers</li>
+                    <li><strong>Cryogenics</strong>: dilution or He-4 cryostats to reach $n_{\rm th}\ll1$</li>
+                </ul>
+            </section>
+            <hr>
+
+            <section class="content-section" id="applications-table">
+                <h2><span class="material-icons-round icon-inline">apps</span>Applications</h2>
+                <table class="styled-table">
+                    <thead>
+                        <tr>
+                            <th>Application</th>
+                            <th>Benefit</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Quantum networks</strong></td>
+                            <td>Interface microwave qubits to telecom fiber</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Quantum transduction</strong></td>
+                            <td>Link superconducting circuits to optics</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Sensors & metrology</strong></td>
+                            <td>Ultra-sensitive force, mass, and displacement readout</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Nonreciprocal devices</strong></td>
+                            <td>Realize isolators and circulators via synthetic gauge fields</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+            <hr>
+            
+            <section class="content-section" id="advantages-challenges">
+                <h2><span class="material-icons-round icon-inline">balance</span>Advantages & Challenges</h2>
+                <table class="styled-table">
+                    <thead>
+                        <tr>
+                            <th>Aspect</th>
+                            <th>Advantage</th>
+                            <th>Challenge</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Quantum efficiency</strong></td>
+                            <td>η → 1 at high cooperativity</td>
+                            <td>Achieving $C\gg1$ without heating</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Low added noise</strong></td>
+                            <td>$n_{\rm add}\to0.5$ quanta</td>
+                            <td>Excess classical noise and thermal phonons</td>
+                        </tr>
+                        <tr>
+                            <td><strong>On-chip integration</strong></td>
+                            <td>Scalable PIC/POIC platforms</td>
+                            <td>Nanofabrication alignment of optical & acoustic modes</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Bidirectionality</strong></td>
+                            <td>Symmetric photon↔phonon exchange</td>
+                            <td>Managing spurious scattering and multi-mode coupling</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+            <hr>
+
+            <section class="content-section" id="future-directions">
+                <h2><span class="material-icons-round icon-inline">rocket_launch</span>Future Directions</h2>
+                <ul>
+                    <li><strong>Topological phononics</strong> for back-scatter-immune waveguides</li>
+                    <li><strong>Hybrid phonon–magnon systems</strong> for magnetically tunable converters</li>
+                    <li><strong>Room-temperature operation</strong> via high-frequency GHz modes</li>
+                    <li><strong>Machine-learning optimization</strong> of cavity geometries for maximal $g_0$</li>
+                </ul>
+            </section>
+            <hr>
+
+            <section class="content-section" id="references">
+                <h2><span class="material-icons-round icon-inline">menu_book</span>References</h2>
+                <ol>
+                    <li>Andrews, R. W., Peterson, R. W., Purdy, T. P., Cicak, K., Simmonds, R. W., Regal, C. A., & Lehnert, K. W. (2014). “Bidirectional and efficient conversion between microwave and optical light,” <em>Nature Physics</em>, <strong>10</strong>, 321–326.</li>
+                    <li>Bochmann, J., Vainsencher, A., Awschalom, D. D., & Cleland, A. N. (2013). “Nanomechanical coupling between microwave and optical photons,” <em>Nature Physics</em>, <strong>9</strong>, 712–716.</li>
+                    <li>Balram, K. C., Davanço, M., Song, J. D., & Srinivasan, K. (2016). “Coherent coupling between radiofrequency, optical and acoustic waves in piezo‐optomechanical circuits,” <em>Nature Photonics</em>, <strong>10</strong>, 346–352.</li>
+                </ol>
+            </section>
+        </main>
+
+        <footer>
+            <p>Scientific concept and logic by <strong>Lion</strong>.</p>
+            <p>UI/UX & Web Implementation inspired by modern design principles.</p>
+            <p>© 2024 Photon–Phonon Coherent Converters Project</p>
+        </footer>
+    </div>
+
+    <script>
+        // Initialize Mermaid
+        mermaid.initialize({ 
+            startOnLoad: true,
+            theme: 'base', 
+            themeVariables: {
+                primaryColor: getComputedStyle(document.documentElement).getPropertyValue('--diagram-element-bg').trim(),
+                primaryTextColor: getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim(),
+                primaryBorderColor: getComputedStyle(document.documentElement).getPropertyValue('--card-border').trim(),
+                lineColor: getComputedStyle(document.documentElement).getPropertyValue('--icon-color').trim(),
+                secondaryColor: getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim(),
+                tertiaryColor: getComputedStyle(document.documentElement).getPropertyValue('--bg-color').trim()
+            },
+            flowchart: { 
+                htmlLabels: true, // Allows rich text like <sub> in flowchart nodes
+                nodeSpacing: 50,
+                rankSpacing: 50
+            },
+            fontFamily: getComputedStyle(document.documentElement).getPropertyValue('--font-primary').trim(),
+        });
+
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Theme Switcher
+            const lightModeBtn = document.getElementById('light-mode-btn');
+            const darkModeBtn = document.getElementById('dark-mode-btn');
+            const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+
+            function updateMermaidTheme() {
+                const currentPrimaryColor = getComputedStyle(document.documentElement).getPropertyValue('--diagram-element-bg').trim();
+                const currentTextColor = getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim();
+                const currentBorderColor = getComputedStyle(document.documentElement).getPropertyValue('--card-border').trim();
+                const currentLineColor = getComputedStyle(document.documentElement).getPropertyValue('--icon-color').trim();
+                const currentAccentColor = getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim();
+                const currentBgColor = getComputedStyle(document.documentElement).getPropertyValue('--bg-color').trim();
+                
+                mermaid.initialize({
+                    theme: 'base',
+                    themeVariables: {
+                        primaryColor: currentPrimaryColor,
+                        primaryTextColor: currentTextColor,
+                        primaryBorderColor: currentBorderColor,
+                        lineColor: currentLineColor,
+                        secondaryColor: currentAccentColor,
+                        tertiaryColor: currentBgColor
+                    }
+                });
+                document.querySelectorAll('.mermaid[data-processed="true"]').forEach((el, i) => {
+                    const code = el.textContent || el.innerText;
+                    const id = `mermaid-graph-${Date.now()}-${i}`;
+                    el.removeAttribute('data-processed');
+                    el.innerHTML = code;
+                    try {
+                         mermaid.init(undefined, el);
+                    } catch (e) {
+                        console.error("Error re-rendering Mermaid diagram:", e);
+                    }
+                });
+            }
+
+            function setTheme(theme) {
+                if (theme === 'dark') {
+                    document.documentElement.classList.add('dark-mode');
+                    localStorage.setItem('theme', 'dark');
+                } else {
+                    document.documentElement.classList.remove('dark-mode');
+                    localStorage.setItem('theme', 'light');
+                }
+                updateMermaidTheme();
+            }
+
+            lightModeBtn.addEventListener('click', () => setTheme('light'));
+            darkModeBtn.addEventListener('click', () => setTheme('dark'));
+
+            const currentTheme = localStorage.getItem('theme');
+            if (currentTheme) {
+                setTheme(currentTheme);
+            } else if (prefersDarkScheme.matches) {
+                setTheme('dark');
+            } else {
+                setTheme('light'); 
+            }
+            
+            // Scroll Animations for sections
+            const sections = document.querySelectorAll('.content-section');
+            const hrs = document.querySelectorAll('hr');
+            const observerOptions = {
+                root: null, 
+                rootMargin: '0px',
+                threshold: 0.1 
+            };
+
+            const observer = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('is-visible');
+                    }
+                });
+            }, observerOptions);
+
+            sections.forEach(section => {
+                observer.observe(section);
+            });
+            hrs.forEach(hr => { 
+                hr.style.opacity = 0; hr.style.transition = 'opacity 0.8s var(--ease-in-out-cubic) 0.2s';
+                observer.observe(hr);
+            });
+        });
+    </script>
+</body>
+</html>

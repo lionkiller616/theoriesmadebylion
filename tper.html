@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thermo-Photonics Energy Recycling</title>
+
+    <!-- MathJax Configuration -->
+    <script>
+        MathJax = {
+          tex: {
+            inlineMath: [['$', '$'], ['\\(', '\\)']],
+            displayMath: [['$$', '$$'], ['\\[', '\\]'], ['```math', '```']],
+            processEscapes: true,
+            tags: 'ams',
+            macros: { // Define custom macros if needed
+                // No specific macros needed from content, but can be added here
+            }
+          },
+          svg: {
+            fontCache: 'global'
+          }
+        };
+    </script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <!-- Mermaid JS for diagrams -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Google Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons|Material+Icons+Outlined|Material+Icons+Round" rel="stylesheet">
+
+    <style>
+        :root {
+            --font-primary: 'Inter', sans-serif;
+            --font-headings: 'Poppins', sans-serif;
+
+            --ease-out-quad: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            --ease-in-out-cubic: cubic-bezier(0.645, 0.045, 0.355, 1);
+
+            /* Light Mode (Default) */
+            --bg-color: #F0F2F5;
+            --text-color: #1d1d1f;
+            --heading-color: #000000;
+            --accent-color: #FF8F00; /* Warm Orange for Thermo/Energy */
+            --accent-color-darker: #E65100;
+            --card-bg: rgba(255, 255, 255, 0.6);
+            --card-border: rgba(0, 0, 0, 0.1);
+            --card-shadow-1: rgba(0, 0, 0, 0.05);
+            --card-shadow-2: rgba(0, 0, 0, 0.02);
+            --neumorphic-shadow-light: -6px -6px 12px rgba(255, 255, 255, 0.8), 6px 6px 12px rgba(0, 0, 0, 0.1);
+            --neumorphic-shadow-light-inset: inset -4px -4px 8px rgba(255, 255, 255, 0.7), inset 4px 4px 8px rgba(0, 0, 0, 0.08);
+            --icon-color: #555;
+            --diagram-element-bg: rgba(128,128,128,0.05);
+            --code-bg: #f7f7f7;
+            --code-text: #333;
+            --hr-color: rgba(0,0,0,0.1);
+        }
+
+        html.dark-mode {
+            --bg-color: #161616;
+            --text-color: #E0E0E0;
+            --heading-color: #FFFFFF;
+            --accent-color: #FFA726; /* Lighter Orange for dark mode */
+            --accent-color-darker: #FF8F00;
+            --card-bg: rgba(35, 35, 35, 0.6);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --card-shadow-1: rgba(255, 255, 255, 0.03);
+            --card-shadow-2: rgba(0, 0, 0, 0.1);
+            --neumorphic-shadow-light: -6px -6px 12px rgba(40, 40, 40, 0.7), 6px 6px 12px rgba(0, 0, 0, 0.3);
+            --neumorphic-shadow-light-inset: inset -4px -4px 8px rgba(40, 40, 40, 0.6), inset 4px 4px 8px rgba(0, 0, 0, 0.25);
+            --icon-color: #bbb;
+            --diagram-element-bg: rgba(200,200,200,0.05);
+            --code-bg: #2a2a2a;
+            --code-text: #ccc;
+            --hr-color: rgba(255,255,255,0.1);
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 16px;
+        }
+
+        body {
+            font-family: var(--font-primary);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.7;
+            transition: background-color 0.3s var(--ease-out-quad), color 0.3s var(--ease-out-quad);
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem 0;
+        }
+
+        header {
+            padding: 2rem 0 1rem;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .main-title {
+            font-family: var(--font-headings);
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--heading-color);
+            margin-bottom: 0.5rem;
+            letter-spacing: -1px;
+        }
+
+        .tagline {
+            font-size: 1.1rem;
+            color: var(--text-color);
+            opacity: 0.8;
+            margin-bottom: 1.5rem;
+        }
+        
+        hr {
+            border: none;
+            height: 1px;
+            background-color: var(--hr-color);
+            margin: 2rem auto;
+            width: 80%;
+        }
+
+
+        .theme-switcher {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 0.5rem;
+            border-radius: 50px;
+            box-shadow: 0 4px 15px var(--card-shadow-1);
+            display: flex;
+            align-items: center;
+        }
+
+        .theme-button {
+            background: none;
+            border: none;
+            color: var(--icon-color);
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 50%;
+            transition: background-color 0.2s ease, color 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .theme-button:hover {
+            background-color: rgba(128,128,128,0.1);
+        }
+        .theme-button .material-icons-round {
+            font-size: 24px;
+        }
+
+
+        .content-section {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            padding: 2rem 2.5rem;
+            margin-bottom: 2.5rem;
+            border-radius: 20px;
+            box-shadow: 0 8px 30px var(--card-shadow-1), 0 2px 8px var(--card-shadow-2);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s var(--ease-in-out-cubic), transform 0.6s var(--ease-in-out-cubic);
+        }
+
+        .content-section.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .content-section h2, .content-section h3, .content-section h4 {
+            font-family: var(--font-headings);
+            color: var(--heading-color);
+            margin-bottom: 1.2rem;
+            margin-top: 1.5rem;
+            position: relative;
+            padding-left: 1.5rem;
+        }
+        .content-section h2::before, .content-section h3::before, .content-section h4::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 6px;
+            height: 60%;
+            min-height: 18px;
+            background-color: var(--accent-color);
+            border-radius: 3px;
+        }
+
+
+        .content-section h2 { font-size: 1.8rem; font-weight: 700; }
+        .content-section h3 { font-size: 1.5rem; font-weight: 600; }
+        .content-section h4 { font-size: 1.2rem; font-weight: 600; } /* Added h4 styling for consistency */
+        .content-section h2:first-child, .content-section h3:first-child, .content-section h4:first-child {
+            margin-top: 0;
+        }
+
+        .content-section p {
+            margin-bottom: 1rem;
+            color: var(--text-color);
+        }
+
+        .content-section ul, .content-section ol {
+            list-style: none;
+            padding-left: 0;
+            margin-bottom: 1rem;
+        }
+         .content-section ol { 
+            counter-reset: list-item-counter;
+        }
+
+
+        .content-section li {
+            padding-left: 2em;
+            position: relative;
+            margin-bottom: 0.75rem;
+        }
+        
+        .content-section ul li::before { 
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 9px; 
+            width: 8px;
+            height: 8px;
+            background-color: var(--accent-color);
+            border-radius: 50%;
+        }
+
+        .content-section ol li::before { 
+            counter-increment: list-item-counter;
+            content: counter(list-item-counter) ".";
+            position: absolute;
+            left: 0;
+            top: 1px; 
+            font-weight: 600;
+            color: var(--accent-color);
+        }
+
+
+        .content-section strong {
+            font-weight: 600;
+            color: var(--heading-color);
+        }
+
+        .content-section .mjx-math, .content-section pre[class*="language-math"] { 
+            font-size: 1.1em !important; 
+            margin: 1.5rem 0;
+            padding: 1rem;
+            overflow-x: auto;
+            background-color: var(--diagram-element-bg);
+            border-radius: 8px;
+            border: 1px solid var(--card-border);
+        }
+        
+        .mermaid-diagram-container {
+            background-color: var(--diagram-element-bg);
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin: 1.5rem auto;
+            text-align: center;
+            border: 1px solid var(--card-border);
+        }
+        .mermaid-diagram-container svg {
+            max-width: 100%;
+            height: auto;
+        }
+        
+        .placeholder-image-container {
+            text-align: center;
+            margin: 1.5rem 0;
+        }
+        .placeholder-image-container img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 12px;
+            border: 1px solid var(--card-border);
+            box-shadow: 0 4px 10px var(--card-shadow-1);
+        }
+
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 2rem 0;
+            margin-top: 2rem;
+            border-top: 1px solid var(--card-border);
+            font-size: 0.9rem;
+            color: var(--text-color);
+            opacity: 0.7;
+        }
+        footer strong {
+            font-weight: bold;
+            color: var(--accent-color);
+        }
+
+        /* Material Icons in text */
+        .icon-inline {
+            font-family: 'Material Icons Round';
+            font-size: 1.1em; 
+            vertical-align: -0.15em; 
+            margin-right: 0.2em;
+            color: var(--accent-color);
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .main-title { font-size: 2rem; }
+            .tagline { font-size: 1rem; }
+            .content-section { padding: 1.5rem; border-radius: 15px; }
+            .content-section h2 { font-size: 1.6rem; }
+            .content-section h3 { font-size: 1.3rem; }
+            .theme-switcher { top: 10px; right: 10px; padding: 0.3rem;}
+            .theme-button {padding: 0.4rem;}
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="theme-switcher">
+        <button id="light-mode-btn" class="theme-button" title="Switch to Light Mode">
+            <span class="material-icons-round">light_mode</span>
+        </button>
+        <button id="dark-mode-btn" class="theme-button" title="Switch to Dark Mode">
+            <span class="material-icons-round">dark_mode</span>
+        </button>
+    </div>
+
+    <div class="container">
+        <header>
+            <h1 class="main-title">Thermo-Photonics Energy Recycling</h1>
+            <p class="tagline">Converting waste heat into useful photons via engineered emitters and selective photonic structures for enhanced power recovery.</p>
+        </header>
+        <hr>
+
+        <main>
+            <section class="content-section" id="introduction">
+                <h2><span class="material-icons-round icon-inline">wb_sunny</span>1. Introduction</h2>
+                <p>Industrial processes, engines, and electronics dissipate substantial energy as heat, often at temperatures $T<1000\ K$. <strong>Thermo-Photonics Energy Recycling</strong> uses thermal-photonic conversion—tailored emitters, spectral filters, and photovoltaic cells—to reemit waste heat as narrowband photons matched to PV bandgaps, enabling efficient electricity generation.</p>
+            </section>
+            <hr>
+
+            <section class="content-section" id="fundamentals-thermal-radiation">
+                <h2><span class="material-icons-round icon-inline">thermostat</span>2. Fundamentals of Thermal Radiation</h2>
+                <h4>Planck’s Law for spectral radiance:</h4>
+                ```math
+                L_\lambda(T) = \frac{2hc^2}{\lambda^5} \frac{1}{e^{hc/(\lambda k_B T)} - 1}
+                ```
+                <ul>
+                    <li>$h$: Planck constant, $c$: speed of light, $k_B$: Boltzmann constant</li>
+                    <li>$T$: emitter temperature</li>
+                </ul>
+                <h4>Total Emissive Power (Stefan–Boltzmann):</h4>
+                ```math
+                P = \epsilon \sigma T^4
+                ```
+                <ul>
+                    <li>$\epsilon$: emissivity spectrum–averaged, $\sigma$: Stefan–Boltzmann constant</li>
+                </ul>
+            </section>
+            <hr>
+
+            <section class="content-section" id="selective-emitter-design">
+                <h2><span class="material-icons-round icon-inline">filter_tilt_shift</span>3. Selective Emitter Design</h2>
+                <h3>3.1 Spectral Engineering</h3>
+                <p>By patterning metasurfaces or photonic crystals, emissivity $\epsilon(\lambda)$ is enhanced near PV bandgap $\lambda_g$ and suppressed elsewhere:</p>
+                ```math
+                \epsilon(\lambda) = \sum_n \frac{\Gamma_n^2}{(\lambda - \lambda_n)^2 + \Gamma_n^2}
+                ```
+                <ul>
+                    <li>$\lambda_n$: resonance wavelengths, $\Gamma_n$: linewidths</li>
+                </ul>
+                <h3>3.2 Photon Chemical Potential</h3>
+                <p>Under optical pumping or coupled to PV, emitter can achieve nonzero chemical potential $\mu$, modifying emission via:</p>
+                ```math
+                L_\lambda(T,\mu) = \frac{2hc^2}{\lambda^5} \frac{1}{e^{[hc/(\lambda) - \mu]/(k_B T)} - 1}
+                ```
+            </section>
+            <hr>
+
+            <section class="content-section" id="device-architecture">
+                <h2><span class="material-icons-round icon-inline">developer_board</span>4. Thermo-Photonics Device Architecture</h2>
+                <div class="mermaid-diagram-container">
+                    <pre class="mermaid">
+flowchart LR
+  W[Waste Heat Source] --> E((Selective Thermal Emitter))
+  E --> F{Spectral Filter / Cavity}
+  F --> P[Photovoltaic Cell]
+  P --> E_out[Electric Power Out]
+  P --> H((Rejected IR Heat))
+
+  classDef heatSource fill:#FFAB91,stroke:#D84315,color:#000;
+  classDef mainComponent fill:#FFE0B2,stroke:#EF6C00,color:#000;
+  classDef output fill:#A5D6A7,stroke:#2E7D32,color:#000;
+
+  class W heatSource;
+  class E,F,P mainComponent;
+  class E_out,H output;
+                    </pre>
+                </div>
+                <ul>
+                    <li><strong>Emitter</strong>: High-temperature stable metasurface (e.g., refractory ceramics with nanopatterns)</li>
+                    <li><strong>Filter</strong>: Dielectric or plasmonic cavity that recirculates sub-bandgap photons back to emitter</li>
+                    <li><strong>PV Cell</strong>: Wide-bandgap semiconductor (GaSb, InGaAs) matched to narrowband emission</li>
+                </ul>
+            </section>
+            <hr>
+
+            <section class="content-section" id="governing-equations-efficiency">
+                <h2><span class="material-icons-round icon-inline">functions</span>5. Governing Equations and Efficiency</h2>
+                <h4>Spectral Matching Efficiency:</h4>
+                ```math
+                η_{spec} = \frac{\int_{λ_g}^{∞} L_λ(T,μ) R(λ) dλ}{\int_0^{∞} L_λ(T,μ) dλ}
+                ```
+                <ul>
+                    <li>$R(λ)$: PV quantum efficiency</li>
+                </ul>
+                <h4>Photon Recycling:</h4>
+                <p>Sub-bandgap photons reflected back with reflectivity $R_s$:</p>
+                ```math
+                J_{recycle} = R_s \int_0^{λ_g} L_λ(T,μ) dλ
+                ```
+                <h4>Overall Conversion Efficiency:</h4>
+                ```math
+                η = η_{spec} \cdot η_{PV} \cdot (1 - R_{loss})
+                ```
+                <ul>
+                    <li>$η_{PV}$: PV cell efficiency, $R_{loss}$: optical and non-radiative losses</li>
+                </ul>
+            </section>
+            <hr>
+
+            <section class="content-section" id="control-logic-thermal-management">
+                <h2><span class="material-icons-round icon-inline">settings_input_component</span>6. Control Logic and Thermal Management</h2>
+                <ol>
+                    <li><strong>Temperature Control</strong>: Maintain emitter at optimal $T_{opt}$ via feedback from thermocouples.</li>
+                    <li><strong>Adaptive Tuning</strong>: Dynamically adjust cavity spacing or angle to match PV under varying $T$.</li>
+                    <li><strong>Photon Recycling Loop</strong>: Monitor sub-bandgap reflectance; actuate MEMS mirrors to maximize recirculation.</li>
+                </ol>
+                <div class="mermaid-diagram-container">
+                     <pre class="mermaid">
+flowchart TD
+  T[Heat Source e.g. Carnot Engine] --> Ctrl(Thermal Control Unit)
+  Ctrl --> E[Emitter Temperature Setpoint]
+  E --> S{Sensor Feedback (Thermocouple)}
+  S --> Ctrl
+  Ctrl --> F[Filter/Cavity Actuator]
+
+  classDef process fill:#FFF9C4,stroke:#F9A825,color:#000;
+  classDef control fill:#B3E5FC,stroke:#0277BD,color:#000;
+  classDef sensor fill:#FFCCBC,stroke:#D84315,color:#000;
+
+  class T process;
+  class Ctrl control;
+  class E process;
+  class S sensor;
+  class F control;
+                    </pre>
+                </div>
+            </section>
+            <hr>
+
+            <section class="content-section" id="applications">
+                <h2><span class="material-icons-round icon-inline">widgets</span>7. Applications</h2>
+                <ul>
+                    <li><strong>Industrial Waste Heat Harvesting</strong> in furnaces and turbines</li>
+                    <li><strong>Automotive Exhaust Recovery</strong> on vehicle manifolds</li>
+                    <li><strong>Microelectronic Cooling</strong>: Integrate on hot chips to reclaim dissipation.</li>
+                </ul>
+            </section>
+            <hr>
+
+            <section class="content-section" id="illustrative-diagram">
+                <h2><span class="material-icons-round icon-inline">perm_media</span>8. Illustrative Diagram</h2>
+                <div class="placeholder-image-container">
+                    <img src="https://placehold.co/600x200?text=Emissivity+vs+Wavelength" alt="Selective Emitter Spectrum">
+                </div>
+                <div class="mermaid-diagram-container">
+                     <pre class="mermaid">
+graph LR
+  subgraph Metasurface Unit Cell
+    direction TB
+    LightIn[Incident Light/Heat] --> P(Array of Pillars)
+    LightIn --> G(Gap Resonators)
+    P --> LightOut[Selective Emission]
+    G --> LightOut
+  end
+
+  classDef element fill:var(--accent-color),stroke:var(--accent-color-darker),color:#fff,rx:5px,ry:5px;
+  classDef light fill:#FFF59D,stroke:#FBC02D,color:#000,shape:hexagon;
+  
+  class P,G element;
+  class LightIn,LightOut light;
+                    </pre>
+                </div>
+            </section>
+            <hr>
+
+            <section class="content-section" id="conclusion">
+                <h2><span class="material-icons-round icon-inline">verified</span>9. Conclusion</h2>
+                <p>Thermo-Photonics Energy Recycling combines spectral engineering, photon chemical potential control, and PV integration to convert low-grade heat into electricity. By tailoring emitter-filter systems and employing photon recycling, efficiencies exceeding conventional thermoelectrics can be achieved.</p>
+            </section>
+            <hr>
+            
+            <section class="content-section" id="references">
+                <h2><span class="material-icons-round icon-inline">menu_book</span>References</h2>
+                <ol>
+                    <li>Lenert, A. et al. "A nanophotonic solar thermophotovoltaic device," <em>Nature Nanotechnology</em>, 2014.</li>
+                    <li>Coutts, T. J. "A review of progress in thermophotovoltaic generation of electricity," <em>Renewable and Sustainable Energy Reviews</em>, 2011.</li>
+                    <li>Datas, A. et al. "High-flux thermophotovoltaic solar cell with 2D photonic crystal selective emitter," <em>ACS Photonics</em>, 2016.</li>
+                </ol>
+            </section>
+        </main>
+
+        <footer>
+            <p>Scientific concept and logic by <strong>Lion</strong>.</p>
+            <p>UI/UX & Web Implementation inspired by modern design principles.</p>
+            <p>© 2024 Thermo-Photonics Energy Recycling Project</p>
+        </footer>
+    </div>
+
+    <script>
+        // Initialize Mermaid
+        mermaid.initialize({ 
+            startOnLoad: true,
+            theme: 'base', 
+            themeVariables: {
+                primaryColor: getComputedStyle(document.documentElement).getPropertyValue('--diagram-element-bg').trim(),
+                primaryTextColor: getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim(),
+                primaryBorderColor: getComputedStyle(document.documentElement).getPropertyValue('--card-border').trim(),
+                lineColor: getComputedStyle(document.documentElement).getPropertyValue('--icon-color').trim(),
+                secondaryColor: getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim(),
+                tertiaryColor: getComputedStyle(document.documentElement).getPropertyValue('--bg-color').trim()
+            },
+            flowchart: { 
+                htmlLabels: true,
+                nodeSpacing: 50,
+                rankSpacing: 50
+            },
+            fontFamily: getComputedStyle(document.documentElement).getPropertyValue('--font-primary').trim(),
+        });
+
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Theme Switcher
+            const lightModeBtn = document.getElementById('light-mode-btn');
+            const darkModeBtn = document.getElementById('dark-mode-btn');
+            const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+
+            function updateMermaidTheme() {
+                const currentPrimaryColor = getComputedStyle(document.documentElement).getPropertyValue('--diagram-element-bg').trim();
+                const currentTextColor = getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim();
+                const currentBorderColor = getComputedStyle(document.documentElement).getPropertyValue('--card-border').trim();
+                const currentLineColor = getComputedStyle(document.documentElement).getPropertyValue('--icon-color').trim();
+                const currentAccentColor = getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim();
+                const currentBgColor = getComputedStyle(document.documentElement).getPropertyValue('--bg-color').trim();
+                
+                mermaid.initialize({
+                    theme: 'base',
+                    themeVariables: {
+                        primaryColor: currentPrimaryColor,
+                        primaryTextColor: currentTextColor,
+                        primaryBorderColor: currentBorderColor,
+                        lineColor: currentLineColor,
+                        secondaryColor: currentAccentColor,
+                        tertiaryColor: currentBgColor
+                    }
+                });
+                document.querySelectorAll('.mermaid[data-processed="true"]').forEach((el, i) => {
+                    const code = el.textContent || el.innerText;
+                    const id = `mermaid-graph-${Date.now()}-${i}`;
+                    el.removeAttribute('data-processed');
+                    el.innerHTML = code;
+                    try {
+                         mermaid.init(undefined, el);
+                    } catch (e) {
+                        console.error("Error re-rendering Mermaid diagram:", e);
+                    }
+                });
+            }
+
+            function setTheme(theme) {
+                if (theme === 'dark') {
+                    document.documentElement.classList.add('dark-mode');
+                    localStorage.setItem('theme', 'dark');
+                } else {
+                    document.documentElement.classList.remove('dark-mode');
+                    localStorage.setItem('theme', 'light');
+                }
+                updateMermaidTheme();
+            }
+
+            lightModeBtn.addEventListener('click', () => setTheme('light'));
+            darkModeBtn.addEventListener('click', () => setTheme('dark'));
+
+            const currentTheme = localStorage.getItem('theme');
+            if (currentTheme) {
+                setTheme(currentTheme);
+            } else if (prefersDarkScheme.matches) {
+                setTheme('dark');
+            } else {
+                setTheme('light'); 
+            }
+            
+            // Scroll Animations for sections
+            const sections = document.querySelectorAll('.content-section');
+            const hrs = document.querySelectorAll('hr');
+            const observerOptions = {
+                root: null, 
+                rootMargin: '0px',
+                threshold: 0.1 
+            };
+
+            const observer = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('is-visible');
+                    }
+                });
+            }, observerOptions);
+
+            sections.forEach(section => {
+                observer.observe(section);
+            });
+            hrs.forEach(hr => { 
+                hr.style.opacity = 0; hr.style.transition = 'opacity 0.8s var(--ease-in-out-cubic) 0.2s';
+                observer.observe(hr);
+            });
+        });
+    </script>
+</body>
+</html>

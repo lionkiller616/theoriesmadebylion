@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subwavelength Photonic Resonator Sensors</title>
+
+    <!-- MathJax Configuration -->
+    <script>
+        MathJax = {
+          tex: {
+            inlineMath: [['$', '$'], ['\\(', '\\)']],
+            displayMath: [['$$', '$$'], ['\\[', '\\]'], ['```math', '```']],
+            processEscapes: true,
+            tags: 'ams',
+            macros: { // Define custom macros if needed
+                // No specific macros from content, but can add if needed
+            }
+          },
+          svg: {
+            fontCache: 'global'
+          }
+        };
+    </script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <!-- Mermaid JS for diagrams -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Google Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons|Material+Icons+Outlined|Material+Icons+Round" rel="stylesheet">
+
+    <style>
+        :root {
+            --font-primary: 'Inter', sans-serif;
+            --font-headings: 'Poppins', sans-serif;
+
+            --ease-out-quad: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            --ease-in-out-cubic: cubic-bezier(0.645, 0.045, 0.355, 1);
+
+            /* Light Mode (Default) */
+            --bg-color: #F0F2F5;
+            --text-color: #1d1d1f;
+            --heading-color: #000000;
+            --accent-color: #00E5FF; /* Bright, Luminous Cyan for Photonic/Sensitivity */
+            --accent-color-darker: #00B8D4;
+            --card-bg: rgba(255, 255, 255, 0.6);
+            --card-border: rgba(0, 0, 0, 0.1);
+            --card-shadow-1: rgba(0, 0, 0, 0.05);
+            --card-shadow-2: rgba(0, 0, 0, 0.02);
+            --neumorphic-shadow-light: -6px -6px 12px rgba(255, 255, 255, 0.8), 6px 6px 12px rgba(0, 0, 0, 0.1);
+            --neumorphic-shadow-light-inset: inset -4px -4px 8px rgba(255, 255, 255, 0.7), inset 4px 4px 8px rgba(0, 0, 0, 0.08);
+            --icon-color: #555;
+            --diagram-element-bg: rgba(128,128,128,0.05);
+            --code-bg: #f7f7f7;
+            --code-text: #333;
+            --hr-color: rgba(0,0,0,0.1); 
+            --table-header-bg: rgba(0,0,0,0.03);
+            --table-row-hover-bg: rgba(0,0,0,0.02);
+        }
+
+        html.dark-mode {
+            --bg-color: #161616;
+            --text-color: #E0E0E0;
+            --heading-color: #FFFFFF;
+            --accent-color: #18FFFF; /* Brighter Cyan for dark mode */
+            --accent-color-darker: #00E5FF;
+            --card-bg: rgba(35, 35, 35, 0.6);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --card-shadow-1: rgba(255, 255, 255, 0.03);
+            --card-shadow-2: rgba(0, 0, 0, 0.1);
+            --neumorphic-shadow-light: -6px -6px 12px rgba(40, 40, 40, 0.7), 6px 6px 12px rgba(0, 0, 0, 0.3);
+            --neumorphic-shadow-light-inset: inset -4px -4px 8px rgba(40, 40, 40, 0.6), inset 4px 4px 8px rgba(0, 0, 0, 0.25);
+            --icon-color: #bbb;
+            --diagram-element-bg: rgba(200,200,200,0.05);
+            --code-bg: #2a2a2a;
+            --code-text: #ccc;
+            --hr-color: rgba(255,255,255,0.1);
+            --table-header-bg: rgba(255,255,255,0.03);
+            --table-row-hover-bg: rgba(255,255,255,0.02);
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 16px;
+        }
+
+        body {
+            font-family: var(--font-primary);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.7;
+            transition: background-color 0.3s var(--ease-out-quad), color 0.3s var(--ease-out-quad);
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem 0;
+        }
+
+        header {
+            padding: 2rem 0 1rem;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .main-title {
+            font-family: var(--font-headings);
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--heading-color);
+            margin-bottom: 0.5rem;
+            letter-spacing: -1px;
+        }
+        .tagline { 
+            font-size: 1.1rem;
+            color: var(--text-color);
+            opacity: 0.8;
+            margin-bottom: 1.5rem;
+        }
+        
+        hr.section-divider { 
+            border: none;
+            height: 1px;
+            background-color: var(--hr-color);
+            margin: 2rem auto;
+            width: 80%;
+        }
+        hr.document-end-divider { 
+            border: none;
+            height: 2px;
+            background: linear-gradient(to right, transparent, var(--accent-color), transparent);
+            margin: 3rem auto 1rem;
+            width: 60%;
+            opacity: 0.6;
+        }
+
+
+        .theme-switcher {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 0.5rem;
+            border-radius: 50px;
+            box-shadow: 0 4px 15px var(--card-shadow-1);
+            display: flex;
+            align-items: center;
+        }
+
+        .theme-button {
+            background: none;
+            border: none;
+            color: var(--icon-color);
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 50%;
+            transition: background-color 0.2s ease, color 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .theme-button:hover {
+            background-color: rgba(128,128,128,0.1);
+        }
+        .theme-button .material-icons-round {
+            font-size: 24px;
+        }
+
+
+        .content-section {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            padding: 2rem 2.5rem;
+            margin-bottom: 2.5rem;
+            border-radius: 20px;
+            box-shadow: 0 8px 30px var(--card-shadow-1), 0 2px 8px var(--card-shadow-2);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s var(--ease-in-out-cubic), transform 0.6s var(--ease-in-out-cubic);
+        }
+
+        .content-section.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .content-section h2, .content-section h3, .content-section h4 {
+            font-family: var(--font-headings);
+            color: var(--heading-color);
+            margin-bottom: 1.2rem;
+            margin-top: 1.5rem;
+            position: relative;
+            padding-left: 1.5rem;
+        }
+        .content-section h2::before, .content-section h3::before, .content-section h4::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 6px;
+            height: 60%;
+            min-height: 18px;
+            background-color: var(--accent-color);
+            border-radius: 3px;
+        }
+
+
+        .content-section h2 { font-size: 1.8rem; font-weight: 700; }
+        .content-section h3 { font-size: 1.5rem; font-weight: 600; }
+        .content-section h4 { font-size: 1.2rem; font-weight: 600; }
+        .content-section h2:first-child, .content-section h3:first-child, .content-section h4:first-child {
+            margin-top: 0;
+        }
+
+        .content-section p {
+            margin-bottom: 1rem;
+            color: var(--text-color);
+        }
+
+        .content-section ul, .content-section ol {
+            list-style: none;
+            padding-left: 0;
+            margin-bottom: 1rem;
+        }
+         .content-section ol { 
+            counter-reset: list-item-counter;
+        }
+
+
+        .content-section li {
+            padding-left: 2em;
+            position: relative;
+            margin-bottom: 0.75rem;
+        }
+        
+        .content-section ul li::before { 
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 9px; 
+            width: 8px;
+            height: 8px;
+            background-color: var(--accent-color);
+            border-radius: 50%;
+        }
+
+        .content-section ol li::before { 
+            counter-increment: list-item-counter;
+            content: counter(list-item-counter) ".";
+            position: absolute;
+            left: 0;
+            top: 1px; 
+            font-weight: 600;
+            color: var(--accent-color);
+        }
+
+
+        .content-section strong {
+            font-weight: 600;
+            color: var(--heading-color);
+        }
+
+        .content-section .mjx-math, .content-section pre[class*="language-math"] { 
+            font-size: 1.1em !important; 
+            margin: 1.5rem 0;
+            padding: 1rem;
+            overflow-x: auto;
+            background-color: var(--diagram-element-bg);
+            border-radius: 8px;
+            border: 1px solid var(--card-border);
+        }
+        
+        .mermaid-diagram-container {
+            background-color: var(--diagram-element-bg);
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin: 1.5rem auto;
+            text-align: center;
+            border: 1px solid var(--card-border);
+        }
+        .mermaid-diagram-container svg {
+            max-width: 100%;
+            height: auto;
+        }
+        
+        .styled-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            font-size: 0.95em;
+        }
+        .styled-table th, .styled-table td {
+            border: 1px solid var(--card-border);
+            padding: 0.75rem 1rem;
+            text-align: left;
+        }
+        .styled-table th {
+            background-color: var(--table-header-bg);
+            font-weight: 600;
+            color: var(--heading-color);
+        }
+        .styled-table tr:hover {
+            background-color: var(--table-row-hover-bg);
+        }
+        .styled-table td:nth-child(1) {
+            font-weight: 500;
+        }
+
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 2rem 0;
+            margin-top: 2rem;
+            border-top: 1px solid var(--hr-color); 
+            font-size: 0.9rem;
+            color: var(--text-color);
+            opacity: 0.7;
+        }
+        footer strong {
+            font-weight: bold;
+            color: var(--accent-color);
+        }
+
+        /* Material Icons in text */
+        .icon-inline {
+            font-family: 'Material Icons Round';
+            font-size: 1.1em; 
+            vertical-align: -0.15em; 
+            margin-right: 0.2em;
+            color: var(--accent-color);
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .main-title { font-size: 2rem; }
+            .tagline { font-size: 1rem; }
+            .content-section { padding: 1.5rem; border-radius: 15px; }
+            .content-section h2 { font-size: 1.6rem; }
+            .content-section h3 { font-size: 1.3rem; }
+            .theme-switcher { top: 10px; right: 10px; padding: 0.3rem;}
+            .theme-button {padding: 0.4rem;}
+            .styled-table { font-size: 0.85em; }
+            .styled-table th, .styled-table td { padding: 0.5rem; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="theme-switcher">
+        <button id="light-mode-btn" class="theme-button" title="Switch to Light Mode">
+            <span class="material-icons-round">light_mode</span>
+        </button>
+        <button id="dark-mode-btn" class="theme-button" title="Switch to Dark Mode">
+            <span class="material-icons-round">dark_mode</span>
+        </button>
+    </div>
+
+    <div class="container">
+        <header>
+            <h1 class="main-title">Subwavelength Photonic Resonator Sensors</h1>
+            <p class="tagline">Extreme Refractive-Index Sensitivity</p>
+        </header>
+        <hr class="section-divider">
+
+        <main>
+            <section class="content-section" id="introduction">
+                <h2><span class="material-icons-round icon-inline">waves</span>1. Introduction</h2>
+                <p>Subwavelength photonic resonator sensors harness optical resonances confined within structures smaller than the free-space wavelength. High-quality (Q) resonances—such as whispering-gallery modes (WGMs), photonic crystals, and dielectric nanoantennas—exhibit extreme sensitivity to local refractive-index changes, enabling detection of biomolecules, gases, and environmental parameters at trace levels.</p>
+                <p>This Markdown document details theoretical foundations, resonance conditions, sensitivity metrics, device architectures, fabrication techniques, operational principles, application scenarios, and comparative advantages.</p>
+            </section>
+            <!-- No HR after intro as per MD -->
+
+            <section class="content-section" id="background-motivation">
+                <h2><span class="material-icons-round icon-inline">lightbulb</span>2. Background & Motivation</h2>
+                <ul>
+                    <li><strong>Refractive-index sensing</strong>: Core to biosensing, environmental monitoring, and chemical detection.</li>
+                    <li><strong>Limitations</strong>: Bulk optics require large footprint; plasmonics suffer metallic losses and limited Q.</li>
+                    <li><strong>Subwavelength resonators</strong>: Dielectric high-index materials yield low-loss, high-Q resonances in nanoscale volumes.</li>
+                </ul>
+            </section>
+            <!-- No HR here -->
+
+            <section class="content-section" id="resonance-principles">
+                <h2><span class="material-icons-round icon-inline">science</span>3. Resonance Principles</h2>
+                <h3>3.1. Mie and Quasi-Bound States</h3>
+                <ul>
+                    <li><strong>Mie resonances</strong> in dielectric spheres/cylinders arise when size parameter $x = 2\pi r / \lambda$ satisfies mode conditions.</li>
+                    <li><strong>Quasi-bound states in continuum (quasi-BIC)</strong> within photonic crystal slabs achieve ultra-high Q via symmetry-protected modes.</li>
+                </ul>
+                <h3>3.2. Resonance Condition</h3>
+                <p>For a spherical resonator of radius $r$ and refractive index $n_r$ embedded in $n_s$:</p>
+                $$
+                \psi_l'(n_r k r)\,j_l(n_s k r) - \frac{n_r}{n_s} j_l'(n_r k r)\,\psi_l(n_s k r) = 0,
+                $$
+                <p>where $j_l, \psi_l$ are spherical Bessel and Riccati–Bessel functions, $k=2\pi/\lambda$.</p>
+                <h3>3.3. Quality Factor (Q)</h3>
+                $$
+                Q = \frac{\omega_0}{2\gamma} = \frac{\mathrm{Re}(\omega)}{2\mathrm{Im}(\omega)},
+                $$
+                <p>where $\omega_0$ resonance frequency and $\gamma$ decay rate.</p>
+                <h3>3.4. Sensitivity (S) and Figure of Merit (FOM)</h3>
+                <ul>
+                    <li><strong>Sensitivity</strong>: $S = \frac{d\lambda}{dn}$.</li>
+                    <li><strong>FOM</strong>: $\frac{S}{\Delta\lambda}\approx Q\times S/\lambda$, comparing shift to linewidth.</li>
+                </ul>
+            </section>
+            <!-- No HR here -->
+            
+            <section class="content-section" id="device-architectures-diagrams">
+                <h2><span class="material-icons-round icon-inline">developer_board</span>4. Device Architectures & Diagrams</h2>
+                <div class="mermaid-diagram-container">
+                    <pre class="mermaid">
+flowchart TB
+  L[Excitation Laser] --> C{Coupling Element (e.g., Tapered Fiber, Waveguide)}
+  C --> R((Subwavelength Resonator (Nanodisk, Photonic Crystal Cavity)))
+  R -- Reflected/Scattered Light --> D[Detector (Spectrometer/Photodiode)]
+  R ==>|Interaction| S[Sensing Surface / Environment (Analyte)]
+
+  classDef light_source fill:#E0F7FA,stroke:#00796B,color:#000;
+  classDef coupling fill:#B2EBF2,stroke:#0097A7,color:#000;
+  classDef resonator_node fill:#A7FFEB,stroke:#00BFA5,color:#000,shape:cylinder;
+  classDef detector_node fill:#CFD8DC,stroke:#455A64,color:#000;
+  classDef environment_node fill:#E0F2F1,stroke:#00897B,color:#000,shape:hexagon;
+  
+  class L light_source;
+  class C coupling;
+  class R resonator_node;
+  class D detector_node;
+  class S environment_node;
+                    </pre>
+                </div>
+                <ol>
+                    <li><strong>Resonator types</strong>:
+                        <ul>
+                            <li><strong>Dielectric nanodisk</strong>: radius 100–200 nm, height 50–100 nm (Si, TiO₂).</li>
+                            <li><strong>Photonic-crystal nanocavity</strong>: defect cavity in high-index slab (220 nm Si-on-insulator).</li>
+                            <li><strong>Ring/WGM microresonators</strong>: radius few microns, but leveraging subwavelength cross section.</li>
+                        </ul>
+                    </li>
+                    <li><strong>Coupling</strong>:
+                        <ul>
+                            <li>Near-field via tapered fiber or waveguide.</li>
+                            <li>Free-space via focused beam and dark-field detection.</li>
+                        </ul>
+                    </li>
+                </ol>
+            </section>
+            <!-- No HR here -->
+
+            <section class="content-section" id="fabrication-materials">
+                <h2><span class="material-icons-round icon-inline">precision_manufacturing</span>5. Fabrication & Materials</h2>
+                 <ol>
+                    <li><strong>Substrate</strong>: SiO₂ or sapphire wafer.</li>
+                    <li><strong>High-index layer deposition</strong>: LPCVD Si, sputtered TiO₂, or ALD AlGaAs.</li>
+                    <li><strong>Patterning</strong>: Electron-beam lithography or deep-UV lithography.</li>
+                    <li><strong>Etching</strong>: Inductively coupled plasma (ICP) for vertical sidewalls.</li>
+                    <li><strong>Surface functionalization</strong>: Silane chemistry or bio-linkers for specific analytes.</li>
+                </ol>
+            </section>
+            <!-- No HR here -->
+
+            <section class="content-section" id="operational-workflow">
+                <h2><span class="material-icons-round icon-inline">play_circle_outline</span>6. Operational Workflow</h2>
+                 <ol>
+                    <li><strong>Baseline characterization</strong>: Measure resonance $\lambda_0$ and Q in reference medium (air or buffer).</li>
+                    <li><strong>Sample introduction</strong>: Flow fluid or gas over resonator.</li>
+                    <li><strong>Real-time monitoring</strong>: Track wavelength shift $\Delta\lambda(t)$ via tunable laser or spectrometer.</li>
+                    <li><strong>Data analysis</strong>:
+                        <ul>
+                            <li>Convert $\Delta\lambda$ to refractive-index change $\Delta n$ via $\Delta n = \Delta\lambda/S$.</li>
+                            <li>Estimate analyte concentration using calibration curves.</li>
+                        </ul>
+                    </li>
+                </ol>
+            </section>
+            <!-- No HR here -->
+            
+            <section class="content-section" id="performance-metrics">
+                <h2><span class="material-icons-round icon-inline">speed</span>7. Performance Metrics</h2>
+                <table class="styled-table">
+                    <thead>
+                        <tr>
+                            <th>Metric</th>
+                            <th>Typical Range</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Resonance wavelength</td>
+                            <td>600–1550 nm</td>
+                        </tr>
+                        <tr>
+                            <td>Quality factor (Q)</td>
+                            <td>10³–10⁶</td>
+                        </tr>
+                        <tr>
+                            <td>Sensitivity (S)</td>
+                            <td>50–200 nm/RIU</td>
+                        </tr>
+                        <tr>
+                            <td>Limit of detection</td>
+                            <td>10⁻⁶–10⁻⁷ RIU</td>
+                        </tr>
+                        <tr>
+                            <td>Footprint</td>
+                            <td>0.01–10 μm²</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+            <!-- No HR here -->
+
+            <section class="content-section" id="applications-advantages">
+                <h2><span class="material-icons-round icon-inline">apps</span>8. Applications & Advantages</h2>
+                 <ul>
+                    <li><strong>Biosensing</strong>: Detect proteins, DNA hybridization, viruses at femtomolar levels.</li>
+                    <li><strong>Environmental monitoring</strong>: Trace gas detection (NO₂, CO₂) in compact sensors.</li>
+                    <li><strong>Lab-on-chip</strong>: Integration with microfluidics for multiplexed assays.</li>
+                    <li><strong>Telecom & Photonics</strong>: Active stabilization via refractive-index changes.</li>
+                </ul>
+                <p><strong>Advantages</strong>:</p>
+                <ol>
+                    <li><strong>Ultra-small footprint</strong>: Suitable for dense sensor arrays.</li>
+                    <li><strong>High Q and high S</strong>: Superior FOM over plasmonic sensors.</li>
+                    <li><strong>Low-loss dielectric</strong>: Minimal heating and photothermal artifacts.</li>
+                    <li><strong>Multiplexing</strong>: Wavelength-division multiplexed arrays on a chip.</li>
+                </ol>
+            </section>
+            <!-- No HR here -->
+
+            <section class="content-section" id="theoretical-extensions-designs">
+                <h2><span class="material-icons-round icon-inline">functions</span>9. Theoretical Extensions & Designs</h2>
+                 <ul>
+                    <li><strong>Quasi-BIC metasurfaces</strong>: Arrays of resonators providing collective high-Q modes.</li>
+                    <li><strong>Nonlinear sensing</strong>: Exploit Kerr shift for enhanced sensitivity via locked loops.</li>
+                    <li><strong>Active resonance tuning</strong>: Integrate phase-change materials (GST) for reconfigurable sensors.</li>
+                </ul>
+            </section>
+            <!-- No HR here -->
+            
+            <section class="content-section" id="future-outlook">
+                <h2><span class="material-icons-round icon-inline">rocket_launch</span>10. Future Outlook</h2>
+                <p>Advances in nanofabrication, low-index contrast engineering, and integration with on-chip light sources and detectors will drive subwavelength resonator sensors toward portable, multiplexed, real-time diagnostic platforms.</p>
+            </section>
+            
+            <hr class="document-end-divider">
+            <p style="text-align:center; font-style:italic; opacity:0.7;">*End of theoretical design document.*</p>
+
+        </main>
+
+        <footer>
+            <p>Scientific concept and logic by <strong>Lion</strong>.</p>
+            <p>UI/UX & Web Implementation inspired by modern design principles.</p>
+            <p>© 2024 Subwavelength Photonic Resonator Sensors Project</p>
+        </footer>
+    </div>
+
+    <script>
+        // Initialize Mermaid
+        mermaid.initialize({ 
+            startOnLoad: true,
+            theme: 'base', 
+            themeVariables: {
+                primaryColor: getComputedStyle(document.documentElement).getPropertyValue('--diagram-element-bg').trim(),
+                primaryTextColor: getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim(),
+                primaryBorderColor: getComputedStyle(document.documentElement).getPropertyValue('--card-border').trim(),
+                lineColor: getComputedStyle(document.documentElement).getPropertyValue('--icon-color').trim(),
+                secondaryColor: getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim(),
+                tertiaryColor: getComputedStyle(document.documentElement).getPropertyValue('--bg-color').trim()
+            },
+            flowchart: { 
+                htmlLabels: true, // Allows rich text like <sub> in flowchart nodes
+                nodeSpacing: 50,
+                rankSpacing: 50
+            },
+            fontFamily: getComputedStyle(document.documentElement).getPropertyValue('--font-primary').trim(),
+        });
+
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Theme Switcher
+            const lightModeBtn = document.getElementById('light-mode-btn');
+            const darkModeBtn = document.getElementById('dark-mode-btn');
+            const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+
+            function updateMermaidTheme() {
+                const currentPrimaryColor = getComputedStyle(document.documentElement).getPropertyValue('--diagram-element-bg').trim();
+                const currentTextColor = getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim();
+                const currentBorderColor = getComputedStyle(document.documentElement).getPropertyValue('--card-border').trim();
+                const currentLineColor = getComputedStyle(document.documentElement).getPropertyValue('--icon-color').trim();
+                const currentAccentColor = getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim();
+                const currentBgColor = getComputedStyle(document.documentElement).getPropertyValue('--bg-color').trim();
+                
+                mermaid.initialize({
+                    theme: 'base',
+                    themeVariables: {
+                        primaryColor: currentPrimaryColor,
+                        primaryTextColor: currentTextColor,
+                        primaryBorderColor: currentBorderColor,
+                        lineColor: currentLineColor,
+                        secondaryColor: currentAccentColor,
+                        tertiaryColor: currentBgColor
+                    }
+                });
+                document.querySelectorAll('.mermaid[data-processed="true"]').forEach((el, i) => {
+                    const code = el.textContent || el.innerText;
+                    const id = `mermaid-graph-${Date.now()}-${i}`;
+                    el.removeAttribute('data-processed');
+                    el.innerHTML = code;
+                    try {
+                         mermaid.init(undefined, el);
+                    } catch (e) {
+                        console.error("Error re-rendering Mermaid diagram:", e);
+                    }
+                });
+            }
+
+            function setTheme(theme) {
+                if (theme === 'dark') {
+                    document.documentElement.classList.add('dark-mode');
+                    localStorage.setItem('theme', 'dark');
+                } else {
+                    document.documentElement.classList.remove('dark-mode');
+                    localStorage.setItem('theme', 'light');
+                }
+                updateMermaidTheme();
+            }
+
+            lightModeBtn.addEventListener('click', () => setTheme('light'));
+            darkModeBtn.addEventListener('click', () => setTheme('dark'));
+
+            const currentTheme = localStorage.getItem('theme');
+            if (currentTheme) {
+                setTheme(currentTheme);
+            } else if (prefersDarkScheme.matches) {
+                setTheme('dark');
+            } else {
+                setTheme('light'); 
+            }
+            
+            // Scroll Animations for sections
+            const sections = document.querySelectorAll('.content-section');
+            const hrs = document.querySelectorAll('hr.section-divider, hr.document-end-divider'); 
+            const observerOptions = {
+                root: null, 
+                rootMargin: '0px',
+                threshold: 0.1 
+            };
+
+            const observer = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('is-visible');
+                    }
+                });
+            }, observerOptions);
+
+            sections.forEach(section => {
+                observer.observe(section);
+            });
+             hrs.forEach(hr => { 
+                hr.style.opacity = 0; hr.style.transition = 'opacity 0.8s var(--ease-in-out-cubic) 0.2s';
+                observer.observe(hr);
+            });
+        });
+    </script>
+</body>
+</html>

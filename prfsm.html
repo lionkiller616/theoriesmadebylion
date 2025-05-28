@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Programmable RF Spectrum Mirrors</title>
+
+    <!-- MathJax Configuration -->
+    <script>
+        MathJax = {
+          tex: {
+            inlineMath: [['$', '$'], ['\\(', '\\)']],
+            displayMath: [['$$', '$$'], ['\\[', '\\]'], ['```math', '```']], // Added ```math
+            processEscapes: true,
+            tags: 'ams',
+            macros: {
+                ms: ['{\\text{ms}}', 0],
+                sub: ['_{\\text{#1}}', 1]
+            }
+          },
+          svg: {
+            fontCache: 'global'
+          }
+        };
+    </script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <!-- Mermaid JS for diagrams -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Google Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons|Material+Icons+Outlined|Material+Icons+Round" rel="stylesheet">
+
+    <style>
+        :root {
+            --font-primary: 'Inter', sans-serif;
+            --font-headings: 'Poppins', sans-serif;
+
+            --ease-out-quad: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            --ease-in-out-cubic: cubic-bezier(0.645, 0.045, 0.355, 1);
+
+            /* Light Mode (Default) */
+            --bg-color: #F0F2F5;
+            --text-color: #1d1d1f;
+            --heading-color: #000000;
+            --accent-color: #00A99D; /* Teal/Green for RF/Wireless */
+            --accent-color-darker: #007F76;
+            --card-bg: rgba(255, 255, 255, 0.6);
+            --card-border: rgba(0, 0, 0, 0.1);
+            --card-shadow-1: rgba(0, 0, 0, 0.05);
+            --card-shadow-2: rgba(0, 0, 0, 0.02);
+            --neumorphic-shadow-light: -6px -6px 12px rgba(255, 255, 255, 0.8), 6px 6px 12px rgba(0, 0, 0, 0.1);
+            --neumorphic-shadow-light-inset: inset -4px -4px 8px rgba(255, 255, 255, 0.7), inset 4px 4px 8px rgba(0, 0, 0, 0.08);
+            --icon-color: #555;
+            --diagram-element-bg: rgba(128,128,128,0.05);
+            --code-bg: #f7f7f7;
+            --code-text: #333;
+            --hr-color: rgba(0,0,0,0.1);
+        }
+
+        html.dark-mode {
+            --bg-color: #161616;
+            --text-color: #E0E0E0;
+            --heading-color: #FFFFFF;
+            --accent-color: #00C2B2; /* Brighter Teal for dark mode */
+            --accent-color-darker: #00A99D;
+            --card-bg: rgba(35, 35, 35, 0.6);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --card-shadow-1: rgba(255, 255, 255, 0.03);
+            --card-shadow-2: rgba(0, 0, 0, 0.1);
+            --neumorphic-shadow-light: -6px -6px 12px rgba(40, 40, 40, 0.7), 6px 6px 12px rgba(0, 0, 0, 0.3);
+            --neumorphic-shadow-light-inset: inset -4px -4px 8px rgba(40, 40, 40, 0.6), inset 4px 4px 8px rgba(0, 0, 0, 0.25);
+            --icon-color: #bbb;
+            --diagram-element-bg: rgba(200,200,200,0.05);
+            --code-bg: #2a2a2a;
+            --code-text: #ccc;
+            --hr-color: rgba(255,255,255,0.1);
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 16px;
+        }
+
+        body {
+            font-family: var(--font-primary);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.7;
+            transition: background-color 0.3s var(--ease-out-quad), color 0.3s var(--ease-out-quad);
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem 0;
+        }
+
+        header {
+            padding: 2rem 0 1rem; /* Reduced padding */
+            text-align: center;
+            margin-bottom: 2rem; /* Reduced margin */
+        }
+
+        .main-title {
+            font-family: var(--font-headings);
+            font-size: 2.5rem; /* Slightly smaller */
+            font-weight: 800;
+            color: var(--heading-color);
+            margin-bottom: 0.5rem;
+            letter-spacing: -1px;
+        }
+
+        .tagline { /* New class for the tagline */
+            font-size: 1.1rem;
+            color: var(--text-color);
+            opacity: 0.8;
+            margin-bottom: 1.5rem; /* Space before first HR */
+        }
+        
+        hr {
+            border: none;
+            height: 1px;
+            background-color: var(--hr-color);
+            margin: 2rem auto; /* Spacing for HR */
+            width: 80%; /* HR width */
+        }
+
+
+        .theme-switcher {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 0.5rem;
+            border-radius: 50px;
+            box-shadow: 0 4px 15px var(--card-shadow-1);
+            display: flex;
+            align-items: center;
+        }
+
+        .theme-button {
+            background: none;
+            border: none;
+            color: var(--icon-color);
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 50%;
+            transition: background-color 0.2s ease, color 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .theme-button:hover {
+            background-color: rgba(128,128,128,0.1);
+        }
+        .theme-button .material-icons-round {
+            font-size: 24px;
+        }
+
+
+        .content-section {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            padding: 2rem 2.5rem;
+            margin-bottom: 2.5rem;
+            border-radius: 20px;
+            box-shadow: 0 8px 30px var(--card-shadow-1), 0 2px 8px var(--card-shadow-2);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s var(--ease-in-out-cubic), transform 0.6s var(--ease-in-out-cubic);
+        }
+
+        .content-section.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .content-section h2, .content-section h3 {
+            font-family: var(--font-headings);
+            color: var(--heading-color);
+            margin-bottom: 1.2rem;
+            margin-top: 1.5rem;
+            position: relative;
+            padding-left: 1.5rem;
+        }
+        .content-section h2::before, .content-section h3::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 6px;
+            height: 60%;
+            min-height: 18px;
+            background-color: var(--accent-color);
+            border-radius: 3px;
+        }
+
+
+        .content-section h2 { font-size: 1.8rem; font-weight: 700; }
+        .content-section h3 { font-size: 1.5rem; font-weight: 600; }
+        .content-section h2:first-child, .content-section h3:first-child {
+            margin-top: 0;
+        }
+
+        .content-section p {
+            margin-bottom: 1rem;
+            color: var(--text-color);
+        }
+
+        .content-section ul, .content-section ol {
+            list-style: none;
+            padding-left: 0;
+            margin-bottom: 1rem;
+        }
+         .content-section ol { 
+            counter-reset: list-item-counter;
+        }
+
+
+        .content-section li {
+            padding-left: 2em;
+            position: relative;
+            margin-bottom: 0.75rem;
+        }
+        
+        .content-section ul li::before { 
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 9px; 
+            width: 8px;
+            height: 8px;
+            background-color: var(--accent-color);
+            border-radius: 50%;
+        }
+
+        .content-section ol li::before { 
+            counter-increment: list-item-counter;
+            content: counter(list-item-counter) ".";
+            position: absolute;
+            left: 0;
+            top: 1px; 
+            font-weight: 600;
+            color: var(--accent-color);
+        }
+
+
+        .content-section strong {
+            font-weight: 600;
+            color: var(--heading-color); /* Or var(--accent-color) for more emphasis */
+        }
+
+        .content-section .mjx-math, .content-section pre[class*="language-math"] { 
+            font-size: 1.1em !important; 
+            margin: 1.5rem 0; /* More margin for display math */
+            padding: 1rem; /* Padding for math blocks */
+            overflow-x: auto;
+            background-color: var(--diagram-element-bg); /* Subtle background for math blocks */
+            border-radius: 8px;
+            border: 1px solid var(--card-border);
+        }
+        
+        .mermaid-diagram-container {
+            background-color: var(--diagram-element-bg);
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin: 1.5rem auto;
+            text-align: center;
+            border: 1px solid var(--card-border);
+        }
+        .mermaid-diagram-container svg { /* Ensure SVG from Mermaid is responsive */
+            max-width: 100%;
+            height: auto;
+        }
+        
+        .placeholder-image-container {
+            text-align: center;
+            margin: 1.5rem 0;
+        }
+        .placeholder-image-container img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 12px;
+            border: 1px solid var(--card-border);
+            box-shadow: 0 4px 10px var(--card-shadow-1);
+        }
+
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 2rem 0;
+            margin-top: 2rem;
+            border-top: 1px solid var(--card-border);
+            font-size: 0.9rem;
+            color: var(--text-color);
+            opacity: 0.7;
+        }
+        footer strong {
+            font-weight: bold;
+            color: var(--accent-color);
+        }
+
+        /* Material Icons in text */
+        .icon-inline {
+            font-family: 'Material Icons Round';
+            font-size: 1.1em; 
+            vertical-align: -0.15em; 
+            margin-right: 0.2em;
+            color: var(--accent-color);
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .main-title { font-size: 2rem; }
+            .tagline { font-size: 1rem; }
+            .content-section { padding: 1.5rem; border-radius: 15px; }
+            .content-section h2 { font-size: 1.6rem; }
+            .content-section h3 { font-size: 1.3rem; }
+            .theme-switcher { top: 10px; right: 10px; padding: 0.3rem;}
+            .theme-button {padding: 0.4rem;}
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="theme-switcher">
+        <button id="light-mode-btn" class="theme-button" title="Switch to Light Mode">
+            <span class="material-icons-round">light_mode</span>
+        </button>
+        <button id="dark-mode-btn" class="theme-button" title="Switch to Dark Mode">
+            <span class="material-icons-round">dark_mode</span>
+        </button>
+    </div>
+
+    <div class="container">
+        <header>
+            <h1 class="main-title">Programmable RF Spectrum Mirrors</h1>
+            <p class="tagline">Metasurface-based reflective structures capable of dynamically steering and reshaping radio-frequency (RF) bands to mitigate interference and enhance spectrum utilization.</p>
+        </header>
+        <hr>
+
+        <main>
+            <section class="content-section" id="introduction">
+                <h2><span class="material-icons-round icon-inline">radar</span>1. Introduction</h2>
+                <p>Traditional RF systems rely on fixed, passive reflectors or absorbers to manage interference, often leading to suboptimal spectral efficiency. <strong>Programmable RF Spectrum Mirrors</strong> leverage active metasurfaces—two-dimensional arrays of subwavelength resonators with tunable elements—to dynamically redirect specific frequency bands away from interferers or toward desired receivers.</p>
+                <p>This document details the underlying physics, design theory, governing equations, and practical implementation principles, along with illustrative diagrams.</p>
+            </section>
+            <hr>
+
+            <section class="content-section" id="principles-metasurfaces">
+                <h2><span class="material-icons-round icon-inline">layers</span>2. Principles of Metasurfaces</h2>
+                <ul>
+                    <li><strong>Metasurface Geometry</strong>: Planar lattice of unit cells ("meta-atoms"), each smaller than λ/10 for the highest operating frequency.</li>
+                    <li><strong>Resonant Elements</strong>: Each meta-atom comprises an LC resonator whose capacitance (C) or inductance (L) is tunable via varactors, MEMS switches, or graphene layers.</li>
+                    <li><strong>Phase Control</strong>: By adjusting the local impedance, each cell imparts a programmable phase shift φ(f) to incident waves at frequency f.</li>
+                </ul>
+            </section>
+            <hr>
+
+            <section class="content-section" id="theory-operation">
+                <h2><span class="material-icons-round icon-inline">lan</span>3. Theory of Operation</h2>
+                <h3>3.1 Generalized Snell’s Law for Metasurfaces</h3>
+                <p>When an incident wavefront strikes a metasurface with spatially varying phase profile φ(x), its reflection angle θ<sub>r</sub> follows:</p>
+                ```math
+                k_0(\sin θ_r - \sin θ_i) = dφ/dx
+                ```
+                <ul>
+                    <li>k<sub>0</sub>=2π/λ: free-space wavenumber</li>
+                    <li>θ<sub>i</sub>, θ<sub>r</sub>: incidence and reflection angles</li>
+                    <li>φ(x): phase shift profile along the metasurface surface coordinate x</li>
+                </ul>
+
+                <h3>3.2 Frequency-Selective Steering</h3>
+                <p>For multi-band operation, each meta-atom’s φ is a function of frequency, φ(x,f). By programming φ profiles that vary per band, one can direct band f<sub>1</sub> to angle θ<sub>r1</sub>, f<sub>2</sub> to θ<sub>r2</sub>, etc.</p>
+            </section>
+            <hr>
+
+            <section class="content-section" id="governing-equations-design">
+                <h2><span class="material-icons-round icon-inline">functions</span>4. Governing Equations and Design</h2>
+                <h3>4.1 Unit-Cell Resonator Model</h3>
+                <p>Each cell is approximated by an RLC circuit. The reflection coefficient Γ(f) and phase shift φ(f) satisfy:</p>
+                ```math
+                Γ(f) =
+                \frac{Z_{\ms}(f) - Z_0}{Z_{\ms}(f) + Z_0},
+                \quad φ(f) = \arg[Γ(f)]
+                ```
+                <p>where:</p>
+                <ul>
+                    <li>Z<sub>ms</sub>(f) = R + j(2πfL - 1/(2πfC))</li>
+                    <li>Z<sub>0</sub> = characteristic impedance (≈ 377 Ω)</li>
+                </ul>
+                <p>Tuning C or L shifts the resonance f<sub>0</sub> = 1/(2π√LC), thereby changing φ(f).</p>
+
+                <h3>4.2 Phase Gradient Profile</h3>
+                <p>To steer band Δf around a center f<sub>c</sub> to θ<sub>r</sub>:</p>
+                ```math
+                φ_n = -k(f_c)·d·n·(\sin θ_r - \sin θ_i),
+                \quad n = 0,1,...,N-1
+                ```
+                <ul>
+                    <li>N: number of cells along x-direction</li>
+                    <li>d: cell spacing</li>
+                    <li>φ_n: phase for nth cell</li>
+                </ul>
+            </section>
+            <hr>
+
+            <section class="content-section" id="programmability-control">
+                <h2><span class="material-icons-round icon-inline">memory</span>5. Programmability and Control Logic</h2>
+                <ol>
+                    <li><strong>Sensing</strong>: A local RF sensor detects incident spectrum and interference signature.</li>
+                    <li><strong>DSP</strong>: Digital signal processor computes optimal φ_n(f) profiles for each band based on desired beam angles.</li>
+                    <li><strong>Actuation</strong>: FPGA or microcontroller sets bias voltages on varactors/MEMS to realize φ_n.</li>
+                    <li><strong>Feedback Loop</strong>: Real-time monitoring adjusts profiles to track moving interferers.</li>
+                </ol>
+                <div class="mermaid-diagram-container">
+                    <pre class="mermaid">
+flowchart LR
+  A[RF Sensor] --> B(DSP Controller)
+  B --> C{Bias Network}
+  C --> D((Metasurface Cells))
+  D --> E[Reflected RF]
+  E --> A
+                    </pre>
+                </div>
+            </section>
+            <hr>
+
+            <section class="content-section" id="applications">
+                <h2><span class="material-icons-round icon-inline">widgets</span>6. Applications</h2>
+                <ul>
+                    <li><strong>Interference Avoidance</strong>: Redirect cellular or radar interferers without deactivating transmitters.</li>
+                    <li><strong>Spectrum Sharing</strong>: Simultaneously serve multiple users/bands by spatially multiplexing reflection angles.</li>
+                    <li><strong>Secure Communications</strong>: Steer signals away from eavesdroppers.</li>
+                </ul>
+            </section>
+            <hr>
+
+            <section class="content-section" id="illustrative-diagram">
+                <h2><span class="material-icons-round icon-inline">perm_media</span>7. Illustrative Diagram</h2>
+                <div class="placeholder-image-container">
+                    <img src="https://placehold.co/600x200?text=Unit+Cell+Schematic" alt="Metasurface Unit Cell Schematic">
+                </div>
+                <div class="mermaid-diagram-container">
+                    <pre class="mermaid">
+graph TD
+    subgraph UnitCell [Unit Cell Components]
+        L(Inductor L)
+        C(Capacitor C)
+        V(Varactor)
+        SW(MEMS Switch)
+    end
+    L --- C
+    C --- V
+    V --- SW
+                    </pre>
+                </div>
+            </section>
+            <hr>
+
+            <section class="content-section" id="conclusion">
+                <h2><span class="material-icons-round icon-inline">verified</span>8. Conclusion</h2>
+                <p>Programmable RF Spectrum Mirrors represent a flexible, dynamic approach to RF interference management by harnessing the physics of tunable metasurfaces. Through careful design of unit‐cell resonators, real‐time control logic, and phase‐gradient engineering, one can precisely steer individual bands, enabling robust spectrum efficiency and novel wireless applications.</p>
+            </section>
+            <hr>
+            
+            <section class="content-section" id="references">
+                <h2><span class="material-icons-round icon-inline">menu_book</span>References</h2>
+                <ol>
+                    <li>Yu, N. et al., "Light Propagation with Phase Discontinuities: Generalized Laws of Reflection and Refraction," <em>Science</em>, 2011.</li>
+                    <li>Sievenpiper, D. et al., "High-Impedance Electromagnetic Surfaces with a Forbidden Frequency Band," <em>IEEE Trans. Antennas Propag.</em>, 1999.</li>
+                    <li>Cui, T. et al., "Coding Metamaterials, Digital Metamaterials and Programmable Metamaterials," <em>Light: Science & Applications</em>, 2014.</li>
+                </ol>
+            </section>
+        </main>
+
+        <footer>
+            <p>Scientific concept and logic by <strong>Lion</strong>.</p>
+            <p>UI/UX & Web Implementation inspired by modern design principles.</p>
+            <p>© 2024 Programmable RF Spectrum Mirrors Project</p>
+        </footer>
+    </div>
+
+    <script>
+        // Initialize Mermaid
+        mermaid.initialize({ 
+            startOnLoad: true,
+            theme: 'default', // or 'dark', 'neutral', etc. Will be overridden by CSS for nodes
+            flowchart: {
+                htmlLabels: true // Allows richer labels if needed
+            },
+            themeVariables: { // For better integration with page theme
+                // These are mermaid's internal theme variables.
+                // We can try to match our CSS variables here.
+                // Note: Direct color overrides might be better done via CSS selectors on SVG elements if possible.
+                primaryColor: getComputedStyle(document.documentElement).getPropertyValue('--diagram-element-bg').trim(), // Or a less intrusive color
+                primaryTextColor: getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim(),
+                lineColor: getComputedStyle(document.documentElement).getPropertyValue('--icon-color').trim(), // For arrows and borders
+                nodeBorder: getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim(), // Example: use accent for node borders
+                // Main background of the SVG can be set transparently to inherit from .mermaid-diagram-container
+            }
+        });
+
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Theme Switcher
+            const lightModeBtn = document.getElementById('light-mode-btn');
+            const darkModeBtn = document.getElementById('dark-mode-btn');
+            const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+
+            function setTheme(theme) {
+                if (theme === 'dark') {
+                    document.documentElement.classList.add('dark-mode');
+                    localStorage.setItem('theme', 'dark');
+                    mermaid.initialize({ theme: 'dark' }); // Re-init mermaid for dark theme if needed
+                } else {
+                    document.documentElement.classList.remove('dark-mode');
+                    localStorage.setItem('theme', 'light');
+                    mermaid.initialize({ theme: 'default' }); // Re-init for light
+                }
+                // Re-render mermaid diagrams if they don't update automatically (they should with just theme: 'dark'/'default')
+                // document.querySelectorAll('.mermaid').forEach((el, i) => {
+                //     const code = el.textContent;
+                //     el.innerHTML = ''; // Clear old
+                //     el.removeAttribute('data-processed');
+                //     mermaid.render('mermaid-graph-' + i, code, newEl => el.appendChild(newEl));
+                // });
+            }
+
+            lightModeBtn.addEventListener('click', () => setTheme('light'));
+            darkModeBtn.addEventListener('click', () => setTheme('dark'));
+
+            const currentTheme = localStorage.getItem('theme');
+            if (currentTheme) {
+                setTheme(currentTheme);
+            } else if (prefersDarkScheme.matches) {
+                setTheme('dark');
+            } else {
+                setTheme('light'); // Default to light
+            }
+            
+
+            // Scroll Animations for sections
+            const sections = document.querySelectorAll('.content-section');
+            const hrs = document.querySelectorAll('hr'); // Also animate HRs
+            const observerOptions = {
+                root: null, 
+                rootMargin: '0px',
+                threshold: 0.1 
+            };
+
+            const observer = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('is-visible');
+                    }
+                });
+            }, observerOptions);
+
+            sections.forEach(section => {
+                observer.observe(section);
+            });
+            hrs.forEach(hr => { // Observe HRs as well
+                hr.style.opacity = 0; hr.style.transition = 'opacity 0.8s var(--ease-in-out-cubic) 0.2s'; // Initial state for HR
+                observer.observe(hr);
+            });
+        });
+    </script>
+</body>
+</html>

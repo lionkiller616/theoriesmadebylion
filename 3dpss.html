@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D-Printed Supersolid Structures</title>
+
+    <!-- MathJax Configuration -->
+    <script>
+        MathJax = {
+          tex: {
+            inlineMath: [['$', '$'], ['\\(', '\\)']],
+            displayMath: [['$$', '$$'], ['\\[', '\\]']],
+            processEscapes: true
+          },
+          svg: {
+            fontCache: 'global'
+          }
+        };
+    </script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Google Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons|Material+Icons+Outlined|Material+Icons+Round" rel="stylesheet">
+
+    <style>
+        :root {
+            --font-primary: 'Inter', sans-serif;
+            --font-headings: 'Poppins', sans-serif;
+
+            --ease-out-quad: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            --ease-in-out-cubic: cubic-bezier(0.645, 0.045, 0.355, 1);
+
+            /* Light Mode (Default) */
+            --bg-color: #F0F2F5; /* Slightly off-white, macOS like */
+            --text-color: #1d1d1f; /* Apple's primary text color */
+            --heading-color: #000000;
+            --accent-color: #0A84FF; /* Apple Blue */
+            --accent-color-darker: #0060D0;
+            --card-bg: rgba(255, 255, 255, 0.6);
+            --card-border: rgba(0, 0, 0, 0.1);
+            --card-shadow-1: rgba(0, 0, 0, 0.05);
+            --card-shadow-2: rgba(0, 0, 0, 0.02);
+            --neumorphic-shadow-light: -6px -6px 12px rgba(255, 255, 255, 0.8), 6px 6px 12px rgba(0, 0, 0, 0.1);
+            --neumorphic-shadow-light-inset: inset -4px -4px 8px rgba(255, 255, 255, 0.7), inset 4px 4px 8px rgba(0, 0, 0, 0.08);
+            --icon-color: #555;
+        }
+
+        html.dark-mode {
+            --bg-color: #161616; /* Darker, rich black */
+            --text-color: #E0E0E0;
+            --heading-color: #FFFFFF;
+            --accent-color: #0A94FF; /* Slightly brighter blue for dark mode */
+            --accent-color-darker: #0070E0;
+            --card-bg: rgba(35, 35, 35, 0.6);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --card-shadow-1: rgba(255, 255, 255, 0.03);
+            --card-shadow-2: rgba(0, 0, 0, 0.1);
+            --neumorphic-shadow-light: -6px -6px 12px rgba(40, 40, 40, 0.7), 6px 6px 12px rgba(0, 0, 0, 0.3);
+            --neumorphic-shadow-light-inset: inset -4px -4px 8px rgba(40, 40, 40, 0.6), inset 4px 4px 8px rgba(0, 0, 0, 0.25);
+            --icon-color: #bbb;
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 16px; /* Base font size */
+        }
+
+        body {
+            font-family: var(--font-primary);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.7;
+            transition: background-color 0.3s var(--ease-out-quad), color 0.3s var(--ease-out-quad);
+            overflow-x: hidden; /* Prevent horizontal scroll */
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem 0;
+        }
+
+        header {
+            padding: 3rem 0 2rem;
+            text-align: center;
+            border-bottom: 1px solid var(--card-border);
+            margin-bottom: 3rem;
+        }
+
+        .main-title {
+            font-family: var(--font-headings);
+            font-size: 2.8rem;
+            font-weight: 800;
+            color: var(--heading-color);
+            margin-bottom: 0.5rem;
+            letter-spacing: -1px;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: var(--text-color);
+            opacity: 0.8;
+        }
+
+        .theme-switcher {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 0.5rem;
+            border-radius: 50px; /* Pill shape */
+            box-shadow: 0 4px 15px var(--card-shadow-1);
+            display: flex;
+            align-items: center;
+        }
+
+        .theme-button {
+            background: none;
+            border: none;
+            color: var(--icon-color);
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 50%;
+            transition: background-color 0.2s ease, color 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .theme-button:hover {
+            background-color: rgba(128,128,128,0.1);
+        }
+        .theme-button .material-icons-round {
+            font-size: 24px;
+        }
+
+
+        .content-section {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            padding: 2rem 2.5rem;
+            margin-bottom: 2.5rem;
+            border-radius: 20px; /* Softer, more Apple-like radius */
+            box-shadow: 0 8px 30px var(--card-shadow-1), 0 2px 8px var(--card-shadow-2);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s var(--ease-in-out-cubic), transform 0.6s var(--ease-in-out-cubic);
+        }
+
+        .content-section.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .content-section h2, .content-section h3, .content-section h4 {
+            font-family: var(--font-headings);
+            color: var(--heading-color);
+            margin-bottom: 1.2rem;
+            margin-top: 1.5rem;
+            position: relative;
+            padding-left: 1.5rem; /* Space for pseudo-element */
+        }
+        .content-section h2::before, .content-section h3::before, .content-section h4::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 6px;
+            height: 60%;
+            min-height: 18px;
+            background-color: var(--accent-color);
+            border-radius: 3px;
+        }
+
+
+        .content-section h2 { font-size: 1.8rem; font-weight: 700; }
+        .content-section h3 { font-size: 1.5rem; font-weight: 600; }
+        .content-section h4 { font-size: 1.2rem; font-weight: 600; }
+        .content-section h2:first-child, .content-section h3:first-child, .content-section h4:first-child {
+            margin-top: 0;
+        }
+
+        .content-section p {
+            margin-bottom: 1rem;
+            color: var(--text-color);
+        }
+
+        .content-section ul {
+            list-style: none;
+            padding-left: 0;
+            margin-bottom: 1rem;
+        }
+
+        .content-section li {
+            padding-left: 2em;
+            position: relative;
+            margin-bottom: 0.75rem;
+        }
+
+        .content-section li::before {
+            content: ''; /* Using SVG or Font Icon would be better */
+            font-family: 'Material Icons Round';
+            /* content: 'chevron_right'; */
+            position: absolute;
+            left: 0;
+            top: 4px; /* Adjust alignment */
+            color: var(--accent-color);
+            font-size: 1.2em;
+            width: 1.2em; /* for custom SVG */
+            height: 1.2em; /* for custom SVG */
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%230A84FF'%3E%3Cpath d='M15.71,12.71a1,1,0,0,0-.71.29L9.29,18.71a1,1,0,0,0,1.42,1.42l5.29-5.3a1,1,0,0,0,0-1.42L10.71,8.12a1,1,0,0,0-1.42,1.42l5.29,5.29A1,1,0,0,0,15.71,12.71Z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-size: contain;
+        }
+        html.dark-mode .content-section li::before {
+             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%230A94FF'%3E%3Cpath d='M15.71,12.71a1,1,0,0,0-.71.29L9.29,18.71a1,1,0,0,0,1.42,1.42l5.29-5.3a1,1,0,0,0,0-1.42L10.71,8.12a1,1,0,0,0-1.42,1.42l5.29,5.29A1,1,0,0,0,15.71,12.71Z'/%3E%3C/svg%3E");
+        }
+
+
+        .content-section strong {
+            font-weight: 600;
+            color: var(--heading-color);
+        }
+
+        .content-section .mjx-math { /* MathJax elements */
+            font-size: 1.1em !important; /* Make equations slightly larger */
+            margin: 1rem 0;
+            padding: 0.5rem;
+            overflow-x: auto; /* For long equations */
+        }
+
+        .core-equations-summary ol {
+            list-style-type: none;
+            counter-reset: equation-counter;
+            padding-left: 0;
+        }
+        .core-equations-summary li {
+            counter-increment: equation-counter;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            background-color: rgba(128,128,128,0.05);
+            position: relative;
+            padding-left: 3.5rem; /* Space for number and icon */
+        }
+        .core-equations-summary li::before {
+            content: counter(equation-counter);
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: var(--accent-color);
+            color: white;
+            font-weight: bold;
+            width: 2rem;
+            height: 2rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            line-height: 1; /* ensure text is centered in circle */
+        }
+        .core-equations-summary li .mjx-math {
+            margin: 0.5rem 0;
+        }
+
+
+        /* Interactive Diagram Styling */
+        .diagram-container {
+            margin-top: 2rem;
+            margin-bottom: 1.5rem;
+            padding: 1.5rem;
+            border: 1px dashed var(--card-border);
+            border-radius: 15px;
+            text-align: center;
+            background: rgba(0,0,0,0.02);
+        }
+        html.dark-mode .diagram-container {
+             background: rgba(255,255,255,0.02);
+        }
+
+        .diagram-container h4 {
+            margin-bottom: 1.5rem;
+            font-size: 1.1rem;
+            color: var(--heading-color);
+            font-weight: 600;
+            padding-left: 0; /* No accent bar for this specific h4 */
+        }
+        .diagram-container h4::before {
+            display: none;
+        }
+
+        #lattice-svg {
+            width: 100%;
+            max-width: 350px;
+            height: auto;
+            margin-bottom: 1rem;
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            background-color: var(--bg-color); /* Match page background */
+            transition: background-color 0.3s var(--ease-out-quad);
+        }
+
+        #lattice-svg .unit-cell {
+            fill: rgba(128, 128, 128, 0.1);
+            stroke: var(--accent-color);
+            stroke-width: 1.5;
+            transition: all 0.5s var(--ease-in-out-cubic);
+        }
+        html.dark-mode #lattice-svg .unit-cell {
+            fill: rgba(200, 200, 200, 0.05);
+        }
+
+
+        #lattice-svg .channel {
+            stroke: var(--text-color);
+            stroke-linecap: round;
+            opacity: 0.3;
+            transition: all 0.5s var(--ease-in-out-cubic);
+        }
+        html.dark-mode #lattice-svg .channel {
+             stroke: var(--text-color);
+        }
+
+
+        .neumorphic-btn {
+            background-color: var(--bg-color);
+            border: none;
+            padding: 0.8rem 1.5rem;
+            margin: 0.5rem;
+            border-radius: 12px;
+            font-weight: 600;
+            color: var(--accent-color);
+            cursor: pointer;
+            box-shadow: var(--neumorphic-shadow-light);
+            transition: all 0.2s var(--ease-out-quad);
+            font-family: var(--font-primary);
+        }
+
+        .neumorphic-btn:hover {
+            color: var(--accent-color-darker);
+            box-shadow: var(--neumorphic-shadow-light-inset), 0 0 0 2px var(--accent-color);
+        }
+        .neumorphic-btn:active {
+            box-shadow: var(--neumorphic-shadow-light-inset);
+            transform: translateY(1px);
+        }
+        #strain-status-text {
+            font-size: 0.9rem;
+            color: var(--text-color);
+            opacity: 0.8;
+            margin-top: 1rem;
+        }
+
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 2rem 0;
+            margin-top: 2rem;
+            border-top: 1px solid var(--card-border);
+            font-size: 0.9rem;
+            color: var(--text-color);
+            opacity: 0.7;
+        }
+        footer strong {
+            font-weight: bold;
+            color: var(--accent-color);
+        }
+
+        /* Material Icons in text */
+        .icon-inline {
+            font-family: 'Material Icons Round';
+            font-size: 1.1em; /* Adjust size as needed */
+            vertical-align: -0.15em; /* Adjust vertical alignment */
+            margin-right: 0.2em;
+            color: var(--accent-color);
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .main-title { font-size: 2.2rem; }
+            .subtitle { font-size: 1rem; }
+            .content-section { padding: 1.5rem; border-radius: 15px; }
+            .content-section h2 { font-size: 1.6rem; }
+            .content-section h3 { font-size: 1.3rem; }
+            .core-equations-summary li { padding-left: 3rem; }
+            .core-equations-summary li::before { left: 0.75rem; width: 1.8rem; height: 1.8rem; font-size: 0.8rem;}
+            .theme-switcher { top: 10px; right: 10px; padding: 0.3rem;}
+            .theme-button {padding: 0.4rem;}
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="theme-switcher">
+        <button id="light-mode-btn" class="theme-button" title="Switch to Light Mode">
+            <span class="material-icons-round">light_mode</span>
+        </button>
+        <button id="dark-mode-btn" class="theme-button" title="Switch to Dark Mode">
+            <span class="material-icons-round">dark_mode</span>
+        </button>
+    </div>
+
+    <div class="container">
+        <header>
+            <h1 class="main-title">3D-Printed Supersolid Structures</h1>
+            <p class="subtitle">Strain-Tuned Lattices with Frictionless Flow Channels</p>
+        </header>
+
+        <main>
+            <section class="content-section" id="abstract">
+                <h2><span class="material-icons-round icon-inline">article</span>Abstract</h2>
+                <p>Supersolids combine crystalline order with superfluid-like frictionless flow. By 3D printing metamaterial lattices embedded with microchannels and applying tunable strain fields, one can realize macroscopic analogs of supersolid behavior: rigid lattice support coexisting with frictionless transport of fluids or quasi-particles through channels. This document outlines the concept, theoretical framework, governing equations, design logic, and potential applications of strain-tuned 3D-printed supersolid structures.</p>
+            </section>
+
+            <section class="content-section" id="introduction">
+                <h2><span class="material-icons-round icon-inline">hub</span>Introduction</h2>
+                <ul>
+                    <li><strong>Supersolid Phenomenon:</strong> Phase of matter featuring both spatial order (solid) and dissipationless flow (superfluid).</li>
+                    <li><strong>Metamaterial Approach:</strong> Engineering composite lattices with rigid frameworks and embedded low-friction channels to mimic supersolidity at larger scales.</li>
+                    <li><strong>3D Printing:</strong> Enables complex periodic geometries and multi-material constructs with integrated channel networks.</li>
+                </ul>
+            </section>
+
+            <section class="content-section" id="concept-design">
+                <h2><span class="material-icons-round icon-inline">architecture</span>Concept and Design Overview</h2>
+                <ol>
+                    <li><strong>Lattice Architecture:</strong> Periodic unit cells (e.g., diamond, gyroid) printed in stiff polymer or metal.</li>
+                    <li><strong>Flow Channels:</strong> Interconnected microchannels within the lattice walls, coated or filled with low-viscosity fluid or lubricant.</li>
+                    <li><strong>Strain Tuning:</strong> Global or local mechanical strain modifies channel cross-section and connectivity, controlling flow pathways.</li>
+                    <li><strong>Dual Behavior:</strong> Under low strain, lattice bears load (solid-like); above critical strain, channels open for frictionless flow (superfluid-like).</li>
+                    <li><strong>Feedback Control:</strong> Embedded sensors measure strain and pressure, enabling active regulation of mechanical and transport states.</li>
+                </ol>
+
+                <div class="diagram-container">
+                    <h4>Interactive Lattice Strain Simulation</h4>
+                    <svg id="lattice-svg" viewBox="0 0 200 120">
+                        <!-- Unit cells -->
+                        <rect class="unit-cell" id="uc1" x="20" y="20" width="60" height="60" rx="3" ry="3"/>
+                        <rect class="unit-cell" id="uc2" x="100" y="20" width="60" height="60" rx="3" ry="3"/>
+                        
+                        <!-- Channels in uc1 -->
+                        <line class="channel" id="ch1-v" x1="50" y1="25" x2="50" y2="75" stroke-width="2"/>
+                        <line class="channel" id="ch1-h" x1="25" y1="50" x2="75" y2="50" stroke-width="2"/>
+                        
+                        <!-- Channels in uc2 -->
+                        <line class="channel" id="ch2-v" x1="130" y1="25" x2="130" y2="75" stroke-width="2"/>
+                        <line class="channel" id="ch2-h" x1="105" y1="50" x2="155" y2="50" stroke-width="2"/>
+
+                        <!-- Connecting channel -->
+                        <line class="channel" id="ch-conn" x1="80" y1="50" x2="100" y2="50" stroke-width="2"/>
+                    </svg>
+                    <button id="apply-strain-btn" class="neumorphic-btn">
+                        <span class="material-icons-round icon-inline" style="font-size: 1.2em; vertical-align: -0.2em;">compress</span> Apply Strain
+                    </button>
+                    <button id="reset-strain-btn" class="neumorphic-btn">
+                        <span class="material-icons-round icon-inline" style="font-size: 1.2em; vertical-align: -0.2em;">restart_alt</span> Reset Strain
+                    </button>
+                    <p id="strain-status-text">Strain: <strong>Low</strong> | Channels: <strong>Closed/Narrow</strong></p>
+                </div>
+            </section>
+
+            <section class="content-section" id="theoretical-foundations">
+                <h2><span class="material-icons-round icon-inline">functions</span>Theoretical Foundations</h2>
+                
+                <h3>3.1 Elastic Lattice Mechanics</h3>
+                <p>Under applied strain $\epsilon$, deformation energy per unit volume:</p>
+                $$ U_{el} = \tfrac12 E \epsilon^2 $$
+                <p>where $E$ is Young's modulus of the lattice material.</p>
+
+                <h3>3.2 Channel Flow Dynamics</h3>
+                <p>At critical strain $\epsilon_c$, channel radius $r_c$ reaches threshold for Poiseuille flow:</p>
+                $$ r(\epsilon) = r_0 + \alpha (\epsilon - \epsilon_c) \quad (\epsilon \ge \epsilon_c) $$
+                <p>Volumetric flow rate under pressure $\Delta P$:</p>
+                $$ Q = \frac{\pi r^4(\epsilon)}{8 \mu L} \Delta P $$
+                <p>where $\mu$ is fluid viscosity, $L$ channel length.</p>
+
+                <h3>3.3 Effective Supersolid Response</h3>
+                <p>Define order parameters:</p>
+                <ul>
+                    <li><strong>Crystalline Order $\Psi_s$:</strong> Proportional to undeformed lattice stiffness.</li>
+                    <li><strong>Superfluid Fraction $\rho_s / \rho$:</strong> Fraction of fluid volume in open channels capable of frictionless flow.</li>
+                </ul>
+                <p>Coupled free energy functional:</p>
+                $$ F = \int dV \left[ \tfrac12 \lambda (\nabla \Psi_s)^2 + \tfrac12 \alpha (\rho_s)^2 - g \Psi_s \rho_s + f_{ext}(\epsilon) \right] $$
+                <p>where $g$ couples solid and superfluid components, and $f_{ext}$ accounts for strain energy.</p>
+
+                <h3>3.4 Phase Transition Criteria</h3>
+                <p>Minimizing $F$ yields coexistence when:</p>
+                $$ \alpha \rho_s - g \Psi_s = 0, \quad \lambda \nabla^2 \Psi_s - g \rho_s = 0 $$
+                <p>Critical coupling $g_c = \sqrt{\alpha \lambda}$ sets onset of supersolid-like state.</p>
+            </section>
+
+            <section class="content-section core-equations-summary" id="core-equations">
+                <h2><span class="material-icons-round icon-inline">integration_instructions</span>Core Equations Summary</h2>
+                <ol>
+                    <li><strong>Elastic Energy:</strong> $U_{el}=\tfrac12 E \epsilon^2$</li>
+                    <li><strong>Channel Radius:</strong> $r(\epsilon)=r_0+\alpha(\epsilon-\epsilon_c)$</li>
+                    <li><strong>Poiseuille Flow:</strong> $Q=\pi r^4(\epsilon)\Delta P/(8\mu L)$</li>
+                    <li><strong>Free Energy:</strong> $F=\int[\tfrac12\lambda(\nabla\Psi_s)^2+\tfrac12\alpha\rho_s^2-g\Psi_s\rho_s+f_{ext}]dV$</li>
+                    <li><strong>Coupled Conditions:</strong> $\alpha\rho_s=g\Psi_s,  \lambda\nabla^2\Psi_s=g\rho_s$</li>
+                    <li><strong>Critical Coupling:</strong> $g_c=\sqrt{\alpha\lambda}$</li>
+                </ol>
+            </section>
+
+            <section class="content-section" id="implementation-logic">
+                <h2><span class="material-icons-round icon-inline">precision_manufacturing</span>Implementation Logic</h2>
+                <ol>
+                    <li><strong>Material Selection:</strong> High-stiffness photopolymers or metals for lattice; low-viscosity fluids (e.g., liquid helium analog, perfluorocarbon) for channels.</li>
+                    <li><strong>3D Printing:</strong> Multi-material additive manufacturing (SLA, DLP, or metal SLM) to create lattice and sealed channels.</li>
+                    <li><strong>Strain Application:</strong> Mechanical actuators or tunable support fixtures apply uniform or localized strain patterns.</li>
+                    <li><strong>Sensors & Control:</strong> Embed fiber Bragg gratings or piezoresistive sensors for strain; pressure transducers monitor flow.</li>
+                    <li><strong>Regulation Algorithms:</strong> PID loops adjust strain or channel pressure to switch between solid-like and fluid-like regimes.</li>
+                </ol>
+            </section>
+
+            <section class="content-section" id="potential-applications">
+                <h2><span class="material-icons-round icon-inline">widgets</span>Potential Applications</h2>
+                <ul>
+                    <li>Adaptive load-bearing structures with switchable internal lubrication</li>
+                    <li>Reconfigurable fluidic circuits within structural components</li>
+                    <li>Vibration damping systems with strain-dependent flow channels</li>
+                    <li>Biomimetic soft-actuators combining rigidity and flow control</li>
+                </ul>
+            </section>
+
+            <section class="content-section" id="conclusion">
+                <h2><span class="material-icons-round icon-inline">verified</span>Conclusion</h2>
+                <p>Strain-tuned 3D-printed supersolid structures realize macroscopic hybrids of crystalline order and frictionless flow by embedding channels within mechanical lattices. Through coupled elasticity–flow theory and multi-material additive manufacturing, these metamaterials open avenues for responsive, load-bearing, and self-lubricating devices.</p>
+            </section>
+        </main>
+
+        <footer>
+            <p>Scientific concept and logic by <strong>Lion</strong>.</p>
+            <p>UI/UX & Web Implementation inspired by modern design principles.</p>
+            <p>© 2024 Supersolid Metamaterials Project</p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Theme Switcher
+            const lightModeBtn = document.getElementById('light-mode-btn');
+            const darkModeBtn = document.getElementById('dark-mode-btn');
+            const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+
+            function setTheme(theme) {
+                if (theme === 'dark') {
+                    document.documentElement.classList.add('dark-mode');
+                    localStorage.setItem('theme', 'dark');
+                } else {
+                    document.documentElement.classList.remove('dark-mode');
+                    localStorage.setItem('theme', 'light');
+                }
+            }
+
+            lightModeBtn.addEventListener('click', () => setTheme('light'));
+            darkModeBtn.addEventListener('click', () => setTheme('dark'));
+
+            const currentTheme = localStorage.getItem('theme');
+            if (currentTheme) {
+                setTheme(currentTheme);
+            } else if (prefersDarkScheme.matches) {
+                setTheme('dark');
+            }
+
+
+            // Scroll Animations for sections
+            const sections = document.querySelectorAll('.content-section');
+            const observerOptions = {
+                root: null, // relative to document viewport
+                rootMargin: '0px',
+                threshold: 0.1 // 10% of item is visible
+            };
+
+            const observer = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('is-visible');
+                        // observer.unobserve(entry.target); // Optional: stop observing after animation
+                    }
+                });
+            }, observerOptions);
+
+            sections.forEach(section => {
+                observer.observe(section);
+            });
+
+            // Interactive Lattice Diagram
+            const applyStrainBtn = document.getElementById('apply-strain-btn');
+            const resetStrainBtn = document.getElementById('reset-strain-btn');
+            const strainStatusText = document.getElementById('strain-status-text');
+            
+            const uc1 = document.getElementById('uc1');
+            const uc2 = document.getElementById('uc2');
+            const channels = [
+                document.getElementById('ch1-v'), document.getElementById('ch1-h'),
+                document.getElementById('ch2-v'), document.getElementById('ch2-h'),
+                document.getElementById('ch-conn')
+            ];
+
+            const originalCellWidth = 60;
+            const originalCellHeight = 60;
+            const originalChannelStroke = 2;
+
+            function applyStrain(isStrained) {
+                if (isStrained) {
+                    uc1.setAttribute('width', originalCellWidth * 0.9);
+                    uc1.setAttribute('height', originalCellHeight * 1.1);
+                    uc1.setAttribute('x', 20 + (originalCellWidth * 0.05)); // Keep centered
+                    
+                    uc2.setAttribute('width', originalCellWidth * 0.9);
+                    uc2.setAttribute('height', originalCellHeight * 1.1);
+                    uc2.setAttribute('x', 100 + (originalCellWidth * 0.05));
+
+                    channels.forEach(ch => {
+                        ch.style.strokeWidth = originalChannelStroke * 2.5;
+                        ch.style.opacity = '1';
+                        ch.style.stroke = 'var(--accent-color)';
+                    });
+                    // Adjust channel positions if needed based on cell deformation (simplified here)
+                    document.getElementById('ch1-v').setAttribute('x1', 20 + (originalCellWidth * 0.9 / 2));
+                    document.getElementById('ch1-v').setAttribute('x2', 20 + (originalCellWidth * 0.9 / 2));
+                    document.getElementById('ch1-h').setAttribute('y1', 20 + (originalCellHeight * 1.1 / 2));
+                    document.getElementById('ch1-h').setAttribute('y2', 20 + (originalCellHeight * 1.1 / 2));
+                    // ... and for other channels
+
+                    strainStatusText.innerHTML = 'Strain: <strong>High (Applied)</strong> | Channels: <strong>Open/Wide</strong>';
+                } else {
+                    uc1.setAttribute('width', originalCellWidth);
+                    uc1.setAttribute('height', originalCellHeight);
+                    uc1.setAttribute('x', 20);
+
+                    uc2.setAttribute('width', originalCellWidth);
+                    uc2.setAttribute('height', originalCellHeight);
+                    uc2.setAttribute('x', 100);
+                    
+                    channels.forEach(ch => {
+                        ch.style.strokeWidth = originalChannelStroke;
+                        ch.style.opacity = '0.3';
+                        ch.style.stroke = 'var(--text-color)'; // Revert to default color
+                    });
+                    // Reset channel positions
+                    document.getElementById('ch1-v').setAttribute('x1', 50);
+                    document.getElementById('ch1-v').setAttribute('x2', 50);
+                    document.getElementById('ch1-h').setAttribute('y1', 50);
+                    document.getElementById('ch1-h').setAttribute('y2', 50);
+                     // ... and for other channels
+
+                    strainStatusText.innerHTML = 'Strain: <strong>Low</strong> | Channels: <strong>Closed/Narrow</strong>';
+                }
+            }
+
+            if (applyStrainBtn) {
+                applyStrainBtn.addEventListener('click', () => applyStrain(true));
+            }
+            if (resetStrainBtn) {
+                resetStrainBtn.addEventListener('click', () => applyStrain(false));
+            }
+            
+            // Initial state for diagram
+            applyStrain(false); 
+
+            // Update SVG elements on theme change, if needed (e.g. if stroke depends on theme var not picked up by CSS)
+            // For this setup, CSS variables should handle it.
+            // Example: new MutationObserver for class changes on <html> for more complex dynamic updates
+            const htmlEl = document.documentElement;
+            const themeObserver = new MutationObserver(mutations => {
+                mutations.forEach(mutation => {
+                    if (mutation.attributeName === "class") {
+                        // Re-apply strain to refresh colors if necessary
+                        // This ensures SVG elements pick up new CSS var values if they were set via JS style directly
+                        const isCurrentlyStrained = strainStatusText.innerHTML.includes("High");
+                        applyStrain(isCurrentlyStrained);
+                    }
+                });
+            });
+            themeObserver.observe(htmlEl, { attributes: true });
+
+        });
+    </script>
+</body>
+</html>

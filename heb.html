@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hydro-Electrochemical Batteries</title>
+
+    <!-- MathJax Configuration -->
+    <script>
+        MathJax = {
+          tex: {
+            inlineMath: [['$', '$'], ['\\(', '\\)']],
+            displayMath: [['$$', '$$'], ['\\[', '\\]'], ['```math', '```']],
+            processEscapes: true,
+            tags: 'ams',
+            macros: { // Define custom macros if needed
+                // No specific macros from content, but can add if needed
+            }
+          },
+          svg: {
+            fontCache: 'global'
+          }
+        };
+    </script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <!-- Mermaid JS for diagrams -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Google Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons|Material+Icons+Outlined|Material+Icons+Round" rel="stylesheet">
+
+    <style>
+        :root {
+            --font-primary: 'Inter', sans-serif;
+            --font-headings: 'Poppins', sans-serif;
+
+            --ease-out-quad: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            --ease-in-out-cubic: cubic-bezier(0.645, 0.045, 0.355, 1);
+
+            /* Light Mode (Default) */
+            --bg-color: #F0F2F5;
+            --text-color: #1d1d1f;
+            --heading-color: #000000;
+            --accent-color: #00838F; /* Dynamic Clean Blue/Teal for Hydro/Electrochem */
+            --accent-color-darker: #006064;
+            --card-bg: rgba(255, 255, 255, 0.6);
+            --card-border: rgba(0, 0, 0, 0.1);
+            --card-shadow-1: rgba(0, 0, 0, 0.05);
+            --card-shadow-2: rgba(0, 0, 0, 0.02);
+            --neumorphic-shadow-light: -6px -6px 12px rgba(255, 255, 255, 0.8), 6px 6px 12px rgba(0, 0, 0, 0.1);
+            --neumorphic-shadow-light-inset: inset -4px -4px 8px rgba(255, 255, 255, 0.7), inset 4px 4px 8px rgba(0, 0, 0, 0.08);
+            --icon-color: #555;
+            --diagram-element-bg: rgba(128,128,128,0.05);
+            --code-bg: #f7f7f7;
+            --code-text: #333;
+            --hr-color: rgba(0,0,0,0.1); 
+            --table-header-bg: rgba(0,0,0,0.03);
+            --table-row-hover-bg: rgba(0,0,0,0.02);
+        }
+
+        html.dark-mode {
+            --bg-color: #161616;
+            --text-color: #E0E0E0;
+            --heading-color: #FFFFFF;
+            --accent-color: #26C6DA; /* Lighter Blue/Teal for dark mode */
+            --accent-color-darker: #00ACC1;
+            --card-bg: rgba(35, 35, 35, 0.6);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --card-shadow-1: rgba(255, 255, 255, 0.03);
+            --card-shadow-2: rgba(0, 0, 0, 0.1);
+            --neumorphic-shadow-light: -6px -6px 12px rgba(40, 40, 40, 0.7), 6px 6px 12px rgba(0, 0, 0, 0.3);
+            --neumorphic-shadow-light-inset: inset -4px -4px 8px rgba(40, 40, 40, 0.6), inset 4px 4px 8px rgba(0, 0, 0, 0.25);
+            --icon-color: #bbb;
+            --diagram-element-bg: rgba(200,200,200,0.05);
+            --code-bg: #2a2a2a;
+            --code-text: #ccc;
+            --hr-color: rgba(255,255,255,0.1);
+            --table-header-bg: rgba(255,255,255,0.03);
+            --table-row-hover-bg: rgba(255,255,255,0.02);
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 16px;
+        }
+
+        body {
+            font-family: var(--font-primary);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.7;
+            transition: background-color 0.3s var(--ease-out-quad), color 0.3s var(--ease-out-quad);
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem 0;
+        }
+
+        header {
+            padding: 2rem 0 1rem;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .main-title {
+            font-family: var(--font-headings);
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--heading-color);
+            margin-bottom: 0.5rem;
+            letter-spacing: -1px;
+        }
+        .tagline { 
+            font-size: 1.1rem;
+            color: var(--text-color);
+            opacity: 0.8;
+            margin-bottom: 1.5rem;
+        }
+        
+        hr.section-divider { 
+            border: none;
+            height: 1px;
+            background-color: var(--hr-color);
+            margin: 2rem auto;
+            width: 80%;
+        }
+        hr.document-end-divider { 
+            border: none;
+            height: 2px;
+            background: linear-gradient(to right, transparent, var(--accent-color), transparent);
+            margin: 3rem auto 1rem;
+            width: 60%;
+            opacity: 0.6;
+        }
+
+
+        .theme-switcher {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 0.5rem;
+            border-radius: 50px;
+            box-shadow: 0 4px 15px var(--card-shadow-1);
+            display: flex;
+            align-items: center;
+        }
+
+        .theme-button {
+            background: none;
+            border: none;
+            color: var(--icon-color);
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 50%;
+            transition: background-color 0.2s ease, color 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .theme-button:hover {
+            background-color: rgba(128,128,128,0.1);
+        }
+        .theme-button .material-icons-round {
+            font-size: 24px;
+        }
+
+
+        .content-section {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            padding: 2rem 2.5rem;
+            margin-bottom: 2.5rem;
+            border-radius: 20px;
+            box-shadow: 0 8px 30px var(--card-shadow-1), 0 2px 8px var(--card-shadow-2);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s var(--ease-in-out-cubic), transform 0.6s var(--ease-in-out-cubic);
+        }
+
+        .content-section.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .content-section h2, .content-section h3, .content-section h4 {
+            font-family: var(--font-headings);
+            color: var(--heading-color);
+            margin-bottom: 1.2rem;
+            margin-top: 1.5rem;
+            position: relative;
+            padding-left: 1.5rem;
+        }
+        .content-section h2::before, .content-section h3::before, .content-section h4::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 6px;
+            height: 60%;
+            min-height: 18px;
+            background-color: var(--accent-color);
+            border-radius: 3px;
+        }
+
+
+        .content-section h2 { font-size: 1.8rem; font-weight: 700; }
+        .content-section h3 { font-size: 1.5rem; font-weight: 600; }
+        .content-section h4 { font-size: 1.2rem; font-weight: 600; }
+        .content-section h2:first-child, .content-section h3:first-child, .content-section h4:first-child {
+            margin-top: 0;
+        }
+
+        .content-section p {
+            margin-bottom: 1rem;
+            color: var(--text-color);
+        }
+
+        .content-section ul, .content-section ol {
+            list-style: none;
+            padding-left: 0;
+            margin-bottom: 1rem;
+        }
+         .content-section ol { 
+            counter-reset: list-item-counter;
+        }
+
+
+        .content-section li {
+            padding-left: 2em;
+            position: relative;
+            margin-bottom: 0.75rem;
+        }
+        
+        .content-section ul li::before { 
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 9px; 
+            width: 8px;
+            height: 8px;
+            background-color: var(--accent-color);
+            border-radius: 50%;
+        }
+
+        .content-section ol li::before { 
+            counter-increment: list-item-counter;
+            content: counter(list-item-counter) ".";
+            position: absolute;
+            left: 0;
+            top: 1px; 
+            font-weight: 600;
+            color: var(--accent-color);
+        }
+
+
+        .content-section strong {
+            font-weight: 600;
+            color: var(--heading-color);
+        }
+
+        .content-section .mjx-math, .content-section pre[class*="language-math"] { 
+            font-size: 1.1em !important; 
+            margin: 1.5rem 0;
+            padding: 1rem;
+            overflow-x: auto;
+            background-color: var(--diagram-element-bg);
+            border-radius: 8px;
+            border: 1px solid var(--card-border);
+        }
+        
+        .mermaid-diagram-container {
+            background-color: var(--diagram-element-bg);
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin: 1.5rem auto;
+            text-align: center;
+            border: 1px solid var(--card-border);
+        }
+        .mermaid-diagram-container svg {
+            max-width: 100%;
+            height: auto;
+        }
+        
+        .styled-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            font-size: 0.95em;
+        }
+        .styled-table th, .styled-table td {
+            border: 1px solid var(--card-border);
+            padding: 0.75rem 1rem;
+            text-align: left;
+        }
+        .styled-table th {
+            background-color: var(--table-header-bg);
+            font-weight: 600;
+            color: var(--heading-color);
+        }
+        .styled-table tr:hover {
+            background-color: var(--table-row-hover-bg);
+        }
+        .styled-table td:nth-child(1) {
+            font-weight: 500;
+        }
+
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 2rem 0;
+            margin-top: 2rem;
+            border-top: 1px solid var(--hr-color); 
+            font-size: 0.9rem;
+            color: var(--text-color);
+            opacity: 0.7;
+        }
+        footer strong {
+            font-weight: bold;
+            color: var(--accent-color);
+        }
+
+        /* Material Icons in text */
+        .icon-inline {
+            font-family: 'Material Icons Round';
+            font-size: 1.1em; 
+            vertical-align: -0.15em; 
+            margin-right: 0.2em;
+            color: var(--accent-color);
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .main-title { font-size: 2rem; }
+            .tagline { font-size: 1rem; }
+            .content-section { padding: 1.5rem; border-radius: 15px; }
+            .content-section h2 { font-size: 1.6rem; }
+            .content-section h3 { font-size: 1.3rem; }
+            .theme-switcher { top: 10px; right: 10px; padding: 0.3rem;}
+            .theme-button {padding: 0.4rem;}
+            .styled-table { font-size: 0.85em; }
+            .styled-table th, .styled-table td { padding: 0.5rem; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="theme-switcher">
+        <button id="light-mode-btn" class="theme-button" title="Switch to Light Mode">
+            <span class="material-icons-round">light_mode</span>
+        </button>
+        <button id="dark-mode-btn" class="theme-button" title="Switch to Dark Mode">
+            <span class="material-icons-round">dark_mode</span>
+        </button>
+    </div>
+
+    <div class="container">
+        <header>
+            <h1 class="main-title">Hydro-Electrochemical Batteries</h1>
+            <p class="tagline">Water-Driven Redox Systems for Rapid Storage</p>
+        </header>
+        <hr class="section-divider">
+
+        <main>
+            <section class="content-section" id="introduction">
+                <h2><span class="material-icons-round icon-inline">battery_charging_full</span>1. Introduction</h2>
+                <p>Hydro-electrochemical batteries harness controlled water oxidation and reduction reactions in flow-cell architectures to store and deliver energy rapidly. By cycling aqueous redox couples—such as vanadium, iron, or bromine—between oxidation states in separate compartments, these systems offer high power density, fast charge/discharge, and safe, scalable storage.</p>
+                <p>This fully theoretical document presents core ideas, electrochemical principles, governing equations, cell design, fabrication methods, operational logic, performance metrics, applications, comparative advantages, challenges, and future directions.</p>
+            </section>
+            <!-- No HR after intro as per MD -->
+
+            <section class="content-section" id="background-motivation">
+                <h2><span class="material-icons-round icon-inline">lightbulb</span>2. Background & Motivation</h2>
+                <ul>
+                    <li><strong>Grid-scale storage needs</strong>: Balance renewable intermittency, frequency regulation, and peak shaving.</li>
+                    <li><strong>Limitations of Li-ion</strong>: Cost, safety, cycle life, resource constraints.</li>
+                    <li><strong>Redox flow batteries (RFBs)</strong>: Decouple energy (tank size) and power (cell stack) but often limited by kinetics.</li>
+                    <li><strong>Hydro-electrochemical innovation</strong>: Leverage water’s electrochemical window and fast proton transport to boost power and reduce cost.</li>
+                </ul>
+            </section>
+            <!-- No HR here -->
+
+            <section class="content-section" id="electrochemical-principles">
+                <h2><span class="material-icons-round icon-inline">science</span>3. Electrochemical Principles</h2>
+                <h3>3.1. Redox Couples and Water Window</h3>
+                <ul>
+                    <li><strong>Water splitting potentials</strong>:
+                    $E_{O_2/H_2O}^0 = +1.23\,\mathrm{V}$, $E_{H^+/H_2}^0 = 0\,\mathrm{V}$ (vs SHE).</li>
+                    <li><strong>Redox couples</strong>: Select species with potentials within 0–1.8 V to avoid oxygen/hydrogen evolution:
+                        <ul>
+                            <li>Vanadium: $V^{2+}/V^{3+}$ at +0.26 V, $VO^{2+}/VO_2^+$ at +1.00 V.</li>
+                            <li>Iron: $Fe^{2+}/Fe^{3+}$ at +0.77 V.</li>
+                            <li>Bromine/Br⁻: +1.09 V.</li>
+                        </ul>
+                    </li>
+                </ul>
+                <h3>3.2. Half-Reactions</h3>
+                <p>At negative electrode (negolyte):</p>
+                $$
+                \mathrm{V}^{3+} + e^- \rightleftharpoons \mathrm{V}^{2+}, \quad E^0 = +0.26\,\mathrm{V}.
+                $$
+                <p>At positive electrode (posolyte):</p>
+                $$
+                \mathrm{VO}_2^+ + 2H^+ + e^- \rightleftharpoons \mathrm{VO}^{2+} + H_2O, \quad E^0 = +1.00\,\mathrm{V}.
+                $$
+                <p>Cell voltage: $E_{cell} = E_{pos} - E_{neg} \approx 0.74\,\mathrm{V}$.</p>
+                
+                <h3>3.3. Nernst Equation</h3>
+                <p>Concentration dependence:</p>
+                $$
+                E = E^0 + \frac{RT}{nF} \ln\frac{[\mathrm{Ox}]}{[\mathrm{Red}]},
+                $$
+                <p>where $R$ gas constant, $T$ temperature, $F$ Faraday constant, $n=1$.</p>
+
+                <h3>3.4. Butler–Volmer Kinetics</h3>
+                <p>Current-overpotential relation:</p>
+                $$
+                I = I_0 \bigl(e^{\alpha_a F \eta/(RT)} - e^{-\alpha_c F \eta/(RT)}\bigr),
+                $$
+                <p>with exchange current $I_0$, anodic/cathodic transfer coefficients $\alpha_{a,c}$, and overpotential $\eta$.</p>
+
+                <h3>3.5. Mass Transport Limitation</h3>
+                <p>Limiting current density:</p>
+                $$
+                I_{lim} = n F k_m C_b,
+                $$
+                <p>with mass-transfer coefficient $k_m$ and bulk concentration $C_b$.</p>
+            </section>
+            <!-- No HR here -->
+            
+            <section class="content-section" id="cell-system-architecture">
+                <h2><span class="material-icons-round icon-inline">developer_board</span>4. Cell and System Architecture</h2>
+                <div class="mermaid-diagram-container">
+                    <pre class="mermaid">
+flowchart TB
+  subgraph Electrolyte_Tanks [Electrolyte Tanks]
+    Negolyte_Tank[Negolyte Tank (e.g., V²⁺/V³⁺)]
+    Posolyte_Tank[Posolyte Tank (e.g., VO²⁺/VO₂⁺)]
+  end
+  
+  Negolyte_Tank --> Pump1((Pump 1))
+  Posolyte_Tank --> Pump2((Pump 2))
+  
+  Pump1 --> Cell_Stack[Electrochemical Cell Stack]
+  Pump2 --> Cell_Stack
+  
+  Cell_Stack -->|Spent Negolyte Return| Negolyte_Tank
+  Cell_Stack -->|Spent Posolyte Return| Posolyte_Tank
+  
+  subgraph Cell_Stack_Detail [Cell Stack Detail]
+    direction LR
+    Anode[Negative Electrode (Carbon Felt)] --- Separator((Ion-Exchange Membrane e.g., Nafion)) --- Cathode[Positive Electrode (Carbon Felt)]
+  end
+  
+  subgraph Balance_Of_Plant [Balance of Plant]
+    direction TB
+    HeatExchanger[Heat Exchanger]
+    Sensors[Flow/Temp/Concentration Sensors]
+    Controller[System Controller & Power Electronics]
+  end
+  
+  Cell_Stack -.-> Balance_Of_Plant
+  Pump1 -.-> Controller
+  Pump2 -.-> Controller
+
+  classDef tank fill:#E0F2F1,stroke:#00796B,color:#000;
+  classDef pump fill:#B2DFDB,stroke:#00897B,color:#000,shape:cylinder;
+  classDef cellstack fill:#A7FFEB,stroke:#00BFA5,color:#000,shape:rect;
+  classDef electrode fill:#CFD8DC,stroke:#455A64,color:#000;
+  classDef membrane fill:#ECEFF1,stroke:#607D8B,color:#000,shape:hexagon;
+  classDef bop fill:#E1F5FE,stroke:#0277BD,color:#000;
+
+  class Negolyte_Tank,Posolyte_Tank tank;
+  class Pump1,Pump2 pump;
+  class Cell_Stack cellstack;
+  class Anode,Cathode electrode;
+  class Separator membrane;
+  class HeatExchanger,Sensors,Controller bop;
+                    </pre>
+                </div>
+                <ol>
+                    <li><strong>Cell stack</strong>: Multiple cells in series for desired voltage.</li>
+                    <li><strong>Electrodes</strong>: Carbon felt or porous graphite for high surface area.</li>
+                    <li><strong>Membrane</strong>: Nafion or hydrocarbon ionomer for proton conduction.</li>
+                    <li><strong>Flow system</strong>: Pumps cycle electrolytes to maintain concentration.</li>
+                </ol>
+            </section>
+            <!-- No HR here -->
+
+            <section class="content-section" id="fabrication-materials">
+                <h2><span class="material-icons-round icon-inline">precision_manufacturing</span>5. Fabrication & Materials</h2>
+                 <ol>
+                    <li><strong>Electrode fabrication</strong>: Carbon felt compression on conductive mesh current collectors.</li>
+                    <li><strong>Membrane assembly</strong>: Hot-press Nafion between gaskets and electrodes.</li>
+                    <li><strong>Flow frames</strong>: CNC-machined polymer plates with flow channels.</li>
+                    <li><strong>Tanks & Pumps</strong>: Corrosion-resistant plastics with variable-speed drives.</li>
+                    <li><strong>Balance-of-Plant</strong>: Sensors, heat exchangers, power electronics (DC/DC converter).</li>
+                </ol>
+            </section>
+            <!-- No HR here -->
+
+            <section class="content-section" id="operational-logic">
+                <h2><span class="material-icons-round icon-inline">play_circle_outline</span>6. Operational Logic</h2>
+                 <ol>
+                    <li><strong>Startup</strong>: Fill tanks, purge air, precondition to operating temperature (25–40 °C).</li>
+                    <li><strong>Charging</strong>: Apply external current; negolyte reduces V³⁺ to V²⁺; posolyte oxidizes VO²⁺ to VO₂⁺.</li>
+                    <li><strong>Standby</strong>: Electrolytes circulating; low self-discharge due to membrane selectivity.</li>
+                    <li><strong>Discharging</strong>: Reverse current; monitor voltage, current, and state-of-charge via Nernst.</li>
+                    <li><strong>Control</strong>: PID loops maintain flow rate, temperature, and cell voltage balance.</li>
+                    <li><strong>Shutdown</strong>: Idle pump, maintain low flow to prevent stratification.</li>
+                </ol>
+            </section>
+            <!-- No HR here -->
+            
+            <section class="content-section" id="performance-metrics">
+                <h2><span class="material-icons-round icon-inline">speed</span>7. Performance Metrics</h2>
+                <table class="styled-table">
+                    <thead>
+                        <tr>
+                            <th>Metric</th>
+                            <th>Typical Range</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Cell voltage $E_{cell}$</td>
+                            <td>0.7–1.0 V</td>
+                        </tr>
+                        <tr>
+                            <td>Energy efficiency</td>
+                            <td>75–85%</td>
+                        </tr>
+                        <tr>
+                            <td>Power density</td>
+                            <td>0.1–1.0 kW/m² (stack)</td>
+                        </tr>
+                        <tr>
+                            <td>Energy density</td>
+                            <td>20–50 Wh/L (cell)</td>
+                        </tr>
+                        <tr>
+                            <td>Cycle life</td>
+                            <td>>10,000 cycles</td>
+                        </tr>
+                        <tr>
+                            <td>Response time</td>
+                            <td><100 ms (power modulation)</td>
+                        </tr>
+                        <tr>
+                            <td>Scalability</td>
+                            <td>MWh-scale via multiple stacks</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+            <!-- No HR here -->
+
+            <section class="content-section" id="applications-advantages">
+                <h2><span class="material-icons-round icon-inline">apps</span>8. Applications & Advantages</h2>
+                 <ul>
+                    <li><strong>Grid smoothing</strong>: Fast response for frequency regulation.</li>
+                    <li><strong>Renewable integration</strong>: Buffer solar and wind variability.</li>
+                    <li><strong>Microgrids</strong>: Reliable backup for remote communities.</li>
+                    <li><strong>Rapid dispatch</strong>: Near-instantaneous power delivery (<100 ms).</li>
+                 </ul>
+                 <p><strong>Advantages</strong>:</p>
+                <ol>
+                    <li><strong>Safety</strong>: Non-flammable, water-based electrolytes.</li>
+                    <li><strong>Scalability</strong>: Decoupled power and energy sizing.</li>
+                    <li><strong>Long life</strong>: Minimal degradation over >10,000 cycles.</li>
+                    <li><strong>Fast response</strong>: Electrochemical kinetics and flow control yield sub-second dispatch.</li>
+                </ol>
+            </section>
+            <!-- No HR here -->
+            
+            <section class="content-section" id="challenges-future">
+                <h2><span class="material-icons-round icon-inline">report_problem</span>9. Challenges & Future Directions</h2>
+                 <ul>
+                    <li><strong>Membrane crossover</strong>: Vanadium ions diffusing through membrane cause capacity fade; advanced ionomers needed.</li>
+                    <li><strong>Electrode kinetics</strong>: Catalysts or surface treatments to boost $I_0$ and reduce overpotential.</li>
+                    <li><strong>Temperature management</strong>: Heat generation at high currents; integrate efficient cooling.</li>
+                    <li><strong>Cost reduction</strong>: Lower-cost electrolytes (iron–chromium systems) and membranes.</li>
+                </ul>
+                <p>Future innovations: hybrid proton–iron flow cells, semisolid suspensions for higher energy density, and 3D-printed flow architectures for low-cost manufacturing.</p>
+            </section>
+            
+            <hr class="document-end-divider">
+            <p style="text-align:center; font-style:italic; opacity:0.7;">*End of theoretical design document for Hydro-Electrochemical Batteries.*</p>
+
+        </main>
+
+        <footer>
+            <p>Scientific concept and logic by <strong>Lion</strong>.</p>
+            <p>UI/UX & Web Implementation inspired by modern design principles.</p>
+            <p>© 2024 Hydro-Electrochemical Batteries Project</p>
+        </footer>
+    </div>
+
+    <script>
+        // Initialize Mermaid
+        mermaid.initialize({ 
+            startOnLoad: true,
+            theme: 'base', 
+            themeVariables: {
+                primaryColor: getComputedStyle(document.documentElement).getPropertyValue('--diagram-element-bg').trim(),
+                primaryTextColor: getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim(),
+                primaryBorderColor: getComputedStyle(document.documentElement).getPropertyValue('--card-border').trim(),
+                lineColor: getComputedStyle(document.documentElement).getPropertyValue('--icon-color').trim(),
+                secondaryColor: getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim(),
+                tertiaryColor: getComputedStyle(document.documentElement).getPropertyValue('--bg-color').trim()
+            },
+            flowchart: { 
+                htmlLabels: true, 
+                nodeSpacing: 50,
+                rankSpacing: 50
+            },
+            fontFamily: getComputedStyle(document.documentElement).getPropertyValue('--font-primary').trim(),
+        });
+
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Theme Switcher
+            const lightModeBtn = document.getElementById('light-mode-btn');
+            const darkModeBtn = document.getElementById('dark-mode-btn');
+            const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+
+            function updateMermaidTheme() {
+                const currentPrimaryColor = getComputedStyle(document.documentElement).getPropertyValue('--diagram-element-bg').trim();
+                const currentTextColor = getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim();
+                const currentBorderColor = getComputedStyle(document.documentElement).getPropertyValue('--card-border').trim();
+                const currentLineColor = getComputedStyle(document.documentElement).getPropertyValue('--icon-color').trim();
+                const currentAccentColor = getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim();
+                const currentBgColor = getComputedStyle(document.documentElement).getPropertyValue('--bg-color').trim();
+                
+                mermaid.initialize({
+                    theme: 'base',
+                    themeVariables: {
+                        primaryColor: currentPrimaryColor,
+                        primaryTextColor: currentTextColor,
+                        primaryBorderColor: currentBorderColor,
+                        lineColor: currentLineColor,
+                        secondaryColor: currentAccentColor,
+                        tertiaryColor: currentBgColor
+                    }
+                });
+                document.querySelectorAll('.mermaid[data-processed="true"]').forEach((el, i) => {
+                    const code = el.textContent || el.innerText;
+                    const id = `mermaid-graph-${Date.now()}-${i}`;
+                    el.removeAttribute('data-processed');
+                    el.innerHTML = code;
+                    try {
+                         mermaid.init(undefined, el);
+                    } catch (e) {
+                        console.error("Error re-rendering Mermaid diagram:", e);
+                    }
+                });
+            }
+
+            function setTheme(theme) {
+                if (theme === 'dark') {
+                    document.documentElement.classList.add('dark-mode');
+                    localStorage.setItem('theme', 'dark');
+                } else {
+                    document.documentElement.classList.remove('dark-mode');
+                    localStorage.setItem('theme', 'light');
+                }
+                updateMermaidTheme();
+            }
+
+            lightModeBtn.addEventListener('click', () => setTheme('light'));
+            darkModeBtn.addEventListener('click', () => setTheme('dark'));
+
+            const currentTheme = localStorage.getItem('theme');
+            if (currentTheme) {
+                setTheme(currentTheme);
+            } else if (prefersDarkScheme.matches) {
+                setTheme('dark');
+            } else {
+                setTheme('light'); 
+            }
+            
+            // Scroll Animations for sections
+            const sections = document.querySelectorAll('.content-section');
+            const hrs = document.querySelectorAll('hr.section-divider, hr.document-end-divider'); 
+            const observerOptions = {
+                root: null, 
+                rootMargin: '0px',
+                threshold: 0.1 
+            };
+
+            const observer = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('is-visible');
+                    }
+                });
+            }, observerOptions);
+
+            sections.forEach(section => {
+                observer.observe(section);
+            });
+             hrs.forEach(hr => { 
+                hr.style.opacity = 0; hr.style.transition = 'opacity 0.8s var(--ease-in-out-cubic) 0.2s';
+                observer.observe(hr);
+            });
+        });
+    </script>
+</body>
+</html>

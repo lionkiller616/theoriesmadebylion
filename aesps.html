@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acousto-Electric Self-Powering Sensors</title>
+
+    <!-- MathJax Configuration -->
+    <script>
+        MathJax = {
+          tex: {
+            inlineMath: [['$', '$'], ['\\(', '\\)']],
+            displayMath: [['$$', '$$'], ['\\[', '\\]'], ['```math', '```']],
+            processEscapes: true,
+            tags: 'ams',
+            macros: { // Define custom macros if needed
+                // No specific macros from content, but can add if needed
+            }
+          },
+          svg: {
+            fontCache: 'global'
+          }
+        };
+    </script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <!-- Mermaid JS for diagrams -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Google Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons|Material+Icons+Outlined|Material+Icons+Round" rel="stylesheet">
+
+    <style>
+        :root {
+            --font-primary: 'Inter', sans-serif;
+            --font-headings: 'Poppins', sans-serif;
+
+            --ease-out-quad: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            --ease-in-out-cubic: cubic-bezier(0.645, 0.045, 0.355, 1);
+
+            /* Light Mode (Default) */
+            --bg-color: #F0F2F5;
+            --text-color: #1d1d1f;
+            --heading-color: #000000;
+            --accent-color: #03A9F4; /* Calm, Clear Blue for Acoustic/Medical */
+            --accent-color-darker: #0288D1;
+            --card-bg: rgba(255, 255, 255, 0.6);
+            --card-border: rgba(0, 0, 0, 0.1);
+            --card-shadow-1: rgba(0, 0, 0, 0.05);
+            --card-shadow-2: rgba(0, 0, 0, 0.02);
+            --neumorphic-shadow-light: -6px -6px 12px rgba(255, 255, 255, 0.8), 6px 6px 12px rgba(0, 0, 0, 0.1);
+            --neumorphic-shadow-light-inset: inset -4px -4px 8px rgba(255, 255, 255, 0.7), inset 4px 4px 8px rgba(0, 0, 0, 0.08);
+            --icon-color: #555;
+            --diagram-element-bg: rgba(128,128,128,0.05);
+            --code-bg: #f7f7f7;
+            --code-text: #333;
+            --hr-color: rgba(0,0,0,0.1); 
+            --table-header-bg: rgba(0,0,0,0.03);
+            --table-row-hover-bg: rgba(0,0,0,0.02);
+        }
+
+        html.dark-mode {
+            --bg-color: #161616;
+            --text-color: #E0E0E0;
+            --heading-color: #FFFFFF;
+            --accent-color: #4FC3F7; /* Lighter Blue for dark mode */
+            --accent-color-darker: #29B6F6;
+            --card-bg: rgba(35, 35, 35, 0.6);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --card-shadow-1: rgba(255, 255, 255, 0.03);
+            --card-shadow-2: rgba(0, 0, 0, 0.1);
+            --neumorphic-shadow-light: -6px -6px 12px rgba(40, 40, 40, 0.7), 6px 6px 12px rgba(0, 0, 0, 0.3);
+            --neumorphic-shadow-light-inset: inset -4px -4px 8px rgba(40, 40, 40, 0.6), inset 4px 4px 8px rgba(0, 0, 0, 0.25);
+            --icon-color: #bbb;
+            --diagram-element-bg: rgba(200,200,200,0.05);
+            --code-bg: #2a2a2a;
+            --code-text: #ccc;
+            --hr-color: rgba(255,255,255,0.1);
+            --table-header-bg: rgba(255,255,255,0.03);
+            --table-row-hover-bg: rgba(255,255,255,0.02);
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 16px;
+        }
+
+        body {
+            font-family: var(--font-primary);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.7;
+            transition: background-color 0.3s var(--ease-out-quad), color 0.3s var(--ease-out-quad);
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem 0;
+        }
+
+        header {
+            padding: 2rem 0 1rem;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .main-title {
+            font-family: var(--font-headings);
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--heading-color);
+            margin-bottom: 0.5rem;
+            letter-spacing: -1px;
+        }
+        .tagline { 
+            font-size: 1.1rem;
+            color: var(--text-color);
+            opacity: 0.8;
+            margin-bottom: 1.5rem;
+        }
+        
+        hr {
+            border: none;
+            height: 1px;
+            background-color: var(--hr-color);
+            margin: 2rem auto;
+            width: 80%;
+        }
+
+
+        .theme-switcher {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 0.5rem;
+            border-radius: 50px;
+            box-shadow: 0 4px 15px var(--card-shadow-1);
+            display: flex;
+            align-items: center;
+        }
+
+        .theme-button {
+            background: none;
+            border: none;
+            color: var(--icon-color);
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 50%;
+            transition: background-color 0.2s ease, color 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .theme-button:hover {
+            background-color: rgba(128,128,128,0.1);
+        }
+        .theme-button .material-icons-round {
+            font-size: 24px;
+        }
+
+
+        .content-section {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            padding: 2rem 2.5rem;
+            margin-bottom: 2.5rem;
+            border-radius: 20px;
+            box-shadow: 0 8px 30px var(--card-shadow-1), 0 2px 8px var(--card-shadow-2);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s var(--ease-in-out-cubic), transform 0.6s var(--ease-in-out-cubic);
+        }
+
+        .content-section.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .content-section h2, .content-section h3, .content-section h4 {
+            font-family: var(--font-headings);
+            color: var(--heading-color);
+            margin-bottom: 1.2rem;
+            margin-top: 1.5rem;
+            position: relative;
+            padding-left: 1.5rem;
+        }
+        .content-section h2::before, .content-section h3::before, .content-section h4::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 6px;
+            height: 60%;
+            min-height: 18px;
+            background-color: var(--accent-color);
+            border-radius: 3px;
+        }
+
+
+        .content-section h2 { font-size: 1.8rem; font-weight: 700; }
+        .content-section h3 { font-size: 1.5rem; font-weight: 600; }
+        .content-section h4 { font-size: 1.2rem; font-weight: 600; }
+        .content-section h2:first-child, .content-section h3:first-child, .content-section h4:first-child {
+            margin-top: 0;
+        }
+
+        .content-section p {
+            margin-bottom: 1rem;
+            color: var(--text-color);
+        }
+
+        .content-section ul, .content-section ol {
+            list-style: none;
+            padding-left: 0;
+            margin-bottom: 1rem;
+        }
+         .content-section ol { 
+            counter-reset: list-item-counter;
+        }
+
+
+        .content-section li {
+            padding-left: 2em;
+            position: relative;
+            margin-bottom: 0.75rem;
+        }
+        
+        .content-section ul li::before { 
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 9px; 
+            width: 8px;
+            height: 8px;
+            background-color: var(--accent-color);
+            border-radius: 50%;
+        }
+
+        .content-section ol li::before { 
+            counter-increment: list-item-counter;
+            content: counter(list-item-counter) ".";
+            position: absolute;
+            left: 0;
+            top: 1px; 
+            font-weight: 600;
+            color: var(--accent-color);
+        }
+
+
+        .content-section strong {
+            font-weight: 600;
+            color: var(--heading-color);
+        }
+
+        .content-section .mjx-math, .content-section pre[class*="language-math"] { 
+            font-size: 1.1em !important; 
+            margin: 1.5rem 0;
+            padding: 1rem;
+            overflow-x: auto;
+            background-color: var(--diagram-element-bg);
+            border-radius: 8px;
+            border: 1px solid var(--card-border);
+        }
+        
+        .mermaid-diagram-container {
+            background-color: var(--diagram-element-bg);
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin: 1.5rem auto;
+            text-align: center;
+            border: 1px solid var(--card-border);
+        }
+        .mermaid-diagram-container svg {
+            max-width: 100%;
+            height: auto;
+        }
+        
+        .styled-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            font-size: 0.95em;
+        }
+        .styled-table th, .styled-table td {
+            border: 1px solid var(--card-border);
+            padding: 0.75rem 1rem;
+            text-align: left;
+        }
+        .styled-table th {
+            background-color: var(--table-header-bg);
+            font-weight: 600;
+            color: var(--heading-color);
+        }
+        .styled-table tr:hover {
+            background-color: var(--table-row-hover-bg);
+        }
+        .styled-table td:nth-child(1) {
+            font-weight: 500;
+        }
+
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 2rem 0;
+            margin-top: 2rem;
+            border-top: 1px solid var(--hr-color); 
+            font-size: 0.9rem;
+            color: var(--text-color);
+            opacity: 0.7;
+        }
+        footer strong {
+            font-weight: bold;
+            color: var(--accent-color);
+        }
+
+        /* Material Icons in text */
+        .icon-inline {
+            font-family: 'Material Icons Round';
+            font-size: 1.1em; 
+            vertical-align: -0.15em; 
+            margin-right: 0.2em;
+            color: var(--accent-color);
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .main-title { font-size: 2rem; }
+            .tagline { font-size: 1rem; }
+            .content-section { padding: 1.5rem; border-radius: 15px; }
+            .content-section h2 { font-size: 1.6rem; }
+            .content-section h3 { font-size: 1.3rem; }
+            .theme-switcher { top: 10px; right: 10px; padding: 0.3rem;}
+            .theme-button {padding: 0.4rem;}
+            .styled-table { font-size: 0.85em; }
+            .styled-table th, .styled-table td { padding: 0.5rem; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="theme-switcher">
+        <button id="light-mode-btn" class="theme-button" title="Switch to Light Mode">
+            <span class="material-icons-round">light_mode</span>
+        </button>
+        <button id="dark-mode-btn" class="theme-button" title="Switch to Dark Mode">
+            <span class="material-icons-round">dark_mode</span>
+        </button>
+    </div>
+
+    <div class="container">
+        <header>
+            <h1 class="main-title">Acousto-Electric Self-Powering Sensors</h1>
+            <p class="tagline">Harvesting Ultrasound to Power Implantable Devices</p>
+        </header>
+        <hr>
+
+        <main>
+            <section class="content-section" id="introduction">
+                <h2><span class="material-icons-round icon-inline">hearing</span>1. Introduction</h2>
+                <p>Acousto-electric self-powering sensors convert externally applied ultrasound waves into electrical energy via piezoelectric and electrostrictive mechanisms, enabling <strong>wireless, battery-free operation</strong> for implantable medical devices (e.g., pressure, flow, biochemical sensors).</p>
+                <p><strong>Key Advantages:</strong></p>
+                <ul>
+                    <li><strong>Deep Tissue Access:</strong> Ultrasound penetrates more deeply than electromagnetic fields.</li>
+                    <li><strong>Localized Power:</strong> Focused ultrasound beams target specific implants.</li>
+                    <li><strong>High Safety:</strong> Low acoustic intensity avoids tissue damage.</li>
+                </ul>
+            </section>
+            <!-- No HR after intro as per MD -->
+
+            <section class="content-section" id="system-architecture">
+                <h2><span class="material-icons-round icon-inline">developer_board</span>2. System Architecture</h2>
+                <div class="mermaid-diagram-container">
+                    <pre class="mermaid">
+graph LR
+  US[External Ultrasound Transducer] -->|Acoustic Waves| Implant((Implant: Piezoelectric Harvester))
+  Implant --> PM{Power Management Circuit}
+  PM --> Sensor[Integrated Sensing & Electronics Module]
+  Sensor --> Backscatter((Data Transmission via Backscatter))
+  Backscatter --> US
+
+  classDef external fill:#E3F2FD,stroke:#0277BD,color:#000;
+  classDef implant_module fill:#B3E5FC,stroke:#0288D1,color:#000;
+  classDef internal_component fill:#E1F5FE,stroke:#03A9F4,color:#000;
+  
+  class US external;
+  class Implant implant_module;
+  class PM,Sensor,Backscatter internal_component;
+                    </pre>
+                </div>
+                <h3>2.1 Mote Components</h3>
+                <ul>
+                    <li><strong>Ultrasound Transducer:</strong> External phased-array generating focused beams (0.5–5 MHz)</li>
+                    <li><strong>Harvester Unit:</strong> Piezoelectric stack or thin-film resonator (e.g., PZT, AlN)</li>
+                    <li><strong>Power Management:</strong> Rectifier, DC–DC converter, energy storage (microcapacitor)</li>
+                    <li><strong>Sensing Module:</strong> Pressure, temperature, or biochemical sensor with ultra-low-power ASIC</li>
+                    <li><strong>Data Link:</strong> Backscatter modulation of ultrasound for uplink</li>
+                </ul>
+            </section>
+            <!-- No HR here -->
+
+            <section class="content-section" id="acoustic-to-electric-conversion">
+                <h2><span class="material-icons-round icon-inline">bolt</span>3. Acoustic-to-Electric Conversion</h2>
+                <h3>3.1 Piezoelectric Effect</h3>
+                <p>Electric displacement $D$ generated by stress $T$:</p>
+                $$
+                D_i = d_{ij} T_j
+                $$
+                <ul>
+                    <li>$d_{ij}$: piezoelectric coefficient tensor</li>
+                    <li>Converts incident acoustic pressure $p$ into charge $Q = \int D\,dA$</li>
+                </ul>
+                <h3>3.2 Electrical Output</h3>
+                <p>Open-circuit voltage:</p>
+                $$
+                V_{oc} = g_{33} h_{pz} p
+                $$
+                <ul>
+                    <li>$g_{33}$: piezoelectric voltage coefficient</li>
+                    <li>$h_{pz}$: thickness of piezoelectric layer</li>
+                </ul>
+                <p>Harvested power approximate:</p>
+                $$
+                P = \frac{V_{oc}^2}{4R_{int}}
+                $$
+                <ul>
+                    <li>$R_{int}$: internal impedance of the harvester</li>
+                </ul>
+            </section>
+            <!-- No HR here -->
+            
+            <section class="content-section" id="acoustic-field-modeling">
+                <h2><span class="material-icons-round icon-inline">waves</span>4. Acoustic Field Modeling</h2>
+                <ul>
+                    <li><strong>Wave Equation:</strong>
+                    $$
+                    \nabla^2 p - \frac{1}{c^2} \frac{\partial^2 p}{\partial t^2} = 0
+                    $$</li>
+                    <li><strong>Focused Beam:</strong> Gaussian spatial profile with focal length $f$</li>
+                    <li><strong>Attenuation:</strong> Tissue attenuation $\alpha(f)$ in dB/cm influences power delivery</li>
+                </ul>
+            </section>
+            <!-- No HR here -->
+
+            <section class="content-section" id="power-management-circuitry">
+                <h2><span class="material-icons-round icon-inline">battery_charging_full</span>5. Power Management Circuitry</h2>
+                <table class="styled-table">
+                    <thead>
+                        <tr>
+                            <th>Stage</th>
+                            <th>Function</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Rectifier</td>
+                            <td>AC to DC conversion</td>
+                        </tr>
+                        <tr>
+                            <td>Voltage Regulator</td>
+                            <td>Maintain stable supply (e.g., buck)</td>
+                        </tr>
+                        <tr>
+                            <td>Energy Storage</td>
+                            <td>Microcapacitor or thin-film battery</td>
+                        </tr>
+                        <tr>
+                            <td>Load Switch</td>
+                            <td>Control sensor duty cycling</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <p>Duty cycling sensor operation (<1% duty) reduces average power demand to tens of microwatts.</p>
+            </section>
+            <!-- No HR here -->
+
+            <section class="content-section" id="data-transmission-backscatter">
+                <h2><span class="material-icons-round icon-inline">rss_feed</span>6. Data Transmission via Backscatter</h2>
+                 <ul>
+                    <li><strong>Modulation:</strong> Change harvester impedance to encode bits on reflected ultrasound</li>
+                    <li><strong>Encoding Schemes:</strong> OOK, FSK adapted for acoustic link</li>
+                    <li><strong>Detection:</strong> External transducer demodulates backscatter signal</li>
+                </ul>
+            </section>
+            <!-- No HR here -->
+
+            <section class="content-section" id="biocompatibility-packaging">
+                <h2><span class="material-icons-round icon-inline">healing</span>7. Biocompatibility & Packaging</h2>
+                 <ul>
+                    <li><strong>Enclosure:</strong> Biocompatible polymers (e.g., PDMS, Parylene-C)</li>
+                    <li><strong>Encapsulation:</strong> Prevent fluid ingress, ensure acoustic coupling</li>
+                    <li><strong>Thermal Safety:</strong> Limit absorption to avoid heating ($<1\,\mathrm{W/cm^2}$)</li>
+                </ul>
+            </section>
+            <!-- No HR here -->
+            
+            <section class="content-section" id="modeling-simulation">
+                <h2><span class="material-icons-round icon-inline">model_training</span>8. Modeling & Simulation</h2>
+                 <ul>
+                    <li><strong>Finite Element Analysis:</strong> Coupled acoustic–piezoelectric simulation (COMSOL)</li>
+                    <li><strong>Circuit Simulation:</strong> SPICE models for power management under pulsed input</li>
+                </ul>
+            </section>
+            <!-- No HR here -->
+
+            <section class="content-section" id="performance-metrics">
+                <h2><span class="material-icons-round icon-inline">speed</span>9. Performance Metrics</h2>
+                 <ul>
+                    <li><strong>Power Density:</strong> >100 µW/cm² at 2 MHz, 1 W/cm² incident intensity</li>
+                    <li><strong>Conversion Efficiency:</strong> 20–50% acoustic-to-electrical</li>
+                    <li><strong>Operational Depth:</strong> Up to 10 cm in tissue</li>
+                    <li><strong>Data Rate:</strong> Tens of kbps via backscatter</li>
+                </ul>
+            </section>
+            <!-- No HR here -->
+
+            <section class="content-section" id="applications">
+                <h2><span class="material-icons-round icon-inline">apps</span>10. Applications</h2>
+                 <ul>
+                    <li><strong>Implantable Pressure Sensors:</strong> Real-time blood pressure monitoring</li>
+                    <li><strong>Neural Interfaces:</strong> Power for microelectrode arrays</li>
+                    <li><strong>Drug Delivery:</strong> Triggered release via sensor feedback</li>
+                    <li><strong>Telemetry:</strong> Wireless health monitoring systems</li>
+                </ul>
+            </section>
+            <!-- No HR here -->
+
+            <section class="content-section" id="challenges-outlook">
+                <h2><span class="material-icons-round icon-inline">report_problem</span>11. Challenges & Outlook</h2>
+                 <ul>
+                    <li><strong>Alignment:</strong> Maintaining focus on moving implants</li>
+                    <li><strong>Miniaturization:</strong> Trade-off between harvester area and power</li>
+                    <li><strong>Regulatory:</strong> Compliance with safety standards (FDA ultrasound limits)</li>
+                </ul>
+                <p>Future work includes adaptive beamforming, multi-node networks, and integration with CMOS bioelectronics.</p>
+            </section>
+            <!-- No HR here -->
+            
+            <section class="content-section" id="references">
+                <h2><span class="material-icons-round icon-inline">menu_book</span>12. References</h2>
+                <ol>
+                    <li>Arakawa, R., et al. (2017). Ultrasonic energy harvesting for implantable biomedical devices. <em>IEEE Transactions on Ultrasonics</em>, 64(3), 673–685.</li>
+                    <li>Dagdeviren, C., et al. (2014). Conformal piezoelectric energy harvesting and storage from motions of the heart, lung, and diaphragm. <em>Proceedings of the National Academy of Sciences</em>, 111(5), 1927–1932.</li>
+                </ol>
+            </section>
+        </main>
+
+        <footer>
+            <p>Scientific concept and logic by <strong>Lion</strong>.</p>
+            <p>UI/UX & Web Implementation inspired by modern design principles.</p>
+            <p>© 2024 Acousto-Electric Self-Powering Sensors Project</p>
+        </footer>
+    </div>
+
+    <script>
+        // Initialize Mermaid
+        mermaid.initialize({ 
+            startOnLoad: true,
+            theme: 'base', 
+            themeVariables: {
+                primaryColor: getComputedStyle(document.documentElement).getPropertyValue('--diagram-element-bg').trim(),
+                primaryTextColor: getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim(),
+                primaryBorderColor: getComputedStyle(document.documentElement).getPropertyValue('--card-border').trim(),
+                lineColor: getComputedStyle(document.documentElement).getPropertyValue('--icon-color').trim(),
+                secondaryColor: getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim(),
+                tertiaryColor: getComputedStyle(document.documentElement).getPropertyValue('--bg-color').trim()
+            },
+            flowchart: { 
+                htmlLabels: true,
+                nodeSpacing: 50,
+                rankSpacing: 50
+            },
+            fontFamily: getComputedStyle(document.documentElement).getPropertyValue('--font-primary').trim(),
+        });
+
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Theme Switcher
+            const lightModeBtn = document.getElementById('light-mode-btn');
+            const darkModeBtn = document.getElementById('dark-mode-btn');
+            const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+
+            function updateMermaidTheme() {
+                const currentPrimaryColor = getComputedStyle(document.documentElement).getPropertyValue('--diagram-element-bg').trim();
+                const currentTextColor = getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim();
+                const currentBorderColor = getComputedStyle(document.documentElement).getPropertyValue('--card-border').trim();
+                const currentLineColor = getComputedStyle(document.documentElement).getPropertyValue('--icon-color').trim();
+                const currentAccentColor = getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim();
+                const currentBgColor = getComputedStyle(document.documentElement).getPropertyValue('--bg-color').trim();
+                
+                mermaid.initialize({
+                    theme: 'base',
+                    themeVariables: {
+                        primaryColor: currentPrimaryColor,
+                        primaryTextColor: currentTextColor,
+                        primaryBorderColor: currentBorderColor,
+                        lineColor: currentLineColor,
+                        secondaryColor: currentAccentColor,
+                        tertiaryColor: currentBgColor
+                    }
+                });
+                document.querySelectorAll('.mermaid[data-processed="true"]').forEach((el, i) => {
+                    const code = el.textContent || el.innerText;
+                    const id = `mermaid-graph-${Date.now()}-${i}`;
+                    el.removeAttribute('data-processed');
+                    el.innerHTML = code;
+                    try {
+                         mermaid.init(undefined, el);
+                    } catch (e) {
+                        console.error("Error re-rendering Mermaid diagram:", e);
+                    }
+                });
+            }
+
+            function setTheme(theme) {
+                if (theme === 'dark') {
+                    document.documentElement.classList.add('dark-mode');
+                    localStorage.setItem('theme', 'dark');
+                } else {
+                    document.documentElement.classList.remove('dark-mode');
+                    localStorage.setItem('theme', 'light');
+                }
+                updateMermaidTheme();
+            }
+
+            lightModeBtn.addEventListener('click', () => setTheme('light'));
+            darkModeBtn.addEventListener('click', () => setTheme('dark'));
+
+            const currentTheme = localStorage.getItem('theme');
+            if (currentTheme) {
+                setTheme(currentTheme);
+            } else if (prefersDarkScheme.matches) {
+                setTheme('dark');
+            } else {
+                setTheme('light'); 
+            }
+            
+            // Scroll Animations for sections
+            const sections = document.querySelectorAll('.content-section');
+            // No HRs between sections in this MD
+            const observerOptions = {
+                root: null, 
+                rootMargin: '0px',
+                threshold: 0.1 
+            };
+
+            const observer = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('is-visible');
+                    }
+                });
+            }, observerOptions);
+
+            sections.forEach(section => {
+                observer.observe(section);
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Electrothermal Air-Purification Fences</title>
+
+    <!-- MathJax Configuration -->
+    <script>
+        MathJax = {
+          tex: {
+            inlineMath: [['$', '$'], ['\\(', '\\)']],
+            displayMath: [['$$', '$$'], ['\\[', '\\]'], ['```math', '```']],
+            processEscapes: true,
+            tags: 'ams',
+            macros: { // Define custom macros if needed
+                // No specific macros from content, but can add if needed
+            }
+          },
+          svg: {
+            fontCache: 'global'
+          }
+        };
+    </script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <!-- Mermaid JS for diagrams -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Google Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons|Material+Icons+Outlined|Material+Icons+Round" rel="stylesheet">
+
+    <style>
+        :root {
+            --font-primary: 'Inter', sans-serif;
+            --font-headings: 'Poppins', sans-serif;
+
+            --ease-out-quad: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            --ease-in-out-cubic: cubic-bezier(0.645, 0.045, 0.355, 1);
+
+            /* Light Mode (Default) */
+            --bg-color: #F0F2F5;
+            --text-color: #1d1d1f;
+            --heading-color: #000000;
+            --accent-color: #03A9F4; /* Clean, Airy Light Blue for Air/Purification */
+            --accent-color-darker: #0288D1;
+            --card-bg: rgba(255, 255, 255, 0.6);
+            --card-border: rgba(0, 0, 0, 0.1);
+            --card-shadow-1: rgba(0, 0, 0, 0.05);
+            --card-shadow-2: rgba(0, 0, 0, 0.02);
+            --neumorphic-shadow-light: -6px -6px 12px rgba(255, 255, 255, 0.8), 6px 6px 12px rgba(0, 0, 0, 0.1);
+            --neumorphic-shadow-light-inset: inset -4px -4px 8px rgba(255, 255, 255, 0.7), inset 4px 4px 8px rgba(0, 0, 0, 0.08);
+            --icon-color: #555;
+            --diagram-element-bg: rgba(128,128,128,0.05);
+            --code-bg: #f7f7f7;
+            --code-text: #333;
+            --hr-color: rgba(0,0,0,0.1); 
+            --table-header-bg: rgba(0,0,0,0.03);
+            --table-row-hover-bg: rgba(0,0,0,0.02);
+        }
+
+        html.dark-mode {
+            --bg-color: #161616;
+            --text-color: #E0E0E0;
+            --heading-color: #FFFFFF;
+            --accent-color: #4FC3F7; /* Lighter Blue for dark mode */
+            --accent-color-darker: #29B6F6;
+            --card-bg: rgba(35, 35, 35, 0.6);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --card-shadow-1: rgba(255, 255, 255, 0.03);
+            --card-shadow-2: rgba(0, 0, 0, 0.1);
+            --neumorphic-shadow-light: -6px -6px 12px rgba(40, 40, 40, 0.7), 6px 6px 12px rgba(0, 0, 0, 0.3);
+            --neumorphic-shadow-light-inset: inset -4px -4px 8px rgba(40, 40, 40, 0.6), inset 4px 4px 8px rgba(0, 0, 0, 0.25);
+            --icon-color: #bbb;
+            --diagram-element-bg: rgba(200,200,200,0.05);
+            --code-bg: #2a2a2a;
+            --code-text: #ccc;
+            --hr-color: rgba(255,255,255,0.1);
+            --table-header-bg: rgba(255,255,255,0.03);
+            --table-row-hover-bg: rgba(255,255,255,0.02);
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 16px;
+        }
+
+        body {
+            font-family: var(--font-primary);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.7;
+            transition: background-color 0.3s var(--ease-out-quad), color 0.3s var(--ease-out-quad);
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem 0;
+        }
+
+        header {
+            padding: 2rem 0 1rem;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .main-title {
+            font-family: var(--font-headings);
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--heading-color);
+            margin-bottom: 0.5rem;
+            letter-spacing: -1px;
+        }
+        .tagline { 
+            font-size: 1.1rem;
+            color: var(--text-color);
+            opacity: 0.8;
+            margin-bottom: 1.5rem;
+        }
+        
+        hr.section-divider { 
+            border: none;
+            height: 1px;
+            background-color: var(--hr-color);
+            margin: 2rem auto;
+            width: 80%;
+        }
+        hr.document-end-divider { 
+            border: none;
+            height: 2px;
+            background: linear-gradient(to right, transparent, var(--accent-color), transparent);
+            margin: 3rem auto 1rem;
+            width: 60%;
+            opacity: 0.6;
+        }
+
+
+        .theme-switcher {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 0.5rem;
+            border-radius: 50px;
+            box-shadow: 0 4px 15px var(--card-shadow-1);
+            display: flex;
+            align-items: center;
+        }
+
+        .theme-button {
+            background: none;
+            border: none;
+            color: var(--icon-color);
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 50%;
+            transition: background-color 0.2s ease, color 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .theme-button:hover {
+            background-color: rgba(128,128,128,0.1);
+        }
+        .theme-button .material-icons-round {
+            font-size: 24px;
+        }
+
+
+        .content-section {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            padding: 2rem 2.5rem;
+            margin-bottom: 2.5rem;
+            border-radius: 20px;
+            box-shadow: 0 8px 30px var(--card-shadow-1), 0 2px 8px var(--card-shadow-2);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s var(--ease-in-out-cubic), transform 0.6s var(--ease-in-out-cubic);
+        }
+
+        .content-section.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .content-section h2, .content-section h3, .content-section h4 {
+            font-family: var(--font-headings);
+            color: var(--heading-color);
+            margin-bottom: 1.2rem;
+            margin-top: 1.5rem;
+            position: relative;
+            padding-left: 1.5rem;
+        }
+        .content-section h2::before, .content-section h3::before, .content-section h4::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 6px;
+            height: 60%;
+            min-height: 18px;
+            background-color: var(--accent-color);
+            border-radius: 3px;
+        }
+
+
+        .content-section h2 { font-size: 1.8rem; font-weight: 700; }
+        .content-section h3 { font-size: 1.5rem; font-weight: 600; }
+        .content-section h4 { font-size: 1.2rem; font-weight: 600; }
+        .content-section h2:first-child, .content-section h3:first-child, .content-section h4:first-child {
+            margin-top: 0;
+        }
+
+        .content-section p {
+            margin-bottom: 1rem;
+            color: var(--text-color);
+        }
+
+        .content-section ul, .content-section ol {
+            list-style: none;
+            padding-left: 0;
+            margin-bottom: 1rem;
+        }
+         .content-section ol { 
+            counter-reset: list-item-counter;
+        }
+
+
+        .content-section li {
+            padding-left: 2em;
+            position: relative;
+            margin-bottom: 0.75rem;
+        }
+        
+        .content-section ul li::before { 
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 9px; 
+            width: 8px;
+            height: 8px;
+            background-color: var(--accent-color);
+            border-radius: 50%;
+        }
+
+        .content-section ol li::before { 
+            counter-increment: list-item-counter;
+            content: counter(list-item-counter) ".";
+            position: absolute;
+            left: 0;
+            top: 1px; 
+            font-weight: 600;
+            color: var(--accent-color);
+        }
+
+
+        .content-section strong {
+            font-weight: 600;
+            color: var(--heading-color);
+        }
+
+        .content-section .mjx-math, .content-section pre[class*="language-math"] { 
+            font-size: 1.1em !important; 
+            margin: 1.5rem 0;
+            padding: 1rem;
+            overflow-x: auto;
+            background-color: var(--diagram-element-bg);
+            border-radius: 8px;
+            border: 1px solid var(--card-border);
+        }
+        
+        .mermaid-diagram-container {
+            background-color: var(--diagram-element-bg);
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin: 1.5rem auto;
+            text-align: center;
+            border: 1px solid var(--card-border);
+        }
+        .mermaid-diagram-container svg {
+            max-width: 100%;
+            height: auto;
+        }
+        
+        .styled-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            font-size: 0.95em;
+        }
+        .styled-table th, .styled-table td {
+            border: 1px solid var(--card-border);
+            padding: 0.75rem 1rem;
+            text-align: left;
+        }
+        .styled-table th {
+            background-color: var(--table-header-bg);
+            font-weight: 600;
+            color: var(--heading-color);
+        }
+        .styled-table tr:hover {
+            background-color: var(--table-row-hover-bg);
+        }
+        .styled-table td:nth-child(1) {
+            font-weight: 500;
+        }
+
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 2rem 0;
+            margin-top: 2rem;
+            border-top: 1px solid var(--hr-color); 
+            font-size: 0.9rem;
+            color: var(--text-color);
+            opacity: 0.7;
+        }
+        footer strong {
+            font-weight: bold;
+            color: var(--accent-color);
+        }
+
+        /* Material Icons in text */
+        .icon-inline {
+            font-family: 'Material Icons Round';
+            font-size: 1.1em; 
+            vertical-align: -0.15em; 
+            margin-right: 0.2em;
+            color: var(--accent-color);
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .main-title { font-size: 2rem; }
+            .tagline { font-size: 1rem; }
+            .content-section { padding: 1.5rem; border-radius: 15px; }
+            .content-section h2 { font-size: 1.6rem; }
+            .content-section h3 { font-size: 1.3rem; }
+            .theme-switcher { top: 10px; right: 10px; padding: 0.3rem;}
+            .theme-button {padding: 0.4rem;}
+            .styled-table { font-size: 0.85em; }
+            .styled-table th, .styled-table td { padding: 0.5rem; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="theme-switcher">
+        <button id="light-mode-btn" class="theme-button" title="Switch to Light Mode">
+            <span class="material-icons-round">light_mode</span>
+        </button>
+        <button id="dark-mode-btn" class="theme-button" title="Switch to Dark Mode">
+            <span class="material-icons-round">dark_mode</span>
+        </button>
+    </div>
+
+    <div class="container">
+        <header>
+            <h1 class="main-title">Electrothermal Air-Purification Fences</h1>
+            <p class="tagline">High-Voltage Grids Ionizing & Precipitating Pollutants</p>
+        </header>
+        <hr class="section-divider">
+
+        <main>
+            <section class="content-section" id="introduction">
+                <h2><span class="material-icons-round icon-inline">fence</span>1. Introduction</h2>
+                <p>Electrothermal air-purification fences are passive barrier systems combining high-voltage electrode grids with controlled heating to generate ionic winds and corona discharges. They simultaneously ionize airborne pollutants and precipitate charged particles onto collector plates, while thermal gradients enhance airflow through the fence. This theoretical design outlines principles, equations, system architecture, fabrication methods, applications, and advantages.</p>
+            </section>
+            <!-- No HR after intro as per MD -->
+
+            <section class="content-section" id="background-motivation">
+                <h2><span class="material-icons-round icon-inline">air</span>2. Background & Motivation</h2>
+                <ul>
+                    <li><strong>Air pollution</strong>: Particulate matter (PM₂.₅, PM₁₀), aerosols, and volatile organic compounds (VOCs) pose health risks.</li>
+                    <li><strong>Conventional filters</strong>: HEPA, electrostatic precipitators, and activated carbon require maintenance and energy.</li>
+                    <li><strong>Fence concept</strong>: A scalable, low-maintenance barrier for highways, industrial perimeters, and urban areas.</li>
+                </ul>
+            </section>
+            <!-- No HR here -->
+
+            <section class="content-section" id="physical-principles">
+                <h2><span class="material-icons-round icon-inline">science</span>3. Physical Principles</h2>
+                <h3>3.1. Corona Discharge & Ionization</h3>
+                <p>High-voltage electrodes create strong electric fields (E) near sharp edges. Above the corona onset field $E_c$:</p>
+                $$
+                E = \frac{V}{r \ln(\frac{D}{r})} \ge E_c \approx 3 \times 10^6 \, \mathrm{V/m},
+                $$
+                <p>where:</p>
+                <ul>
+                    <li>$V$: applied voltage</li>
+                    <li>$r$: electrode radius</li>
+                    <li>$D$: distance to counter-electrode</li>
+                </ul>
+                <p>Ionization rate per unit volume:</p>
+                $$
+                R_i = \alpha(E) N_g v_d,
+                $$
+                <p>with $\alpha(E)$ Townsend coefficient, gas density $N_g$, and ion drift velocity $v_d$.</p>
+                
+                <h3>3.2. Ionic Wind & Electrothermal Flow</h3>
+                <p>Charged ions accelerate in the field, colliding with neutral molecules, transferring momentum:</p>
+                $$
+                F_{ion} = q n_i E,
+                $$
+                <p>generating bulk airflow (ionic wind) with velocity $u$ approximated by momentum balance:</p>
+                $$
+                \rho u \frac{du}{dx} = F_{ion} - \mu \nabla^2 u,
+                $$
+                <p>where $\rho$ is air density, $\mu$ dynamic viscosity.</p>
+                <p>Thermal heating of grid wires adds buoyancy-driven flow via the Boussinesq approximation:</p>
+                $$
+                \rho g \beta (T - T_0) - \mu \nabla^2 u,
+                $$
+                <p>enhancing overall throughput.</p>
+
+                <h3>3.3. Particle Charging & Precipitation</h3>
+                <p>Particles entering field acquire charge by diffusion and field charging:</p>
+                $$
+                q_p = 3 \pi \epsilon_0 d_p^2 E / (4 k_B T),
+                $$
+                <p>with particle diameter $d_p$. Charged particles migrate to collector plates with velocity $v_p = q_p E / (6 \pi \mu r_p)$, giving collection efficiency:</p>
+                $$
+                \eta = 1 - \exp\bigl(-\tfrac{A v_p}{Q}\bigr),
+                $$
+                <p>where $A$ plate area, $Q$ volumetric flow rate.</p>
+            </section>
+            <!-- No HR here -->
+            
+            <section class="content-section" id="system-architecture-diagrams">
+                <h2><span class="material-icons-round icon-inline">developer_board</span>4. System Architecture & Diagrams</h2>
+                <div class="mermaid-diagram-container">
+                    <pre class="mermaid">
+flowchart LR
+  A[High-Voltage Power Supply] --> B((Electrode Grid - Anodes/Cathodes))
+  
+  subgraph Air_Processing_Zone
+    direction TB
+    G[Air Intake] --> B
+    B --> C{Corona Discharge Region (Ionization)}
+    C --> D[Charged Airborne Particles & Ions]
+    D --> E[Collector Plates (Grounded)]
+    C --> F((Ionic Wind Generation))
+  end
+
+  subgraph Thermal_Module [Thermal Module]
+    direction LR
+    H[Resistive Heater Elements] --> I((Heated Support Posts))
+  end
+  
+  I -.-> F
+  E --> CleanAir[Clean Air Output]
+
+  classDef power_supply fill:#E3F2FD,stroke:#0277BD,color:#000;
+  classDef electrode_system fill:#BBDEFB,stroke:#1976D2,color:#000;
+  classDef process_zone fill:#90CAF9,stroke:#1E88E5,color:#000;
+  classDef thermal_comp fill:#E1F5FE,stroke:#03A9F4,color:#000;
+  classDef output fill:#B3E5FC,stroke:#0288D1,color:#000;
+  
+  class A power_supply;
+  class B electrode_system;
+  class C,D,F process_zone;
+  class E electrode_system;
+  class G process_zone;
+  class H,I thermal_comp;
+  class CleanAir output;
+                    </pre>
+                </div>
+                <ol>
+                    <li><strong>Power Supply</strong>: 10–30 kV DC high-voltage source.</li>
+                    <li><strong>Electrode Grid</strong>: Sharp-wire anodes alternated with grounded cathodes.</li>
+                    <li><strong>Collector Plates</strong>: Corrugated metal plates downstream of grid.</li>
+                    <li><strong>Thermal Module</strong>: Low-wattage heating elements embedded in posts.</li>
+                    <li><strong>Airflow Loop</strong>: Ionic and thermal flows draw ambient air continuously.</li>
+                </ol>
+            </section>
+            <!-- No HR here -->
+
+            <section class="content-section" id="fabrication-assembly">
+                <h2><span class="material-icons-round icon-inline">construction</span>5. Fabrication & Assembly</h2>
+                 <ol>
+                    <li><strong>Framework</strong>: Insulated posts (ceramic or epoxy) at 0.5 m spacing.</li>
+                    <li><strong>Electrode Strings</strong>: Stainless-steel wires (0.2 mm diameter) tensioned between posts.</li>
+                    <li><strong>Collector Panels</strong>: Aluminum sheets with 5 mm corrugation, grounded.</li>
+                    <li><strong>Heaters</strong>: Nichrome wires wrapped around posts, powered at ~50 W/post.</li>
+                    <li><strong>Enclosure</strong>: Perforated casing to shield corona and protect users.</li>
+                </ol>
+            </section>
+            <!-- No HR here -->
+
+            <section class="content-section" id="operational-logic-control">
+                <h2><span class="material-icons-round icon-inline">tune</span>6. Operational Logic & Control</h2>
+                 <ol>
+                    <li><strong>Startup</strong>: Ramp HV supply to target voltage to avoid arcing.</li>
+                    <li><strong>Thermal Pre-heat</strong>: Bring fence posts to 40–50 °C for buoyancy flow.</li>
+                    <li><strong>Monitoring</strong>: Sensors measure current (ionization level), temperature, ozone.</li>
+                    <li><strong>Feedback Control</strong>: Adjust voltage & heating to maintain optimal ionic wind and pollution removal.</li>
+                    <li><strong>Maintenance</strong>: Periodic cleanup of collected dust; replace worn electrodes.</li>
+                </ol>
+            </section>
+            <!-- No HR here -->
+            
+            <section class="content-section" id="performance-metrics">
+                <h2><span class="material-icons-round icon-inline">speed</span>7. Performance Metrics</h2>
+                <table class="styled-table">
+                    <thead>
+                        <tr>
+                            <th>Metric</th>
+                            <th>Typical Value</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Voltage (V)</td>
+                            <td>10–30 kV</td>
+                        </tr>
+                        <tr>
+                            <td>Current density (mA/m²)</td>
+                            <td>1–5</td>
+                        </tr>
+                        <tr>
+                            <td>Airflow velocity (m/s)</td>
+                            <td>0.2–1.0</td>
+                        </tr>
+                        <tr>
+                            <td>Particle collection (η)</td>
+                            <td>90–99% (PM₁₀)</td>
+                        </tr>
+                        <tr>
+                            <td>Power consumption (W/m²)</td>
+                            <td>10–30</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+            <!-- No HR here -->
+
+            <section class="content-section" id="applications-advantages">
+                <h2><span class="material-icons-round icon-inline">apps</span>8. Applications & Advantages</h2>
+                 <ul>
+                    <li><strong>Highways & Urban Barriers</strong>: Reduce roadside PM; minimal footprint.</li>
+                    <li><strong>Industrial Perimeters</strong>: Scrub smokestack fugitive emissions.</li>
+                    <li><strong>Smart Cities</strong>: Integrate with IoT for real-time air quality control.</li>
+                </ul>
+                <p><strong>Advantages</strong>:</p>
+                <ol>
+                    <li><strong>Continuous Operation</strong>: No filter replacement.</li>
+                    <li><strong>Low Maintenance</strong>: Self-cleaning collectors.</li>
+                    <li><strong>Energy Efficiency</strong>: Combined ionic–thermal flow uses < 50 W/m².</li>
+                    <li><strong>Scalability</strong>: Modular sections of any length.</li>
+                </ol>
+            </section>
+            <!-- No HR here -->
+
+            <section class="content-section" id="safety-environmental">
+                <h2><span class="material-icons-round icon-inline">health_and_safety</span>9. Safety & Environmental Considerations</h2>
+                 <ul>
+                    <li><strong>Ozone Generation</strong>: Limit E-field to minimize $O_3$ production; include catalytic ozone scrubbers at outflow.</li>
+                    <li><strong>Electrical Safety</strong>: Insulated casings, interlocks, warning signage.</li>
+                    <li><strong>Noise</strong>: Ionic wind is silent; no fans required.</li>
+                </ul>
+            </section>
+            <!-- No HR here -->
+            
+            <section class="content-section" id="future-enhancements">
+                <h2><span class="material-icons-round icon-inline">rocket_launch</span>10. Future Enhancements</h2>
+                 <ul>
+                    <li><strong>AI-Driven Control</strong>: Optimize voltage/heating in response to pollutant sensors.</li>
+                    <li><strong>Solar Integration</strong>: Photovoltaic-powered power supply & heaters.</li>
+                    <li><strong>Advanced Materials</strong>: Nanostructured electrodes for lower corona onset.</li>
+                </ul>
+            </section>
+            
+            <hr class="document-end-divider">
+            <p style="text-align:center; font-style:italic; opacity:0.7;">*End of theoretical design document.*</p>
+
+        </main>
+
+        <footer>
+            <p>Scientific concept and logic by <strong>Lion</strong>.</p>
+            <p>UI/UX & Web Implementation inspired by modern design principles.</p>
+            <p>© 2024 Electrothermal Air-Purification Fences Project</p>
+        </footer>
+    </div>
+
+    <script>
+        // Initialize Mermaid
+        mermaid.initialize({ 
+            startOnLoad: true,
+            theme: 'base', 
+            themeVariables: {
+                primaryColor: getComputedStyle(document.documentElement).getPropertyValue('--diagram-element-bg').trim(),
+                primaryTextColor: getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim(),
+                primaryBorderColor: getComputedStyle(document.documentElement).getPropertyValue('--card-border').trim(),
+                lineColor: getComputedStyle(document.documentElement).getPropertyValue('--icon-color').trim(),
+                secondaryColor: getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim(),
+                tertiaryColor: getComputedStyle(document.documentElement).getPropertyValue('--bg-color').trim()
+            },
+            flowchart: { 
+                htmlLabels: true, // Allows rich text like <sub> in flowchart nodes
+                nodeSpacing: 50,
+                rankSpacing: 50
+            },
+            fontFamily: getComputedStyle(document.documentElement).getPropertyValue('--font-primary').trim(),
+        });
+
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Theme Switcher
+            const lightModeBtn = document.getElementById('light-mode-btn');
+            const darkModeBtn = document.getElementById('dark-mode-btn');
+            const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+
+            function updateMermaidTheme() {
+                const currentPrimaryColor = getComputedStyle(document.documentElement).getPropertyValue('--diagram-element-bg').trim();
+                const currentTextColor = getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim();
+                const currentBorderColor = getComputedStyle(document.documentElement).getPropertyValue('--card-border').trim();
+                const currentLineColor = getComputedStyle(document.documentElement).getPropertyValue('--icon-color').trim();
+                const currentAccentColor = getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim();
+                const currentBgColor = getComputedStyle(document.documentElement).getPropertyValue('--bg-color').trim();
+                
+                mermaid.initialize({
+                    theme: 'base',
+                    themeVariables: {
+                        primaryColor: currentPrimaryColor,
+                        primaryTextColor: currentTextColor,
+                        primaryBorderColor: currentBorderColor,
+                        lineColor: currentLineColor,
+                        secondaryColor: currentAccentColor,
+                        tertiaryColor: currentBgColor
+                    }
+                });
+                document.querySelectorAll('.mermaid[data-processed="true"]').forEach((el, i) => {
+                    const code = el.textContent || el.innerText;
+                    const id = `mermaid-graph-${Date.now()}-${i}`;
+                    el.removeAttribute('data-processed');
+                    el.innerHTML = code;
+                    try {
+                         mermaid.init(undefined, el);
+                    } catch (e) {
+                        console.error("Error re-rendering Mermaid diagram:", e);
+                    }
+                });
+            }
+
+            function setTheme(theme) {
+                if (theme === 'dark') {
+                    document.documentElement.classList.add('dark-mode');
+                    localStorage.setItem('theme', 'dark');
+                } else {
+                    document.documentElement.classList.remove('dark-mode');
+                    localStorage.setItem('theme', 'light');
+                }
+                updateMermaidTheme();
+            }
+
+            lightModeBtn.addEventListener('click', () => setTheme('light'));
+            darkModeBtn.addEventListener('click', () => setTheme('dark'));
+
+            const currentTheme = localStorage.getItem('theme');
+            if (currentTheme) {
+                setTheme(currentTheme);
+            } else if (prefersDarkScheme.matches) {
+                setTheme('dark');
+            } else {
+                setTheme('light'); 
+            }
+            
+            // Scroll Animations for sections
+            const sections = document.querySelectorAll('.content-section');
+            const hrs = document.querySelectorAll('hr.section-divider, hr.document-end-divider'); 
+            const observerOptions = {
+                root: null, 
+                rootMargin: '0px',
+                threshold: 0.1 
+            };
+
+            const observer = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('is-visible');
+                    }
+                });
+            }, observerOptions);
+
+            sections.forEach(section => {
+                observer.observe(section);
+            });
+            hrs.forEach(hr => { 
+                hr.style.opacity = 0; hr.style.transition = 'opacity 0.8s var(--ease-in-out-cubic) 0.2s';
+                observer.observe(hr);
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supercritical CO₂ Turbine Generators</title>
+
+    <!-- MathJax Configuration -->
+    <script>
+        MathJax = {
+          tex: {
+            inlineMath: [['$', '$'], ['\\(', '\\)']],
+            displayMath: [['$$', '$$'], ['\\[', '\\]'], ['```math', '```']],
+            processEscapes: true,
+            tags: 'ams',
+            macros: { // Define custom macros if needed
+                // No specific macros from content, but can add if needed
+            }
+          },
+          svg: {
+            fontCache: 'global'
+          }
+        };
+    </script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <!-- Mermaid JS for diagrams -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Google Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons|Material+Icons+Outlined|Material+Icons+Round" rel="stylesheet">
+
+    <style>
+        :root {
+            --font-primary: 'Inter', sans-serif;
+            --font-headings: 'Poppins', sans-serif;
+
+            --ease-out-quad: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            --ease-in-out-cubic: cubic-bezier(0.645, 0.045, 0.355, 1);
+
+            /* Light Mode (Default) */
+            --bg-color: #F0F2F5;
+            --text-color: #1d1d1f;
+            --heading-color: #000000;
+            --accent-color: #1A237E; /* Strong, Industrial Blue for Engineering/Power */
+            --accent-color-darker: #0D47A1;
+            --card-bg: rgba(255, 255, 255, 0.6);
+            --card-border: rgba(0, 0, 0, 0.1);
+            --card-shadow-1: rgba(0, 0, 0, 0.05);
+            --card-shadow-2: rgba(0, 0, 0, 0.02);
+            --neumorphic-shadow-light: -6px -6px 12px rgba(255, 255, 255, 0.8), 6px 6px 12px rgba(0, 0, 0, 0.1);
+            --neumorphic-shadow-light-inset: inset -4px -4px 8px rgba(255, 255, 255, 0.7), inset 4px 4px 8px rgba(0, 0, 0, 0.08);
+            --icon-color: #555;
+            --diagram-element-bg: rgba(128,128,128,0.05);
+            --code-bg: #f7f7f7;
+            --code-text: #333;
+            --hr-color: rgba(0,0,0,0.1); 
+            --table-header-bg: rgba(0,0,0,0.03);
+            --table-row-hover-bg: rgba(0,0,0,0.02);
+        }
+
+        html.dark-mode {
+            --bg-color: #161616;
+            --text-color: #E0E0E0;
+            --heading-color: #FFFFFF;
+            --accent-color: #5C6BC0; /* Lighter Industrial Blue for dark mode */
+            --accent-color-darker: #3F51B5;
+            --card-bg: rgba(35, 35, 35, 0.6);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --card-shadow-1: rgba(255, 255, 255, 0.03);
+            --card-shadow-2: rgba(0, 0, 0, 0.1);
+            --neumorphic-shadow-light: -6px -6px 12px rgba(40, 40, 40, 0.7), 6px 6px 12px rgba(0, 0, 0, 0.3);
+            --neumorphic-shadow-light-inset: inset -4px -4px 8px rgba(40, 40, 40, 0.6), inset 4px 4px 8px rgba(0, 0, 0, 0.25);
+            --icon-color: #bbb;
+            --diagram-element-bg: rgba(200,200,200,0.05);
+            --code-bg: #2a2a2a;
+            --code-text: #ccc;
+            --hr-color: rgba(255,255,255,0.1);
+            --table-header-bg: rgba(255,255,255,0.03);
+            --table-row-hover-bg: rgba(255,255,255,0.02);
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 16px;
+        }
+
+        body {
+            font-family: var(--font-primary);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.7;
+            transition: background-color 0.3s var(--ease-out-quad), color 0.3s var(--ease-out-quad);
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem 0;
+        }
+
+        header {
+            padding: 2rem 0 1rem;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .main-title {
+            font-family: var(--font-headings);
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--heading-color);
+            margin-bottom: 0.5rem;
+            letter-spacing: -1px;
+        }
+        .tagline { 
+            font-size: 1.1rem;
+            color: var(--text-color);
+            opacity: 0.8;
+            margin-bottom: 1.5rem;
+        }
+        
+        hr {
+            border: none;
+            height: 1px;
+            background-color: var(--hr-color);
+            margin: 2rem auto;
+            width: 80%;
+        }
+
+
+        .theme-switcher {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 0.5rem;
+            border-radius: 50px;
+            box-shadow: 0 4px 15px var(--card-shadow-1);
+            display: flex;
+            align-items: center;
+        }
+
+        .theme-button {
+            background: none;
+            border: none;
+            color: var(--icon-color);
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 50%;
+            transition: background-color 0.2s ease, color 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .theme-button:hover {
+            background-color: rgba(128,128,128,0.1);
+        }
+        .theme-button .material-icons-round {
+            font-size: 24px;
+        }
+
+
+        .content-section {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            padding: 2rem 2.5rem;
+            margin-bottom: 2.5rem;
+            border-radius: 20px;
+            box-shadow: 0 8px 30px var(--card-shadow-1), 0 2px 8px var(--card-shadow-2);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s var(--ease-in-out-cubic), transform 0.6s var(--ease-in-out-cubic);
+        }
+
+        .content-section.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .content-section h2, .content-section h3, .content-section h4 {
+            font-family: var(--font-headings);
+            color: var(--heading-color);
+            margin-bottom: 1.2rem;
+            margin-top: 1.5rem;
+            position: relative;
+            padding-left: 1.5rem;
+        }
+        .content-section h2::before, .content-section h3::before, .content-section h4::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 6px;
+            height: 60%;
+            min-height: 18px;
+            background-color: var(--accent-color);
+            border-radius: 3px;
+        }
+
+
+        .content-section h2 { font-size: 1.8rem; font-weight: 700; }
+        .content-section h3 { font-size: 1.5rem; font-weight: 600; }
+        .content-section h4 { font-size: 1.2rem; font-weight: 600; }
+        .content-section h2:first-child, .content-section h3:first-child, .content-section h4:first-child {
+            margin-top: 0;
+        }
+
+        .content-section p {
+            margin-bottom: 1rem;
+            color: var(--text-color);
+        }
+
+        .content-section ul, .content-section ol {
+            list-style: none;
+            padding-left: 0;
+            margin-bottom: 1rem;
+        }
+         .content-section ol { 
+            counter-reset: list-item-counter;
+        }
+
+
+        .content-section li {
+            padding-left: 2em;
+            position: relative;
+            margin-bottom: 0.75rem;
+        }
+        
+        .content-section ul li::before { 
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 9px; 
+            width: 8px;
+            height: 8px;
+            background-color: var(--accent-color);
+            border-radius: 50%;
+        }
+
+        .content-section ol li::before { 
+            counter-increment: list-item-counter;
+            content: counter(list-item-counter) ".";
+            position: absolute;
+            left: 0;
+            top: 1px; 
+            font-weight: 600;
+            color: var(--accent-color);
+        }
+
+
+        .content-section strong {
+            font-weight: 600;
+            color: var(--heading-color);
+        }
+
+        .content-section .mjx-math, .content-section pre[class*="language-math"] { 
+            font-size: 1.1em !important; 
+            margin: 1.5rem 0;
+            padding: 1rem;
+            overflow-x: auto;
+            background-color: var(--diagram-element-bg);
+            border-radius: 8px;
+            border: 1px solid var(--card-border);
+        }
+        
+        .mermaid-diagram-container {
+            background-color: var(--diagram-element-bg);
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin: 1.5rem auto;
+            text-align: center;
+            border: 1px solid var(--card-border);
+        }
+        .mermaid-diagram-container svg {
+            max-width: 100%;
+            height: auto;
+        }
+        
+        .styled-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            font-size: 0.95em;
+        }
+        .styled-table th, .styled-table td {
+            border: 1px solid var(--card-border);
+            padding: 0.75rem 1rem;
+            text-align: left;
+        }
+        .styled-table th {
+            background-color: var(--table-header-bg);
+            font-weight: 600;
+            color: var(--heading-color);
+        }
+        .styled-table tr:hover {
+            background-color: var(--table-row-hover-bg);
+        }
+        .styled-table td:nth-child(1) {
+            font-weight: 500;
+        }
+
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 2rem 0;
+            margin-top: 2rem;
+            border-top: 1px solid var(--hr-color); 
+            font-size: 0.9rem;
+            color: var(--text-color);
+            opacity: 0.7;
+        }
+        footer strong {
+            font-weight: bold;
+            color: var(--accent-color);
+        }
+
+        /* Material Icons in text */
+        .icon-inline {
+            font-family: 'Material Icons Round';
+            font-size: 1.1em; 
+            vertical-align: -0.15em; 
+            margin-right: 0.2em;
+            color: var(--accent-color);
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .main-title { font-size: 2rem; }
+            .tagline { font-size: 1rem; }
+            .content-section { padding: 1.5rem; border-radius: 15px; }
+            .content-section h2 { font-size: 1.6rem; }
+            .content-section h3 { font-size: 1.3rem; }
+            .theme-switcher { top: 10px; right: 10px; padding: 0.3rem;}
+            .theme-button {padding: 0.4rem;}
+            .styled-table { font-size: 0.85em; }
+            .styled-table th, .styled-table td { padding: 0.5rem; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="theme-switcher">
+        <button id="light-mode-btn" class="theme-button" title="Switch to Light Mode">
+            <span class="material-icons-round">light_mode</span>
+        </button>
+        <button id="dark-mode-btn" class="theme-button" title="Switch to Dark Mode">
+            <span class="material-icons-round">dark_mode</span>
+        </button>
+    </div>
+
+    <div class="container">
+        <header>
+            <h1 class="main-title">Supercritical CO₂ Turbine Generators</h1>
+            <p class="tagline">Compact, High-Efficiency Power Modules</p>
+        </header>
+        <hr>
+
+        <main>
+            <section class="content-section" id="introduction">
+                <h2><span class="material-icons-round icon-inline">bolt</span>1. Introduction</h2>
+                <p>Supercritical carbon dioxide (sCO₂) turbine generators leverage the unique thermophysical properties of CO₂ above its critical point (31.1 °C, 7.38 MPa) to achieve high cycle efficiencies in compact turbomachinery. sCO₂ cycles offer:</p>
+                <ul>
+                    <li><strong>High Thermal Efficiency</strong> (≈45–55%) at moderate turbine inlet temperatures (500–700 °C)</li>
+                    <li><strong>Compactness</strong>: High density reduces turbomachinery size by 5–10× compared to steam systems</li>
+                    <li><strong>Flexibility</strong>: Applicable to solar, nuclear, waste-heat, and fossil-fuel power plants</li>
+                </ul>
+            </section>
+            <!-- No HR after intro as per MD -->
+
+            <section class="content-section" id="thermodynamic-cycle">
+                <h2><span class="material-icons-round icon-inline">autorenew</span>2. Thermodynamic Cycle</h2>
+                <h3>2.1 sCO₂ Brayton Cycle</h3>
+                <div class="mermaid-diagram-container">
+                    <pre class="mermaid">
+graph LR
+  subgraph sCO2_Cycle [sCO₂ Brayton Cycle]
+    C[Compressor] --> H((Heater/Reactor))
+    H --> T[Turbine]
+    T --> W{Cooler/Recuperator}
+    W --> C
+  end
+
+  classDef component fill:#C5CAE9,stroke:#3F51B5,color:#000;
+  classDef heat_exchange fill:#E1F5FE,stroke:#0277BD,color:#000;
+  
+  class C,T component;
+  class H,W heat_exchange;
+                    </pre>
+                </div>
+                <ol>
+                    <li><strong>Compression</strong>: Liquid-like CO₂ is compressed near critical density with low work input.</li>
+                    <li><strong>Heating</strong>: CO₂ heated in a boiler, reactor, or solar receiver to turbine inlet temperature.</li>
+                    <li><strong>Expansion</strong>: High-density CO₂ expands through turbine, generating shaft work.</li>
+                    <li><strong>Cooling/Recuperation</strong>: Exhaust cooled and preheats compressed flow via recuperator for improved efficiency.</li>
+                </ol>
+                <h3>2.2 Optimal Pressure and Temperature</h3>
+                <ul>
+                    <li><strong>Critical Pressure</strong>: Operate slightly above 8 MPa to stay supercritical through cycle.</li>
+                    <li><strong>Turbine Inlet</strong>: 550–700 °C for high exergetic efficiency.</li>
+                    <li><strong>Recuperator Approach</strong>: ΔT<sub>min</sub> ≈ 10–20 K balances size and efficiency.</li>
+                </ul>
+            </section>
+            <!-- No HR here -->
+
+            <section class="content-section" id="cycle-analysis-equations">
+                <h2><span class="material-icons-round icon-inline">functions</span>3. Cycle Analysis Equations</h2>
+                <h3>3.1 Compressor Work</h3>
+                $$
+                W_c = \dot m \int_{P_{in}}^{P_{crit}} v(T,P) \,dP
+                $$
+                <p>Using real-fluid properties $v=1/\rho$ from NIST data.</p>
+                <h3>3.2 Turbine Work</h3>
+                $$
+                W_t = \dot m \int_{P_{crit}}^{P_{out}} v(T,P) \,dP
+                $$
+                <h3>3.3 Thermal Efficiency</h3>
+                <p>Ideal recuperated Brayton efficiency:</p>
+                $$
+                \eta = 1 - \frac{T_{c} (P_r^{(\gamma-1)/\gamma} - 1)}{T_{h} (1 - P_r^{-(\gamma-1)/\gamma})}
+                $$
+                <ul>
+                    <li>$P_r = P_{high}/P_{low}$ pressure ratio</li>
+                    <li>$\gamma$ variable with temperature and density</li>
+                    <li>Use real-fluid property tables for precise $\eta$</li>
+                </ul>
+            </section>
+            <!-- No HR here -->
+            
+            <section class="content-section" id="sco2-properties-advantages">
+                <h2><span class="material-icons-round icon-inline">science</span>4. sCO₂ Properties & Advantages</h2>
+                <table class="styled-table">
+                    <thead>
+                        <tr>
+                            <th>Property</th>
+                            <th>Water/Steam (300 °C)</th>
+                            <th>sCO₂ (550 °C, 20 MPa)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Density (kg/m³)</td>
+                            <td>≈30</td>
+                            <td>≈200</td>
+                        </tr>
+                        <tr>
+                            <td>Compressor Work (kJ/kg)</td>
+                            <td>≈400</td>
+                            <td>≈150</td>
+                        </tr>
+                        <tr>
+                            <td>Turbine Work (kJ/kg)</td>
+                            <td>≈1000</td>
+                            <td>≈900</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <ul>
+                    <li><strong>High Density</strong> reduces volumetric flow → smaller turbomachinery.</li>
+                    <li><strong>Low Compression Work</strong> due to liquid-like behavior near critical point.</li>
+                </ul>
+            </section>
+            <!-- No HR here -->
+
+            <section class="content-section" id="turbomachinery-design">
+                <h2><span class="material-icons-round icon-inline">construction</span>5. Turbomachinery Design</h2>
+                <h3>5.1 Turbine</h3>
+                <ul>
+                    <li><strong>Radial vs. Axial</strong>: Radial for small-scale (<10 MW), axial for >50 MW.</li>
+                    <li><strong>Blade Materials</strong>: Ni-based superalloys or ceramic coatings for 700 °C service.</li>
+                    <li><strong>Sealing</strong>: High-pressure seals using dry gas seals.</li>
+                </ul>
+                <h3>5.2 Compressor</h3>
+                <ul>
+                    <li><strong>Impeller Geometry</strong>: 3D-printed/hybrid impellers to handle dense fluid.</li>
+                    <li><strong>Bearings</strong>: Gas foil or magnetic bearings to avoid lubricant contamination.</li>
+                </ul>
+                <h3>5.3 Recuperator</h3>
+                <ul>
+                    <li><strong>Printed Circuit Heat Exchangers</strong>: Compact, high-area density.</li>
+                    <li><strong>Minimized Pressure Drop</strong>: Balancing heat transfer and parasitic losses.</li>
+                </ul>
+            </section>
+            <!-- No HR here -->
+
+            <section class="content-section" id="compact-module-integration">
+                <h2><span class="material-icons-round icon-inline">view_module</span>6. Compact Module Integration</h2>
+                <div class="mermaid-diagram-container">
+                     <pre class="mermaid">
+graph TB
+  subgraph Power_Module [Power Module]
+    direction LR
+    H[Heat Source (e.g., Solar, Nuclear, Waste Heat)] --> R((Recuperator - Hot Side))
+    R --> T2[sCO₂ Turbine]
+    T2 --> P[Power Generator (Electric)]
+    T2 --> PC((Pre-cooler / Cooler - Hot Exhaust))
+    PC --> C2[sCO₂ Compressor]
+    C2 --> R_Cold((Recuperator - Cold Side))
+    R_Cold --> H
+  end
+
+  classDef heat_source fill:#FFECB3,stroke:#FFA000,color:#000;
+  classDef turbomachinery fill:#C5CAE9,stroke:#3F51B5,color:#000;
+  classDef heat_exchanger fill:#E1F5FE,stroke:#0277BD,color:#000;
+  classDef generator fill:#E8EAF6,stroke:#303F9F,color:#000;
+  
+  class H heat_source;
+  class T2,C2 turbomachinery;
+  class R,PC,R_Cold heat_exchanger;
+  class P generator;
+                    </pre>
+                </div>
+                 <ul>
+                    <li><strong>Skid-Mounted</strong> units <10 m² footprint.</li>
+                    <li><strong>Modular Pods</strong>: 1–10 MW modules for distributed generation.</li>
+                    <li><strong>All-in-One Packaging</strong>: Integrate controls, piping, and power electronics in single enclosure.</li>
+                </ul>
+            </section>
+            <!-- No HR here -->
+            
+            <section class="content-section" id="control-dynamics">
+                <h2><span class="material-icons-round icon-inline">tune</span>7. Control & Dynamics</h2>
+                 <ul>
+                    <li><strong>Load Following</strong>: Fast transient response (<1 s) due to small thermal inertia.</li>
+                    <li><strong>Start-Up</strong>: Bypass valves and pre-heat loops enable rapid start.</li>
+                    <li><strong>Advanced Controls</strong>: Model Predictive Control (MPC) adjusting turbine inlet temperature and recuperator bypass.</li>
+                </ul>
+            </section>
+            <!-- No HR here -->
+
+            <section class="content-section" id="applications">
+                <h2><span class="material-icons-round icon-inline">apps</span>8. Applications</h2>
+                 <ul>
+                    <li><strong>Solar Thermal Plants</strong>: sCO₂ receiver directly heats working fluid.</li>
+                    <li><strong>Nuclear SMRs</strong>: Compact cycle for small modular reactors.</li>
+                    <li><strong>Waste-Heat Recovery</strong>: Industrial exhaust gas or gas turbine bottoming cycle.</li>
+                    <li><strong>Marine Propulsion</strong>: Low-weight, high-efficiency ships’ power systems.</li>
+                </ul>
+            </section>
+            <!-- No HR here -->
+            
+            <section class="content-section" id="challenges-future">
+                <h2><span class="material-icons-round icon-inline">report_problem</span>9. Challenges & Future Directions</h2>
+                 <ul>
+                    <li><strong>Materials</strong>: Creep and corrosion under high-pressure CO₂.</li>
+                    <li><strong>Seal Reliability</strong>: Ensuring long-term gas-tightness.</li>
+                    <li><strong>Heat Exchanger Durability</strong>: Thermal fatigue in compact recuperators.</li>
+                    <li><strong>Cost Reduction</strong>: Additive manufacturing and standardized modules.</li>
+                </ul>
+                <p>Future research focuses on advanced alloys, nano-coated heat exchangers, and multi-objective optimization of cycle parameters.</p>
+            </section>
+            <!-- No HR here -->
+
+            <section class="content-section" id="references">
+                <h2><span class="material-icons-round icon-inline">menu_book</span>10. References</h2>
+                <ol>
+                    <li>Zhang, Y., et al. (2019). A review of supercritical CO₂ power cycle technology and current development status. <em>Renewable and Sustainable Energy Reviews</em>, 101, 64–84.</li>
+                    <li>Dostal, V., et al. (2004). A supercritical carbon dioxide cycle for next generation nuclear reactors. <em>Proceedings of ICAPP</em>, 2004.</li>
+                </ol>
+            </section>
+        </main>
+
+        <footer>
+            <p>Scientific concept and logic by <strong>Lion</strong>.</p>
+            <p>UI/UX & Web Implementation inspired by modern design principles.</p>
+            <p>© 2024 Supercritical CO₂ Turbine Generators Project</p>
+        </footer>
+    </div>
+
+    <script>
+        // Initialize Mermaid
+        mermaid.initialize({ 
+            startOnLoad: true,
+            theme: 'base', 
+            themeVariables: {
+                primaryColor: getComputedStyle(document.documentElement).getPropertyValue('--diagram-element-bg').trim(),
+                primaryTextColor: getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim(),
+                primaryBorderColor: getComputedStyle(document.documentElement).getPropertyValue('--card-border').trim(),
+                lineColor: getComputedStyle(document.documentElement).getPropertyValue('--icon-color').trim(),
+                secondaryColor: getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim(),
+                tertiaryColor: getComputedStyle(document.documentElement).getPropertyValue('--bg-color').trim()
+            },
+            flowchart: { 
+                htmlLabels: true,
+                nodeSpacing: 50,
+                rankSpacing: 50
+            },
+            fontFamily: getComputedStyle(document.documentElement).getPropertyValue('--font-primary').trim(),
+        });
+
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Theme Switcher
+            const lightModeBtn = document.getElementById('light-mode-btn');
+            const darkModeBtn = document.getElementById('dark-mode-btn');
+            const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+
+            function updateMermaidTheme() {
+                const currentPrimaryColor = getComputedStyle(document.documentElement).getPropertyValue('--diagram-element-bg').trim();
+                const currentTextColor = getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim();
+                const currentBorderColor = getComputedStyle(document.documentElement).getPropertyValue('--card-border').trim();
+                const currentLineColor = getComputedStyle(document.documentElement).getPropertyValue('--icon-color').trim();
+                const currentAccentColor = getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim();
+                const currentBgColor = getComputedStyle(document.documentElement).getPropertyValue('--bg-color').trim();
+                
+                mermaid.initialize({
+                    theme: 'base',
+                    themeVariables: {
+                        primaryColor: currentPrimaryColor,
+                        primaryTextColor: currentTextColor,
+                        primaryBorderColor: currentBorderColor,
+                        lineColor: currentLineColor,
+                        secondaryColor: currentAccentColor,
+                        tertiaryColor: currentBgColor
+                    }
+                });
+                document.querySelectorAll('.mermaid[data-processed="true"]').forEach((el, i) => {
+                    const code = el.textContent || el.innerText;
+                    const id = `mermaid-graph-${Date.now()}-${i}`;
+                    el.removeAttribute('data-processed');
+                    el.innerHTML = code;
+                    try {
+                         mermaid.init(undefined, el);
+                    } catch (e) {
+                        console.error("Error re-rendering Mermaid diagram:", e);
+                    }
+                });
+            }
+
+            function setTheme(theme) {
+                if (theme === 'dark') {
+                    document.documentElement.classList.add('dark-mode');
+                    localStorage.setItem('theme', 'dark');
+                } else {
+                    document.documentElement.classList.remove('dark-mode');
+                    localStorage.setItem('theme', 'light');
+                }
+                updateMermaidTheme();
+            }
+
+            lightModeBtn.addEventListener('click', () => setTheme('light'));
+            darkModeBtn.addEventListener('click', () => setTheme('dark'));
+
+            const currentTheme = localStorage.getItem('theme');
+            if (currentTheme) {
+                setTheme(currentTheme);
+            } else if (prefersDarkScheme.matches) {
+                setTheme('dark');
+            } else {
+                setTheme('light'); 
+            }
+            
+            // Scroll Animations for sections
+            const sections = document.querySelectorAll('.content-section');
+            // No HRs between sections in this MD
+            const observerOptions = {
+                root: null, 
+                rootMargin: '0px',
+                threshold: 0.1 
+            };
+
+            const observer = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('is-visible');
+                    }
+                });
+            }, observerOptions);
+
+            sections.forEach(section => {
+                observer.observe(section);
+            });
+        });
+    </script>
+</body>
+</html>

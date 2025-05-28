@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eddy-Current Levitation Displays</title>
+
+    <!-- MathJax Configuration -->
+    <script>
+        MathJax = {
+          tex: {
+            inlineMath: [['$', '$'], ['\\(', '\\)']],
+            displayMath: [['$$', '$$'], ['\\[', '\\]'], ['```math', '```']],
+            processEscapes: true,
+            tags: 'ams',
+            macros: { // Define custom macros if needed
+                // No specific macros from content, but can add if needed
+            }
+          },
+          svg: {
+            fontCache: 'global'
+          }
+        };
+    </script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <!-- Mermaid JS for diagrams -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Google Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons|Material+Icons+Outlined|Material+Icons+Round" rel="stylesheet">
+
+    <style>
+        :root {
+            --font-primary: 'Inter', sans-serif;
+            --font-headings: 'Poppins', sans-serif;
+
+            --ease-out-quad: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            --ease-in-out-cubic: cubic-bezier(0.645, 0.045, 0.355, 1);
+
+            /* Light Mode (Default) */
+            --bg-color: #F0F2F5;
+            --text-color: #1d1d1f;
+            --heading-color: #000000;
+            --accent-color: #03A9F4; /* Cool, Electric Blue */
+            --accent-color-darker: #0288D1;
+            --card-bg: rgba(255, 255, 255, 0.6);
+            --card-border: rgba(0, 0, 0, 0.1);
+            --card-shadow-1: rgba(0, 0, 0, 0.05);
+            --card-shadow-2: rgba(0, 0, 0, 0.02);
+            --neumorphic-shadow-light: -6px -6px 12px rgba(255, 255, 255, 0.8), 6px 6px 12px rgba(0, 0, 0, 0.1);
+            --neumorphic-shadow-light-inset: inset -4px -4px 8px rgba(255, 255, 255, 0.7), inset 4px 4px 8px rgba(0, 0, 0, 0.08);
+            --icon-color: #555;
+            --diagram-element-bg: rgba(128,128,128,0.05);
+            --code-bg: #f7f7f7;
+            --code-text: #333;
+            --hr-color: rgba(0,0,0,0.1); 
+        }
+
+        html.dark-mode {
+            --bg-color: #161616;
+            --text-color: #E0E0E0;
+            --heading-color: #FFFFFF;
+            --accent-color: #4FC3F7; /* Lighter Electric Blue for dark mode */
+            --accent-color-darker: #29B6F6;
+            --card-bg: rgba(35, 35, 35, 0.6);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --card-shadow-1: rgba(255, 255, 255, 0.03);
+            --card-shadow-2: rgba(0, 0, 0, 0.1);
+            --neumorphic-shadow-light: -6px -6px 12px rgba(40, 40, 40, 0.7), 6px 6px 12px rgba(0, 0, 0, 0.3);
+            --neumorphic-shadow-light-inset: inset -4px -4px 8px rgba(40, 40, 40, 0.6), inset 4px 4px 8px rgba(0, 0, 0, 0.25);
+            --icon-color: #bbb;
+            --diagram-element-bg: rgba(200,200,200,0.05);
+            --code-bg: #2a2a2a;
+            --code-text: #ccc;
+            --hr-color: rgba(255,255,255,0.1);
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 16px;
+        }
+
+        body {
+            font-family: var(--font-primary);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.7;
+            transition: background-color 0.3s var(--ease-out-quad), color 0.3s var(--ease-out-quad);
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem 0;
+        }
+
+        header {
+            padding: 2rem 0 1rem;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .main-title {
+            font-family: var(--font-headings);
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--heading-color);
+            margin-bottom: 0.5rem;
+            letter-spacing: -1px;
+        }
+        .tagline { /* Re-added tagline style if needed */
+            font-size: 1.1rem;
+            color: var(--text-color);
+            opacity: 0.8;
+            margin-bottom: 1.5rem;
+        }
+        
+        hr {
+            border: none;
+            height: 1px;
+            background-color: var(--hr-color);
+            margin: 2rem auto;
+            width: 80%;
+        }
+
+
+        .theme-switcher {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 0.5rem;
+            border-radius: 50px;
+            box-shadow: 0 4px 15px var(--card-shadow-1);
+            display: flex;
+            align-items: center;
+        }
+
+        .theme-button {
+            background: none;
+            border: none;
+            color: var(--icon-color);
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 50%;
+            transition: background-color 0.2s ease, color 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .theme-button:hover {
+            background-color: rgba(128,128,128,0.1);
+        }
+        .theme-button .material-icons-round {
+            font-size: 24px;
+        }
+
+
+        .content-section {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            padding: 2rem 2.5rem;
+            margin-bottom: 2.5rem;
+            border-radius: 20px;
+            box-shadow: 0 8px 30px var(--card-shadow-1), 0 2px 8px var(--card-shadow-2);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s var(--ease-in-out-cubic), transform 0.6s var(--ease-in-out-cubic);
+        }
+
+        .content-section.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .content-section h2, .content-section h3, .content-section h4 {
+            font-family: var(--font-headings);
+            color: var(--heading-color);
+            margin-bottom: 1.2rem;
+            margin-top: 1.5rem;
+            position: relative;
+            padding-left: 1.5rem;
+        }
+        .content-section h2::before, .content-section h3::before, .content-section h4::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 6px;
+            height: 60%;
+            min-height: 18px;
+            background-color: var(--accent-color);
+            border-radius: 3px;
+        }
+
+
+        .content-section h2 { font-size: 1.8rem; font-weight: 700; }
+        .content-section h3 { font-size: 1.5rem; font-weight: 600; }
+        .content-section h4 { font-size: 1.2rem; font-weight: 600; }
+        .content-section h2:first-child, .content-section h3:first-child, .content-section h4:first-child {
+            margin-top: 0;
+        }
+
+        .content-section p {
+            margin-bottom: 1rem;
+            color: var(--text-color);
+        }
+
+        .content-section ul, .content-section ol {
+            list-style: none;
+            padding-left: 0;
+            margin-bottom: 1rem;
+        }
+         .content-section ol { 
+            counter-reset: list-item-counter;
+        }
+
+
+        .content-section li {
+            padding-left: 2em;
+            position: relative;
+            margin-bottom: 0.75rem;
+        }
+        
+        .content-section ul li::before { 
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 9px; 
+            width: 8px;
+            height: 8px;
+            background-color: var(--accent-color);
+            border-radius: 50%;
+        }
+
+        .content-section ol li::before { 
+            counter-increment: list-item-counter;
+            content: counter(list-item-counter) ".";
+            position: absolute;
+            left: 0;
+            top: 1px; 
+            font-weight: 600;
+            color: var(--accent-color);
+        }
+
+
+        .content-section strong {
+            font-weight: 600;
+            color: var(--heading-color);
+        }
+
+        .content-section .mjx-math, .content-section pre[class*="language-math"] { 
+            font-size: 1.1em !important; 
+            margin: 1.5rem 0;
+            padding: 1rem;
+            overflow-x: auto;
+            background-color: var(--diagram-element-bg);
+            border-radius: 8px;
+            border: 1px solid var(--card-border);
+        }
+        
+        .mermaid-diagram-container {
+            background-color: var(--diagram-element-bg);
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin: 1.5rem auto;
+            text-align: center;
+            border: 1px solid var(--card-border);
+        }
+        .mermaid-diagram-container svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 2rem 0;
+            margin-top: 2rem;
+            border-top: 1px solid var(--hr-color); 
+            font-size: 0.9rem;
+            color: var(--text-color);
+            opacity: 0.7;
+        }
+        footer strong {
+            font-weight: bold;
+            color: var(--accent-color);
+        }
+
+        /* Material Icons in text */
+        .icon-inline {
+            font-family: 'Material Icons Round';
+            font-size: 1.1em; 
+            vertical-align: -0.15em; 
+            margin-right: 0.2em;
+            color: var(--accent-color);
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .main-title { font-size: 2rem; }
+            .tagline { font-size: 1rem; }
+            .content-section { padding: 1.5rem; border-radius: 15px; }
+            .content-section h2 { font-size: 1.6rem; }
+            .content-section h3 { font-size: 1.3rem; }
+            .theme-switcher { top: 10px; right: 10px; padding: 0.3rem;}
+            .theme-button {padding: 0.4rem;}
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="theme-switcher">
+        <button id="light-mode-btn" class="theme-button" title="Switch to Light Mode">
+            <span class="material-icons-round">light_mode</span>
+        </button>
+        <button id="dark-mode-btn" class="theme-button" title="Switch to Dark Mode">
+            <span class="material-icons-round">dark_mode</span>
+        </button>
+    </div>
+
+    <div class="container">
+        <header>
+            <h1 class="main-title">Eddy-Current Levitation Displays</h1>
+            <p class="tagline">Floating Visual Elements Without Magnets or Coils</p>
+        </header>
+        <hr>
+
+        <main>
+            <section class="content-section" id="overview">
+                <h2><span class="material-icons-round icon-inline">auto_stories</span>Overview</h2>
+                <p>Eddy-current levitation displays use time-varying conductive surfaces and tailored geometries to levitate and control lightweight display elements <strong>without traditional magnets or coils</strong>. This novel approach employs induced eddy currents from time-varying fields (e.g. AC surface patterns or motion-generated fields) to create repulsive forces that levitate and stabilize objects.</p>
+            </section>
+            <hr>
+
+            <section class="content-section" id="physics-background">
+                <h2><span class="material-icons-round icon-inline">science</span>Physics Background</h2>
+                <h3><span class="material-icons-round icon-inline" style="font-size:1.2em; vertical-align:-0.1em;">flash_on</span>Eddy Currents</h3>
+                <p>Eddy currents are circulating electric currents induced in conductors when exposed to a time-varying magnetic field, described by <strong>Faraday's Law</strong> and <strong>Lenz’s Law</strong>.</p>
+                <p><strong>Faraday’s Law</strong>:</p>
+                \[
+                \mathcal{E} = -\frac{d\Phi_B}{dt}
+                \]
+                <p>Where:</p>
+                <ul>
+                    <li>$\mathcal{E}$ is the electromotive force (EMF)</li>
+                    <li>$\Phi_B$ is the magnetic flux</li>
+                </ul>
+                <p><strong>Lenz’s Law</strong>: The induced currents oppose the change in magnetic flux.</p>
+                
+                <h3><span class="material-icons-round icon-inline" style="font-size:1.2em; vertical-align:-0.1em;">attractions</span>Force Generation</h3>
+                <p>The Lorentz force on a volume element in a conductor due to eddy currents is:</p>
+                \[
+                \vec{F} = \vec{J} \times \vec{B}
+                \]
+                <p>Where:</p>
+                <ul>
+                    <li>$\vec{J}$ is the current density vector</li>
+                    <li>$\vec{B}$ is the magnetic flux density</li>
+                </ul>
+                <p>When engineered correctly, this interaction produces upward (levitating) forces.</p>
+            </section>
+            <hr>
+
+            <section class="content-section" id="theory-of-operation">
+                <h2><span class="material-icons-round icon-inline">psychology</span>Theory of Operation</h2>
+                <h3><span class="material-icons-round icon-inline" style="font-size:1.2em; vertical-align:-0.1em;">extension</span>Key Idea</h3>
+                <p>Instead of static magnets, the system uses <strong>patterned motion of conductive surfaces</strong> or embedded surface actuators to create moving magnetic field patterns. These dynamically interact with eddy currents in nearby conductive or reactive objects (like thin aluminum disks or specialized dielectric films) to lift and stabilize them.</p>
+                <h3><span class="material-icons-round icon-inline" style="font-size:1.2em; vertical-align:-0.1em;">flip_to_front</span>Surface Design Techniques</h3>
+                <ul>
+                    <li>Spinning conductive discs (Faraday disc principle)</li>
+                    <li>Oscillating conductive gratings</li>
+                    <li>Sliding surface panels with embedded current paths (printed PCB-style conductors)</li>
+                </ul>
+            </section>
+            <hr>
+            
+            <section class="content-section" id="equations-of-levitation">
+                <h2><span class="material-icons-round icon-inline">functions</span>Equations of Levitation</h2>
+                <h3>Induced Current Density:</h3>
+                \[
+                \vec{J} = \sigma \left( \vec{E} + \vec{v} \times \vec{B} \right)
+                \]
+                <ul>
+                    <li>$\sigma$: Electrical conductivity</li>
+                    <li>$\vec{v}$: Relative velocity of surface</li>
+                    <li>$\vec{E}$: Electric field</li>
+                </ul>
+                <h3>Magnetic Field from Eddy Currents (Biot–Savart Law):</h3>
+                \[
+                \vec{B}(\vec{r}) = \frac{\mu_0}{4\pi} \int \frac{\vec{J} \times (\vec{r} - \vec{r}')}{|\vec{r} - \vec{r}'|^3} dV'
+                \]
+                <h3>Levitation Force Estimate:</h3>
+                \[
+                F_z \approx \frac{1}{2} \cdot \sigma \cdot v^2 \cdot A \cdot B
+                \]
+                <p>Where:</p>
+                <ul>
+                    <li>$v$: tangential velocity</li>
+                    <li>$A$: interaction area</li>
+                    <li>$B$: effective field strength</li>
+                </ul>
+            </section>
+            <hr>
+
+            <section class="content-section" id="materials-design">
+                <h2><span class="material-icons-round icon-inline">construction</span>Materials & Design</h2>
+                <h3>Levitation Targets:</h3>
+                <ul>
+                    <li>Thin aluminum or copper disks</li>
+                    <li>Lightweight conductive composites</li>
+                    <li>Dielectric films coated with ITO or graphene</li>
+                </ul>
+                <h3>Base Surface:</h3>
+                <ul>
+                    <li>High-conductivity rotating disks (e.g., copper or aluminum)</li>
+                    <li>Patterned PCB surfaces with AC excitation</li>
+                    <li>MEMS-grade micro-fabricated surfaces (for miniaturized displays)</li>
+                </ul>
+            </section>
+            <hr>
+
+            <section class="content-section" id="control-system">
+                <h2><span class="material-icons-round icon-inline">tune</span>Control System</h2>
+                 <ul>
+                    <li><strong>Vary speed</strong> or <strong>phase shift</strong> between AC surface sections</li>
+                    <li>Use <strong>capacitive or optical sensors</strong> for position feedback</li>
+                    <li>Implement <strong>PID-based vertical control</strong> via motion/phase control</li>
+                </ul>
+            </section>
+            <hr>
+
+            <section class="content-section" id="applications">
+                <h2><span class="material-icons-round icon-inline">widgets</span>Applications</h2>
+                 <ul>
+                    <li>Futuristic floating UI elements</li>
+                    <li>Touchless control panels</li>
+                    <li>Holographic interaction displays</li>
+                    <li>Educational physics demonstrations</li>
+                    <li>Contactless product showcasing (e.g. jewelry, art)</li>
+                </ul>
+            </section>
+            <hr>
+
+            <section class="content-section" id="challenges">
+                <h2><span class="material-icons-round icon-inline">report_problem</span>Challenges</h2>
+                 <ul>
+                    <li>Fine-tuned control of lift and lateral forces</li>
+                    <li>Surface heating due to resistive losses</li>
+                    <li>Miniaturization for portable devices</li>
+                    <li>Energy consumption for continuous levitation</li>
+                </ul>
+            </section>
+            <hr>
+            
+            <section class="content-section" id="future-directions">
+                <h2><span class="material-icons-round icon-inline">explore</span>Future Directions</h2>
+                 <ul>
+                    <li>Integration with <strong>AR interfaces</strong></li>
+                    <li>Smart materials for self-levitating elements</li>
+                    <li>Hybrid systems using <strong>acoustic + eddy</strong> levitation</li>
+                    <li>Micro-fabricated dynamic eddy surfaces</li>
+                </ul>
+            </section>
+            <hr>
+
+            <section class="content-section" id="diagram-mermaid">
+                <h2><span class="material-icons-round icon-inline">device_hub</span>Diagram</h2>
+                <div class="mermaid-diagram-container">
+                    <pre class="mermaid">
+graph LR
+    A[Rotating Conductive Base] --> B((Induced Eddy Currents in Levitating Object))
+    B --> C{Repulsive Lorentz Force}
+    C --> D[Levitation & Stabilization Achieved]
+
+    classDef base fill:#B3E5FC,stroke:#0277BD,color:#000;
+    classDef eddy fill:#E1F5FE,stroke:#03A9F4,color:#000;
+    classDef force fill:#81D4FA,stroke:#0288D1,color:#000;
+    classDef outcome fill:#4FC3F7,stroke:#01579B,color:#fff,shape:hexagon;
+    
+    class A base;
+    class B eddy;
+    class C force;
+    class D outcome;
+                    </pre>
+                </div>
+            </section>
+            <hr>
+            
+            <section class="content-section" id="summary">
+                <h2><span class="material-icons-round icon-inline">visibility</span>Summary</h2>
+                <p>Eddy-current levitation displays offer a novel, contactless way to float and manipulate lightweight visual elements. By eliminating the need for magnets or coils, they pave the way for simpler, flatter, and more integrated display technologies—blending physics, electronics, and dynamic control in futuristic interfaces.</p>
+            </section>
+        </main>
+
+        <footer>
+            <p>Scientific concept and logic by <strong>Lion</strong>.</p>
+            <p>UI/UX & Web Implementation inspired by modern design principles.</p>
+            <p>© 2024 Eddy-Current Levitation Displays Project</p>
+        </footer>
+    </div>
+
+    <script>
+        // Initialize Mermaid
+        mermaid.initialize({ 
+            startOnLoad: true,
+            theme: 'base', 
+            themeVariables: {
+                primaryColor: getComputedStyle(document.documentElement).getPropertyValue('--diagram-element-bg').trim(),
+                primaryTextColor: getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim(),
+                primaryBorderColor: getComputedStyle(document.documentElement).getPropertyValue('--card-border').trim(),
+                lineColor: getComputedStyle(document.documentElement).getPropertyValue('--icon-color').trim(),
+                secondaryColor: getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim(),
+                tertiaryColor: getComputedStyle(document.documentElement).getPropertyValue('--bg-color').trim()
+            },
+            flowchart: { 
+                htmlLabels: true,
+                nodeSpacing: 50,
+                rankSpacing: 50
+            },
+            fontFamily: getComputedStyle(document.documentElement).getPropertyValue('--font-primary').trim(),
+        });
+
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Theme Switcher
+            const lightModeBtn = document.getElementById('light-mode-btn');
+            const darkModeBtn = document.getElementById('dark-mode-btn');
+            const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+
+            function updateMermaidTheme() {
+                const currentPrimaryColor = getComputedStyle(document.documentElement).getPropertyValue('--diagram-element-bg').trim();
+                const currentTextColor = getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim();
+                const currentBorderColor = getComputedStyle(document.documentElement).getPropertyValue('--card-border').trim();
+                const currentLineColor = getComputedStyle(document.documentElement).getPropertyValue('--icon-color').trim();
+                const currentAccentColor = getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim();
+                const currentBgColor = getComputedStyle(document.documentElement).getPropertyValue('--bg-color').trim();
+                
+                mermaid.initialize({
+                    theme: 'base',
+                    themeVariables: {
+                        primaryColor: currentPrimaryColor,
+                        primaryTextColor: currentTextColor,
+                        primaryBorderColor: currentBorderColor,
+                        lineColor: currentLineColor,
+                        secondaryColor: currentAccentColor,
+                        tertiaryColor: currentBgColor
+                    }
+                });
+                document.querySelectorAll('.mermaid[data-processed="true"]').forEach((el, i) => {
+                    const code = el.textContent || el.innerText;
+                    const id = `mermaid-graph-${Date.now()}-${i}`;
+                    el.removeAttribute('data-processed');
+                    el.innerHTML = code;
+                    try {
+                         mermaid.init(undefined, el);
+                    } catch (e) {
+                        console.error("Error re-rendering Mermaid diagram:", e);
+                    }
+                });
+            }
+
+            function setTheme(theme) {
+                if (theme === 'dark') {
+                    document.documentElement.classList.add('dark-mode');
+                    localStorage.setItem('theme', 'dark');
+                } else {
+                    document.documentElement.classList.remove('dark-mode');
+                    localStorage.setItem('theme', 'light');
+                }
+                updateMermaidTheme();
+            }
+
+            lightModeBtn.addEventListener('click', () => setTheme('light'));
+            darkModeBtn.addEventListener('click', () => setTheme('dark'));
+
+            const currentTheme = localStorage.getItem('theme');
+            if (currentTheme) {
+                setTheme(currentTheme);
+            } else if (prefersDarkScheme.matches) {
+                setTheme('dark');
+            } else {
+                setTheme('light'); 
+            }
+            
+            // Scroll Animations for sections
+            const sections = document.querySelectorAll('.content-section');
+            const hrs = document.querySelectorAll('hr'); 
+            const observerOptions = {
+                root: null, 
+                rootMargin: '0px',
+                threshold: 0.1 
+            };
+
+            const observer = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('is-visible');
+                    }
+                });
+            }, observerOptions);
+
+            sections.forEach(section => {
+                observer.observe(section);
+            });
+            
+            hrs.forEach(hr => { 
+                hr.style.opacity = 0; hr.style.transition = 'opacity 0.8s var(--ease-in-out-cubic) 0.2s';
+                observer.observe(hr);
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nano-Electromechanical Metronomes</title>
+
+    <!-- MathJax Configuration -->
+    <script>
+        MathJax = {
+          tex: {
+            inlineMath: [['$', '$'], ['\\(', '\\)']],
+            displayMath: [['$$', '$$'], ['\\[', '\\]'], ['```math', '```']],
+            processEscapes: true,
+            tags: 'ams',
+            macros: { // Define custom macros if needed
+                // No specific macros from content, but can add if needed
+            }
+          },
+          svg: {
+            fontCache: 'global'
+          }
+        };
+    </script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <!-- Mermaid JS for diagrams -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Google Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons|Material+Icons+Outlined|Material+Icons+Round" rel="stylesheet">
+
+    <style>
+        :root {
+            --font-primary: 'Inter', sans-serif;
+            --font-headings: 'Poppins', sans-serif;
+
+            --ease-out-quad: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            --ease-in-out-cubic: cubic-bezier(0.645, 0.045, 0.355, 1);
+
+            /* Light Mode (Default) */
+            --bg-color: #F0F2F5;
+            --text-color: #1d1d1f;
+            --heading-color: #000000;
+            --accent-color: #78909C; /* Sharp Silver with Blue Hint for NEMS/Precision */
+            --accent-color-darker: #546E7A;
+            --card-bg: rgba(255, 255, 255, 0.6);
+            --card-border: rgba(0, 0, 0, 0.1);
+            --card-shadow-1: rgba(0, 0, 0, 0.05);
+            --card-shadow-2: rgba(0, 0, 0, 0.02);
+            --neumorphic-shadow-light: -6px -6px 12px rgba(255, 255, 255, 0.8), 6px 6px 12px rgba(0, 0, 0, 0.1);
+            --neumorphic-shadow-light-inset: inset -4px -4px 8px rgba(255, 255, 255, 0.7), inset 4px 4px 8px rgba(0, 0, 0, 0.08);
+            --icon-color: #555;
+            --diagram-element-bg: rgba(128,128,128,0.05);
+            --code-bg: #f7f7f7;
+            --code-text: #333;
+            --hr-color: rgba(0,0,0,0.1); 
+            --table-header-bg: rgba(0,0,0,0.03);
+            --table-row-hover-bg: rgba(0,0,0,0.02);
+        }
+
+        html.dark-mode {
+            --bg-color: #161616;
+            --text-color: #E0E0E0;
+            --heading-color: #FFFFFF;
+            --accent-color: #B0BEC5; /* Lighter Silver/Blue for dark mode */
+            --accent-color-darker: #90A4AE;
+            --card-bg: rgba(35, 35, 35, 0.6);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --card-shadow-1: rgba(255, 255, 255, 0.03);
+            --card-shadow-2: rgba(0, 0, 0, 0.1);
+            --neumorphic-shadow-light: -6px -6px 12px rgba(40, 40, 40, 0.7), 6px 6px 12px rgba(0, 0, 0, 0.3);
+            --neumorphic-shadow-light-inset: inset -4px -4px 8px rgba(40, 40, 40, 0.6), inset 4px 4px 8px rgba(0, 0, 0, 0.25);
+            --icon-color: #bbb;
+            --diagram-element-bg: rgba(200,200,200,0.05);
+            --code-bg: #2a2a2a;
+            --code-text: #ccc;
+            --hr-color: rgba(255,255,255,0.1);
+            --table-header-bg: rgba(255,255,255,0.03);
+            --table-row-hover-bg: rgba(255,255,255,0.02);
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 16px;
+        }
+
+        body {
+            font-family: var(--font-primary);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.7;
+            transition: background-color 0.3s var(--ease-out-quad), color 0.3s var(--ease-out-quad);
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem 0;
+        }
+
+        header {
+            padding: 2rem 0 1rem;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .main-title {
+            font-family: var(--font-headings);
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--heading-color);
+            margin-bottom: 0.5rem;
+            letter-spacing: -1px;
+        }
+        .tagline { 
+            font-size: 1.1rem;
+            color: var(--text-color);
+            opacity: 0.8;
+            margin-bottom: 1.5rem;
+        }
+        
+        hr.section-divider { 
+            border: none;
+            height: 1px;
+            background-color: var(--hr-color);
+            margin: 2rem auto;
+            width: 80%;
+        }
+        hr.document-end-divider { 
+            border: none;
+            height: 2px;
+            background: linear-gradient(to right, transparent, var(--accent-color), transparent);
+            margin: 3rem auto 1rem;
+            width: 60%;
+            opacity: 0.6;
+        }
+
+
+        .theme-switcher {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 0.5rem;
+            border-radius: 50px;
+            box-shadow: 0 4px 15px var(--card-shadow-1);
+            display: flex;
+            align-items: center;
+        }
+
+        .theme-button {
+            background: none;
+            border: none;
+            color: var(--icon-color);
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 50%;
+            transition: background-color 0.2s ease, color 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .theme-button:hover {
+            background-color: rgba(128,128,128,0.1);
+        }
+        .theme-button .material-icons-round {
+            font-size: 24px;
+        }
+
+
+        .content-section {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            padding: 2rem 2.5rem;
+            margin-bottom: 2.5rem;
+            border-radius: 20px;
+            box-shadow: 0 8px 30px var(--card-shadow-1), 0 2px 8px var(--card-shadow-2);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s var(--ease-in-out-cubic), transform 0.6s var(--ease-in-out-cubic);
+        }
+
+        .content-section.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .content-section h2, .content-section h3, .content-section h4 {
+            font-family: var(--font-headings);
+            color: var(--heading-color);
+            margin-bottom: 1.2rem;
+            margin-top: 1.5rem;
+            position: relative;
+            padding-left: 1.5rem;
+        }
+        .content-section h2::before, .content-section h3::before, .content-section h4::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 6px;
+            height: 60%;
+            min-height: 18px;
+            background-color: var(--accent-color);
+            border-radius: 3px;
+        }
+
+
+        .content-section h2 { font-size: 1.8rem; font-weight: 700; }
+        .content-section h3 { font-size: 1.5rem; font-weight: 600; }
+        .content-section h4 { font-size: 1.2rem; font-weight: 600; }
+        .content-section h2:first-child, .content-section h3:first-child, .content-section h4:first-child {
+            margin-top: 0;
+        }
+
+        .content-section p {
+            margin-bottom: 1rem;
+            color: var(--text-color);
+        }
+
+        .content-section ul, .content-section ol {
+            list-style: none;
+            padding-left: 0;
+            margin-bottom: 1rem;
+        }
+         .content-section ol { 
+            counter-reset: list-item-counter;
+        }
+
+
+        .content-section li {
+            padding-left: 2em;
+            position: relative;
+            margin-bottom: 0.75rem;
+        }
+        
+        .content-section ul li::before { 
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 9px; 
+            width: 8px;
+            height: 8px;
+            background-color: var(--accent-color);
+            border-radius: 50%;
+        }
+
+        .content-section ol li::before { 
+            counter-increment: list-item-counter;
+            content: counter(list-item-counter) ".";
+            position: absolute;
+            left: 0;
+            top: 1px; 
+            font-weight: 600;
+            color: var(--accent-color);
+        }
+
+
+        .content-section strong {
+            font-weight: 600;
+            color: var(--heading-color);
+        }
+
+        .content-section .mjx-math, .content-section pre[class*="language-math"] { 
+            font-size: 1.1em !important; 
+            margin: 1.5rem 0;
+            padding: 1rem;
+            overflow-x: auto;
+            background-color: var(--diagram-element-bg);
+            border-radius: 8px;
+            border: 1px solid var(--card-border);
+        }
+        
+        .mermaid-diagram-container {
+            background-color: var(--diagram-element-bg);
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin: 1.5rem auto;
+            text-align: center;
+            border: 1px solid var(--card-border);
+        }
+        .mermaid-diagram-container svg {
+            max-width: 100%;
+            height: auto;
+        }
+        
+        .styled-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            font-size: 0.95em;
+        }
+        .styled-table th, .styled-table td {
+            border: 1px solid var(--card-border);
+            padding: 0.75rem 1rem;
+            text-align: left;
+        }
+        .styled-table th {
+            background-color: var(--table-header-bg);
+            font-weight: 600;
+            color: var(--heading-color);
+        }
+        .styled-table tr:hover {
+            background-color: var(--table-row-hover-bg);
+        }
+        .styled-table td:nth-child(1) {
+            font-weight: 500;
+        }
+
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 2rem 0;
+            margin-top: 2rem;
+            border-top: 1px solid var(--hr-color); 
+            font-size: 0.9rem;
+            color: var(--text-color);
+            opacity: 0.7;
+        }
+        footer strong {
+            font-weight: bold;
+            color: var(--accent-color);
+        }
+
+        /* Material Icons in text */
+        .icon-inline {
+            font-family: 'Material Icons Round';
+            font-size: 1.1em; 
+            vertical-align: -0.15em; 
+            margin-right: 0.2em;
+            color: var(--accent-color);
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .main-title { font-size: 2rem; }
+            .tagline { font-size: 1rem; }
+            .content-section { padding: 1.5rem; border-radius: 15px; }
+            .content-section h2 { font-size: 1.6rem; }
+            .content-section h3 { font-size: 1.3rem; }
+            .theme-switcher { top: 10px; right: 10px; padding: 0.3rem;}
+            .theme-button {padding: 0.4rem;}
+            .styled-table { font-size: 0.85em; }
+            .styled-table th, .styled-table td { padding: 0.5rem; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="theme-switcher">
+        <button id="light-mode-btn" class="theme-button" title="Switch to Light Mode">
+            <span class="material-icons-round">light_mode</span>
+        </button>
+        <button id="dark-mode-btn" class="theme-button" title="Switch to Dark Mode">
+            <span class="material-icons-round">dark_mode</span>
+        </button>
+    </div>
+
+    <div class="container">
+        <header>
+            <h1 class="main-title">Nano-Electromechanical Metronomes</h1>
+            <p class="tagline">Coupled NEMS Oscillators as Timing References</p>
+        </header>
+        <hr class="section-divider">
+
+        <main>
+            <section class="content-section" id="introduction">
+                <h2><span class="material-icons-round icon-inline">timer</span>1. Introduction</h2>
+                <p>Nano-electromechanical system (NEMS) metronomes consist of arrays of nanomechanical resonators coupled via elastic, electrostatic, or optical forces. When appropriately tuned, these coupled oscillators exhibit synchronization—producing stable, phase-locked motion that can serve as ultra-precise timing references and clocks at the nanoscale. This theoretical design document details principles, equations, device architecture, fabrication, operation, applications, and advantages.</p>
+            </section>
+            <!-- No HR after intro as per MD -->
+
+            <section class="content-section" id="background-motivation">
+                <h2><span class="material-icons-round icon-inline">lightbulb</span>2. Background & Motivation</h2>
+                <ul>
+                    <li><strong>Timing references</strong>: Essential in communications, sensing, and signal processing.</li>
+                    <li><strong>Conventional clocks</strong>: Quartz oscillators, atomic clocks—limited in miniaturization or power.</li>
+                    <li><strong>NEMS oscillators</strong>: High frequency (MHz–GHz), small footprint, CMOS integration potential.</li>
+                    <li><strong>Synchronization</strong>: Coupled metronomes on a shared base achieve enhanced stability via collective behavior.</li>
+                </ul>
+            </section>
+            <!-- No HR here -->
+
+            <section class="content-section" id="physical-principles-theory">
+                <h2><span class="material-icons-round icon-inline">science</span>3. Physical Principles and Theory</h2>
+                <h3>3.1. Single NEMS Resonator Dynamics</h3>
+                <p>A nanobeam resonator of effective mass $m$, stiffness $k$, and quality factor $Q$ follows:</p>
+                $$
+                m\ddot{x} + \frac{m\omega_0}{Q}\dot{x} + k x = F_{drive}(t),
+                $$
+                <p>where $\omega_0 = \sqrt{k/m}$.</p>
+                
+                <h3>3.2. Nonlinear Duffing Behavior</h3>
+                <p>At large amplitudes, include cubic nonlinearity $\alpha$:</p>
+                $$
+                m\ddot{x} + c\dot{x} + k x + \alpha x^3 = F_{drive},
+                $$
+                <p>leading to amplitude-dependent frequency shift for self-sustained oscillations.</p>
+
+                <h3>3.3. Coupled Oscillators and Synchronization</h3>
+                <p>For two resonators $x_1, x_2$ coupled by coupling constant $K$:</p>
+                $$
+                m\ddot{x}_1 + c\dot{x}_1 + k x_1 + \alpha x_1^3 + K(x_1 - x_2) = F_{1}(t),\\
+                m\ddot{x}_2 + c\dot{x}_2 + k x_2 + \alpha x_2^3 + K(x_2 - x_1) = F_{2}(t).
+                $$
+                <p>In the self-oscillating regime ($F_i$ from feedback), the phase difference $\phi=\theta_1-\theta_2$ evolves according to Adler’s equation:</p>
+                $$
+                \dot{\phi} = \Delta\omega - \Delta K \sin\phi,
+                $$
+                <p>where $\Delta\omega$ is natural frequency difference and $\Delta K\propto K$ coupling strength. Synchronization occurs when $|\Delta\omega|<|\Delta K|$.</p>
+            </section>
+            <!-- No HR here -->
+            
+            <section class="content-section" id="device-architecture-diagrams">
+                <h2><span class="material-icons-round icon-inline">developer_board</span>4. Device Architecture & Diagrams</h2>
+                <div class="mermaid-diagram-container">
+                    <pre class="mermaid">
+flowchart LR
+  subgraph NEMS_Array [NEMS Array]
+    direction LR
+    N1[NEMS Resonator 1] <-->|Elastic/Electrostatic Coupling| C1((Coupling Link))
+    N2[NEMS Resonator 2] <--> C1
+    N2 <-->|Elastic/Electrostatic Coupling| C2((Coupling Link))
+    N3[NEMS Resonator 3] <--> C2
+  end
+  
+  N1 -- Drive Signal --> E1{Electrode Drive 1}
+  N2 -- Drive Signal --> E2{Electrode Drive 2}
+  N3 -- Drive Signal --> E3{Electrode Drive 3}
+  
+  subgraph Readout_System [Readout System]
+    direction LR
+    N1 -- Optical/Piezoresistive Readout --> R1[Sensor 1 (e.g., Photodetector)]
+    N2 -- Optical/Piezoresistive Readout --> R2[Sensor 2 (e.g., Photodetector)]
+    N3 -- Optical/Piezoresistive Readout --> R3[Sensor 3 (e.g., Photodetector)]
+  end
+
+  classDef resonator fill:#CFD8DC,stroke:#455A64,color:#000;
+  classDef coupling fill:#B0BEC5,stroke:#546E7A,color:#000,shape:hexagon;
+  classDef drive_sensor fill:#ECEFF1,stroke:#607D8B,color:#000;
+  
+  class N1,N2,N3 resonator;
+  class C1,C2 coupling;
+  class E1,E2,E3,R1,R2,R3 drive_sensor;
+                    </pre>
+                </div>
+                <ul>
+                    <li><strong>Resonators</strong>: Doubly-clamped beams (length 1–10 μm, width ~100 nm).</li>
+                    <li><strong>Coupling Links</strong>: Suspended beams or electrostatic comb drives between resonators.</li>
+                    <li><strong>Driving</strong>: Electrostatic or piezoelectric actuation for self-oscillation.</li>
+                    <li><strong>Readout</strong>: Optical (laser Doppler) or piezoresistive sensing.</li>
+                </ul>
+            </section>
+            <!-- No HR here -->
+
+            <section class="content-section" id="fabrication-process">
+                <h2><span class="material-icons-round icon-inline">precision_manufacturing</span>5. Fabrication Process</h2>
+                 <ol>
+                    <li><strong>Substrate</strong>: Silicon-on-insulator (SOI) with device layer thickness 100–300 nm.</li>
+                    <li><strong>Patterning</strong>: Electron-beam lithography to define resonator and coupling geometries.</li>
+                    <li><strong>Etching</strong>: Reactive ion etching (RIE) to form beams; undercut via HF to release structures.</li>
+                    <li><strong>Metallization</strong>: Evaporate electrodes for drive and sensing (Al or Au).</li>
+                    <li><strong>Packaging</strong>: Vacuum encapsulation (<10⁻³ Torr) to enhance Q-factor; integrate optical windows or electrodes.</li>
+                </ol>
+            </section>
+            <!-- No HR here -->
+
+            <section class="content-section" id="operational-workflow">
+                <h2><span class="material-icons-round icon-inline">play_circle_outline</span>6. Operational Workflow</h2>
+                 <ol>
+                    <li><strong>Initialization</strong>: Power on feedback loops to induce self-oscillation at resonance.</li>
+                    <li><strong>Tuning</strong>: Adjust DC bias to tune $\omega_0$ of each resonator into near-degeneracy.</li>
+                    <li><strong>Coupling Activation</strong>: Engage coupling (via actuated proximity or voltage) to establish $K$.</li>
+                    <li><strong>Synchronization</strong>: Monitor phase alignment; increase coupling until locked state.</li>
+                    <li><strong>Readout & Calibration</strong>: Measure collective oscillation frequency $\omega_{sync}$ as timing reference; calibrate against external standard.</li>
+                </ol>
+            </section>
+            <!-- No HR here -->
+            
+            <section class="content-section" id="performance-metrics">
+                <h2><span class="material-icons-round icon-inline">speed</span>7. Performance Metrics</h2>
+                <table class="styled-table">
+                    <thead>
+                        <tr>
+                            <th>Metric</th>
+                            <th>Typical Values</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Fundamental freq. $f_0$</td>
+                            <td>10–200 MHz</td>
+                        </tr>
+                        <tr>
+                            <td>Quality factor (Q)</td>
+                            <td>10³–10⁵</td>
+                        </tr>
+                        <tr>
+                            <td>Coupling strength (ΔK)</td>
+                            <td>10²–10⁴ s⁻²</td>
+                        </tr>
+                        <tr>
+                            <td>Phase noise</td>
+                            <td>−100 dBc/Hz @10 kHz offset</td>
+                        </tr>
+                        <tr>
+                            <td>Power consumption</td>
+                            <td><100 μW per oscillator</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+            <!-- No HR here -->
+
+            <section class="content-section" id="applications-advantages">
+                <h2><span class="material-icons-round icon-inline">apps</span>8. Applications & Advantages</h2>
+                 <ul>
+                    <li><strong>On-chip Clocks</strong>: Low-power timing for IoT and embedded systems.</li>
+                    <li><strong>Signal Processing</strong>: Reference oscillators for mixers and filters.</li>
+                    <li><strong>Sensor Networks</strong>: Distributed synchronized clocks for time-stamping events.</li>
+                 </ul>
+                 <p><strong>Advantages</strong>:</p>
+                <ol>
+                    <li><strong>Miniaturization</strong>: Footprint <100 μm² per element.</li>
+                    <li><strong>Low Power</strong>: μW-level consumption vs mW-level quartz.</li>
+                    <li><strong>Scalability</strong>: Arrays of NEMS for enhanced stability via Kuramoto synchronization.</li>
+                    <li><strong>CMOS Integration</strong>: Compatible with standard wafer processes.</li>
+                </ol>
+            </section>
+            <!-- No HR here -->
+            
+            <section class="content-section" id="challenges-future">
+                <h2><span class="material-icons-round icon-inline">report_problem</span>9. Challenges & Future Directions</h2>
+                 <ul>
+                    <li><strong>Environmental Sensitivity</strong>: Temperature drift requires compensation circuits.</li>
+                    <li><strong>Fabrication Variability</strong>: Tight control on dimensions for matched $f_0$.</li>
+                    <li><strong>Coupling Control</strong>: Dynamic adjustment of electrostatic coupling for reconfigurable networks.</li>
+                    <li><strong>Future</strong>: Explore optomechanical coupling, topological arrays for robust synchronization, and quantum-coherent NEMS clocks.</li>
+                </ul>
+            </section>
+            
+            <hr class="document-end-divider">
+            <p style="text-align:center; font-style:italic; opacity:0.7;">*End of theoretical design document for Nano-Electromechanical Metronome Arrays.*</p>
+
+        </main>
+
+        <footer>
+            <p>Scientific concept and logic by <strong>Lion</strong>.</p>
+            <p>UI/UX & Web Implementation inspired by modern design principles.</p>
+            <p>© 2024 Nano-Electromechanical Metronomes Project</p>
+        </footer>
+    </div>
+
+    <script>
+        // Initialize Mermaid
+        mermaid.initialize({ 
+            startOnLoad: true,
+            theme: 'base', 
+            themeVariables: {
+                primaryColor: getComputedStyle(document.documentElement).getPropertyValue('--diagram-element-bg').trim(),
+                primaryTextColor: getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim(),
+                primaryBorderColor: getComputedStyle(document.documentElement).getPropertyValue('--card-border').trim(),
+                lineColor: getComputedStyle(document.documentElement).getPropertyValue('--icon-color').trim(),
+                secondaryColor: getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim(),
+                tertiaryColor: getComputedStyle(document.documentElement).getPropertyValue('--bg-color').trim()
+            },
+            flowchart: { 
+                htmlLabels: true, 
+                nodeSpacing: 50,
+                rankSpacing: 50
+            },
+            fontFamily: getComputedStyle(document.documentElement).getPropertyValue('--font-primary').trim(),
+        });
+
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Theme Switcher
+            const lightModeBtn = document.getElementById('light-mode-btn');
+            const darkModeBtn = document.getElementById('dark-mode-btn');
+            const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+
+            function updateMermaidTheme() {
+                const currentPrimaryColor = getComputedStyle(document.documentElement).getPropertyValue('--diagram-element-bg').trim();
+                const currentTextColor = getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim();
+                const currentBorderColor = getComputedStyle(document.documentElement).getPropertyValue('--card-border').trim();
+                const currentLineColor = getComputedStyle(document.documentElement).getPropertyValue('--icon-color').trim();
+                const currentAccentColor = getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim();
+                const currentBgColor = getComputedStyle(document.documentElement).getPropertyValue('--bg-color').trim();
+                
+                mermaid.initialize({
+                    theme: 'base',
+                    themeVariables: {
+                        primaryColor: currentPrimaryColor,
+                        primaryTextColor: currentTextColor,
+                        primaryBorderColor: currentBorderColor,
+                        lineColor: currentLineColor,
+                        secondaryColor: currentAccentColor,
+                        tertiaryColor: currentBgColor
+                    }
+                });
+                document.querySelectorAll('.mermaid[data-processed="true"]').forEach((el, i) => {
+                    const code = el.textContent || el.innerText;
+                    const id = `mermaid-graph-${Date.now()}-${i}`;
+                    el.removeAttribute('data-processed');
+                    el.innerHTML = code;
+                    try {
+                         mermaid.init(undefined, el);
+                    } catch (e) {
+                        console.error("Error re-rendering Mermaid diagram:", e);
+                    }
+                });
+            }
+
+            function setTheme(theme) {
+                if (theme === 'dark') {
+                    document.documentElement.classList.add('dark-mode');
+                    localStorage.setItem('theme', 'dark');
+                } else {
+                    document.documentElement.classList.remove('dark-mode');
+                    localStorage.setItem('theme', 'light');
+                }
+                updateMermaidTheme();
+            }
+
+            lightModeBtn.addEventListener('click', () => setTheme('light'));
+            darkModeBtn.addEventListener('click', () => setTheme('dark'));
+
+            const currentTheme = localStorage.getItem('theme');
+            if (currentTheme) {
+                setTheme(currentTheme);
+            } else if (prefersDarkScheme.matches) {
+                setTheme('dark');
+            } else {
+                setTheme('light'); 
+            }
+            
+            // Scroll Animations for sections
+            const sections = document.querySelectorAll('.content-section');
+            const hrs = document.querySelectorAll('hr.section-divider, hr.document-end-divider'); 
+            const observerOptions = {
+                root: null, 
+                rootMargin: '0px',
+                threshold: 0.1 
+            };
+
+            const observer = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('is-visible');
+                    }
+                });
+            }, observerOptions);
+
+            sections.forEach(section => {
+                observer.observe(section);
+            });
+             hrs.forEach(hr => { 
+                hr.style.opacity = 0; hr.style.transition = 'opacity 0.8s var(--ease-in-out-cubic) 0.2s';
+                observer.observe(hr);
+            });
+        });
+    </script>
+</body>
+</html>

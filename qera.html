@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quantum-Enhanced Radar Arrays</title>
+
+    <!-- MathJax Configuration -->
+    <script>
+        MathJax = {
+          tex: {
+            inlineMath: [['$', '$'], ['\\(', '\\)']],
+            displayMath: [['$$', '$$'], ['\\[', '\\]'], ['```math', '```']],
+            processEscapes: true,
+            tags: 'ams',
+            macros: { // Define custom macros if needed
+                text: ['{\\text{#1}}', 1], // for \text{sys}, \text{squeezed}, \text{min}
+                ket: ['|#1\\rangle', 1],
+                bra: ['\\langle#1|', 1],
+                hat: ['\\hat{#1}', 1]
+            }
+          },
+          svg: {
+            fontCache: 'global'
+          }
+        };
+    </script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <!-- Mermaid JS for diagrams -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Google Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons|Material+Icons+Outlined|Material+Icons+Round" rel="stylesheet">
+
+    <style>
+        :root {
+            --font-primary: 'Inter', sans-serif;
+            --font-headings: 'Poppins', sans-serif;
+
+            --ease-out-quad: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            --ease-in-out-cubic: cubic-bezier(0.645, 0.045, 0.355, 1);
+
+            /* Light Mode (Default) */
+            --bg-color: #F0F2F5;
+            --text-color: #1d1d1f;
+            --heading-color: #000000;
+            --accent-color: #4A148C; /* Deep, Enigmatic Purple for Quantum/Radar */
+            --accent-color-darker: #311B92;
+            --card-bg: rgba(255, 255, 255, 0.6);
+            --card-border: rgba(0, 0, 0, 0.1);
+            --card-shadow-1: rgba(0, 0, 0, 0.05);
+            --card-shadow-2: rgba(0, 0, 0, 0.02);
+            --neumorphic-shadow-light: -6px -6px 12px rgba(255, 255, 255, 0.8), 6px 6px 12px rgba(0, 0, 0, 0.1);
+            --neumorphic-shadow-light-inset: inset -4px -4px 8px rgba(255, 255, 255, 0.7), inset 4px 4px 8px rgba(0, 0, 0, 0.08);
+            --icon-color: #555;
+            --diagram-element-bg: rgba(128,128,128,0.05);
+            --code-bg: #f7f7f7;
+            --code-text: #333;
+            --hr-color: rgba(0,0,0,0.1); 
+            --table-header-bg: rgba(0,0,0,0.03);
+            --table-row-hover-bg: rgba(0,0,0,0.02);
+            --placeholder-bg: #e0e0e0;
+            --placeholder-text: #757575;
+        }
+
+        html.dark-mode {
+            --bg-color: #161616;
+            --text-color: #E0E0E0;
+            --heading-color: #FFFFFF;
+            --accent-color: #9C27B0; /* Lighter Purple for dark mode */
+            --accent-color-darker: #7B1FA2;
+            --card-bg: rgba(35, 35, 35, 0.6);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --card-shadow-1: rgba(255, 255, 255, 0.03);
+            --card-shadow-2: rgba(0, 0, 0, 0.1);
+            --neumorphic-shadow-light: -6px -6px 12px rgba(40, 40, 40, 0.7), 6px 6px 12px rgba(0, 0, 0, 0.3);
+            --neumorphic-shadow-light-inset: inset -4px -4px 8px rgba(40, 40, 40, 0.6), inset 4px 4px 8px rgba(0, 0, 0, 0.25);
+            --icon-color: #bbb;
+            --diagram-element-bg: rgba(200,200,200,0.05);
+            --code-bg: #2a2a2a;
+            --code-text: #ccc;
+            --hr-color: rgba(255,255,255,0.1);
+            --table-header-bg: rgba(255,255,255,0.03);
+            --table-row-hover-bg: rgba(255,255,255,0.02);
+            --placeholder-bg: #333;
+            --placeholder-text: #aaa;
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 16px;
+        }
+
+        body {
+            font-family: var(--font-primary);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.7;
+            transition: background-color 0.3s var(--ease-out-quad), color 0.3s var(--ease-out-quad);
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem 0;
+        }
+
+        header {
+            padding: 2rem 0 1rem;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .main-title {
+            font-family: var(--font-headings);
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--heading-color);
+            margin-bottom: 0.5rem;
+            letter-spacing: -1px;
+        }
+        .tagline { 
+            font-size: 1.1rem;
+            color: var(--text-color);
+            opacity: 0.8;
+            margin-bottom: 1.5rem;
+        }
+        
+        hr.section-divider { /* Class for dividers if used */
+            border: none;
+            height: 1px;
+            background-color: var(--hr-color);
+            margin: 2rem auto;
+            width: 80%;
+        }
+        hr.document-end-divider { /* Specific style for the final HR */
+            border: none;
+            height: 2px;
+            background: linear-gradient(to right, transparent, var(--accent-color), transparent);
+            margin: 3rem auto 1rem;
+            width: 60%;
+            opacity: 0.6;
+        }
+
+
+        .theme-switcher {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 0.5rem;
+            border-radius: 50px;
+            box-shadow: 0 4px 15px var(--card-shadow-1);
+            display: flex;
+            align-items: center;
+        }
+
+        .theme-button {
+            background: none;
+            border: none;
+            color: var(--icon-color);
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 50%;
+            transition: background-color 0.2s ease, color 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .theme-button:hover {
+            background-color: rgba(128,128,128,0.1);
+        }
+        .theme-button .material-icons-round {
+            font-size: 24px;
+        }
+
+
+        .content-section {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            padding: 2rem 2.5rem;
+            margin-bottom: 2.5rem;
+            border-radius: 20px;
+            box-shadow: 0 8px 30px var(--card-shadow-1), 0 2px 8px var(--card-shadow-2);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s var(--ease-in-out-cubic), transform 0.6s var(--ease-in-out-cubic);
+        }
+
+        .content-section.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .content-section h2, .content-section h3, .content-section h4 {
+            font-family: var(--font-headings);
+            color: var(--heading-color);
+            margin-bottom: 1.2rem;
+            margin-top: 1.5rem;
+            position: relative;
+            padding-left: 1.5rem;
+        }
+        .content-section h2::before, .content-section h3::before, .content-section h4::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 6px;
+            height: 60%;
+            min-height: 18px;
+            background-color: var(--accent-color);
+            border-radius: 3px;
+        }
+
+
+        .content-section h2 { font-size: 1.8rem; font-weight: 700; }
+        .content-section h3 { font-size: 1.5rem; font-weight: 600; }
+        .content-section h4 { font-size: 1.2rem; font-weight: 600; }
+        .content-section h2:first-child, .content-section h3:first-child, .content-section h4:first-child {
+            margin-top: 0;
+        }
+
+        .content-section p {
+            margin-bottom: 1rem;
+            color: var(--text-color);
+        }
+
+        .content-section ul, .content-section ol {
+            list-style: none;
+            padding-left: 0;
+            margin-bottom: 1rem;
+        }
+         .content-section ol { 
+            counter-reset: list-item-counter;
+        }
+
+
+        .content-section li {
+            padding-left: 2em;
+            position: relative;
+            margin-bottom: 0.75rem;
+        }
+        
+        .content-section ul li::before { 
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 9px; 
+            width: 8px;
+            height: 8px;
+            background-color: var(--accent-color);
+            border-radius: 50%;
+        }
+
+        .content-section ol li::before { 
+            counter-increment: list-item-counter;
+            content: counter(list-item-counter) ".";
+            position: absolute;
+            left: 0;
+            top: 1px; 
+            font-weight: 600;
+            color: var(--accent-color);
+        }
+
+
+        .content-section strong {
+            font-weight: 600;
+            color: var(--heading-color);
+        }
+
+        .content-section .mjx-math, .content-section pre[class*="language-math"] { 
+            font-size: 1.1em !important; 
+            margin: 1.5rem 0;
+            padding: 1rem;
+            overflow-x: auto;
+            background-color: var(--diagram-element-bg);
+            border-radius: 8px;
+            border: 1px solid var(--card-border);
+        }
+        
+        .mermaid-diagram-container {
+            background-color: var(--diagram-element-bg);
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin: 1.5rem auto;
+            text-align: center;
+            border: 1px solid var(--card-border);
+        }
+        .mermaid-diagram-container svg {
+            max-width: 100%;
+            height: auto;
+        }
+        
+        .styled-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            font-size: 0.95em;
+        }
+        .styled-table th, .styled-table td {
+            border: 1px solid var(--card-border);
+            padding: 0.75rem 1rem;
+            text-align: left;
+        }
+        .styled-table th {
+            background-color: var(--table-header-bg);
+            font-weight: 600;
+            color: var(--heading-color);
+        }
+        .styled-table tr:hover {
+            background-color: var(--table-row-hover-bg);
+        }
+        .styled-table td:nth-child(1) {
+            font-weight: 500;
+        }
+        
+        .diagram-placeholder {
+            background-color: var(--placeholder-bg);
+            color: var(--placeholder-text);
+            padding: 2rem;
+            border-radius: 8px;
+            text-align: center;
+            font-style: italic;
+            margin: 1.5rem 0;
+            border: 1px dashed var(--card-border);
+        }
+
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 2rem 0;
+            margin-top: 2rem;
+            border-top: 1px solid var(--hr-color); 
+            font-size: 0.9rem;
+            color: var(--text-color);
+            opacity: 0.7;
+        }
+        footer strong {
+            font-weight: bold;
+            color: var(--accent-color);
+        }
+
+        /* Material Icons in text */
+        .icon-inline {
+            font-family: 'Material Icons Round';
+            font-size: 1.1em; 
+            vertical-align: -0.15em; 
+            margin-right: 0.2em;
+            color: var(--accent-color);
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .main-title { font-size: 2rem; }
+            .tagline { font-size: 1rem; }
+            .content-section { padding: 1.5rem; border-radius: 15px; }
+            .content-section h2 { font-size: 1.6rem; }
+            .content-section h3 { font-size: 1.3rem; }
+            .theme-switcher { top: 10px; right: 10px; padding: 0.3rem;}
+            .theme-button {padding: 0.4rem;}
+            .styled-table { font-size: 0.85em; }
+            .styled-table th, .styled-table td { padding: 0.5rem; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="theme-switcher">
+        <button id="light-mode-btn" class="theme-button" title="Switch to Light Mode">
+            <span class="material-icons-round">light_mode</span>
+        </button>
+        <button id="dark-mode-btn" class="theme-button" title="Switch to Dark Mode">
+            <span class="material-icons-round">dark_mode</span>
+        </button>
+    </div>
+
+    <div class="container">
+        <header>
+            <h1 class="main-title">Quantum-Enhanced Radar Arrays</h1>
+            <p class="tagline">Squeezed Microwaves for Sub-Noise-Floor Detection</p>
+        </header>
+        <hr class="section-divider">
+
+        <main>
+            <section class="content-section" id="introduction">
+                <h2><span class="material-icons-round icon-inline">radar</span>1. Introduction</h2>
+                <p>Quantum-enhanced radar leverages nonclassical states of electromagnetic fields—particularly squeezed microwave states—to achieve detection sensitivity below the classical noise floor. By reducing one quadrature’s uncertainty at the expense of the other (Heisenberg uncertainty principle), squeezed radar pulses can detect weak targets that classical radars miss.</p>
+                <p>This document details the idea, theoretical foundations, key equations, system design, operational logic, and example diagrams for a squeezed-microwave array radar.</p>
+            </section>
+            <!-- No HR after intro as per MD -->
+
+            <section class="content-section" id="background-quantum-squeezing">
+                <h2><span class="material-icons-round icon-inline">hdr_strong</span>2. Background: Quantum Squeezing</h2>
+                <h3>2.1. Vacuum Fluctuations and Noise</h3>
+                <ul>
+                    <li><strong>Vacuum noise</strong>: Even in the absence of photons, the electromagnetic field exhibits fluctuations with variance $V_0 = \frac{1}{2}$ in each quadrature (in units of $\hbar\omega/2$).</li>
+                    <li><strong>Standard quantum limit (SQL)</strong>: Classical coherent states have equal variance $V_X = V_P = \frac{1}{2}$, setting the noise floor for detection.</li>
+                </ul>
+                <h3>2.2. Squeezed States</h3>
+                <ul>
+                    <li><strong>Definition</strong>: A squeezed state reduces variance in one quadrature (e.g., $X$) below $\frac{1}{2}$ at the cost of increasing the conjugate quadrature ($P$):
+                    $$
+                    V_X = \frac{1}{2} e^{-2r},  \quad V_P = \frac{1}{2} e^{+2r},
+                    $$
+                    where $r$ is the squeeze parameter.</li>
+                    <li><strong>Generation</strong>: Typically via Josephson parametric amplifiers (JPA) or Josephson parametric converters (JPC) in superconducting circuits, pumped at microwave frequencies.</li>
+                </ul>
+            </section>
+            <!-- No HR here -->
+
+            <section class="content-section" id="classical-radar-basics">
+                <h2><span class="material-icons-round icon-inline">settings_input_antenna</span>3. Classical Radar Basics</h2>
+                <ol>
+                    <li><strong>Transmitted pulse</strong>: Power $P_t$, wavelength $\lambda$, pulse width $\tau$.</li>
+                    <li><strong>Received echo</strong>: Power $P_r$ from a target at range $R$ follows the radar equation:
+                    $$
+                    P_r = P_t G_t G_r \frac{\sigma \lambda^2}{(4\pi)^3 R^4},
+                    $$
+                    where $G_t, G_r$ are transmitter/receiver gains and $\sigma$ is target cross-section.</li>
+                    <li><strong>Signal-to-noise ratio (SNR)</strong>:
+                    $$
+                    \mathrm{SNR} = \frac{P_r}{k_B T_\text{sys} B},
+                    $$
+                    where $k_B T_\text{sys} B$ is the noise power (system temperature × bandwidth).</li>
+                </ol>
+            </section>
+            <!-- No HR here -->
+            
+            <section class="content-section" id="quantum-enhanced-radar-principles">
+                <h2><span class="material-icons-round icon-inline">science</span>4. Quantum-Enhanced Radar Principles</h2>
+                <h3>4.1. Sub-Noise-Floor Detection</h3>
+                <p>By transmitting a squeezed pulse and demodulating the returned echo on the squeezed quadrature, the effective noise floor drops to $V_X\ll \tfrac12$, enhancing SNR:</p>
+                $$
+                \mathrm{SNR}_\text{squeezed} = \frac{P_r}{k_B T_\text{sys} B} \times e^{2r}.
+                $$
+                <h3>4.2. Entanglement and Correlation</h3>
+                <p>Some proposals use entangled signal–idler pairs:</p>
+                <ul>
+                    <li><strong>Signal</strong> travels to target.</li>
+                    <li><strong>Idler</strong> stored locally.</li>
+                    <li>Upon return, joint measurement of signal and idler allows heralded detection below SQL.</li>
+                </ul>
+            </section>
+            <!-- No HR here -->
+
+            <section class="content-section" id="theoretical-framework">
+                <h2><span class="material-icons-round icon-inline">functions</span>5. Theoretical Framework & Key Equations</h2>
+                <h3>5.1. Quadrature Operators</h3>
+                <p>Define field operators:</p>
+                $$
+                \hat X = \frac{1}{\sqrt2}(\hat a + \hat a^\dagger), \quad  \hat P = \frac{1}{\sqrt{2}i}(\hat a - \hat a^\dagger),
+                $$
+                <p>with commutator $[\hat X, \hat P] = i$.</p>
+                <h3>5.2. Squeezing Transformation</h3>
+                <p>The squeeze operator:</p>
+                $$
+                \hat S(r) = \exp\biggl[\tfrac12 r (\hat a^2 - \hat a^{\dagger2})\biggr].
+                $$
+                <p>Transforms vacuum $\ket{0}$ into squeezed vacuum $\ket{0,r} = \hat S(r)\ket{0}$.</p>
+                <h3>5.3. Quantum Cramér–Rao Bound (QCRB)</h3>
+                <p>Sets the minimum variance of an unbiased estimator $\theta$ (e.g., range):</p>
+                $$
+                \mathrm{Var}(\theta) \ge \frac{1}{N F_Q},
+                $$
+                <p>where $F_Q$ is the quantum Fisher information. Squeezing increases $F_Q$, lowering variance.</p>
+            </section>
+            <!-- No HR here -->
+
+            <section class="content-section" id="system-architecture">
+                <h2><span class="material-icons-round icon-inline">developer_board</span>6. System Architecture</h2>
+                <div class="mermaid-diagram-container">
+                    <pre class="mermaid">
+flowchart LR
+  A[Microwave Source (Pump)] --> B((JPA Squeezer))
+  B --> C{Array Transmitter (Phased Array)}
+  C -- Squeezed Pulse --> D[Target & Scattering Environment]
+  D -- Echo --> E{Array Receiver}
+  E --> F((Phase-Sensitive Receiver / Homodyne Detection))
+  F --> G[Digital Signal Processor (DSP)]
+  G --> H[Detection & Ranging Output]
+
+  classDef source fill:#EDE7F6,stroke:#5E35B1,color:#000;
+  classDef quantum_comp fill:#D1C4E9,stroke:#673AB7,color:#000;
+  classDef array_comp fill:#B39DDB,stroke:#7E57C2,color:#000,shape:cylinder;
+  classDef target_env fill:#F3E5F5,stroke:#AB47BC,color:#000,shape:hexagon;
+  classDef receiver_dsp fill:#E1BEE7,stroke:#8E24AA,color:#fff;
+  classDef output fill:#FCE4EC,stroke:#AD1457,color:#000;
+
+  class A source;
+  class B quantum_comp;
+  class C,E array_comp;
+  class D target_env;
+  class F,G receiver_dsp;
+  class H output;
+                    </pre>
+                </div>
+                <ol>
+                    <li><strong>Microwave Source</strong>: Generates coherent pump tone.</li>
+                    <li><strong>JPA Squeezer</strong>: Parametrically squeezes quadrature.</li>
+                    <li><strong>Antenna Array</strong>: Transmits squeezed pulses and collects echoes.</li>
+                    <li><strong>Phase-sensitive Receiver</strong>: Homodyne/heterodyne detection locked to squeezed quadrature.</li>
+                    <li><strong>DSP</strong>: Matches filter, integrates, and estimates target parameters.</li>
+                </ol>
+            </section>
+            <!-- No HR here -->
+            
+            <section class="content-section" id="operational-logic">
+                <h2><span class="material-icons-round icon-inline">play_circle_outline</span>7. Operational Logic</h2>
+                 <ol>
+                    <li><strong>Initialization</strong>:
+                        <ul>
+                            <li>Calibrate local oscillator (LO) phase for homodyne detection.</li>
+                            <li>Set squeeze parameter $r$ for desired noise reduction.</li>
+                        </ul>
+                    </li>
+                    <li><strong>Pulse Emission</strong>:
+                        <ul>
+                            <li>Generate Gaussian envelope squeezed pulse of duration $\tau$.</li>
+                            <li>Transmit through phased array for beam steering.</li>
+                        </ul>
+                    </li>
+                    <li><strong>Echo Collection</strong>:
+                        <ul>
+                            <li>Receive echoes across array elements.</li>
+                            <li>Combine coherently to maximize gain.</li>
+                        </ul>
+                    </li>
+                    <li><strong>Quadrature Measurement</strong>:
+                        <ul>
+                            <li>Mix received field with LO locked to squeezed quadrature.</li>
+                            <li>Measure voltage proportional to $\hat X$ operator.</li>
+                        </ul>
+                    </li>
+                    <li><strong>Signal Processing</strong>:
+                        <ul>
+                            <li>Matched filtering to maximize SNR.</li>
+                            <li>Peak detection yields range $R$ and Doppler shift yields velocity $v$.</li>
+                        </ul>
+                    </li>
+                    <li><strong>Thresholding</strong>:
+                        <ul>
+                            <li>Because noise variance $V_X$ is reduced, set detection threshold lower, enabling sub-noise-floor target detection.</li>
+                        </ul>
+                    </li>
+                </ol>
+            </section>
+            <!-- No HR here -->
+
+            <section class="content-section" id="performance-metrics">
+                <h2><span class="material-icons-round icon-inline">speed</span>8. Performance Metrics</h2>
+                 <table class="styled-table">
+                    <thead>
+                        <tr>
+                            <th>Metric</th>
+                            <th>Classical Radar</th>
+                            <th>Quantum-Enhanced Radar</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Noise floor variance</td>
+                            <td>$\tfrac12$</td>
+                            <td>$\tfrac12 e^{-2r}$</td>
+                        </tr>
+                        <tr>
+                            <td>SNR improvement factor</td>
+                            <td>1</td>
+                            <td>$e^{2r}$</td>
+                        </tr>
+                        <tr>
+                            <td>Minimum detectable $\sigma_{\min}$</td>
+                            <td>$\propto\sqrt{T_\text{sys}}$</td>
+                            <td>$\propto\sqrt{T_\text{sys}}e^{-r}$</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+            <!-- No HR here -->
+
+            <section class="content-section" id="diagrams">
+                <h2><span class="material-icons-round icon-inline">perm_media</span>9. Diagrams</h2>
+                <h3>9.1. Squeezed State Wigner Functions</h3>
+                <div class="diagram-placeholder">
+                    [Placeholder: State diagram illustrating a Wigner function ellipse narrower in the X-axis and wider in the P-axis, compared to a circular coherent state.]
+                </div>
+                <h3>9.2. Detection Chain</h3>
+                <div class="mermaid-diagram-container">
+                     <pre class="mermaid">
+sequenceDiagram
+    participant Tx as Transmitter
+    participant Target
+    participant Rx as Receiver
+    participant DSP as Digital Signal Processor
+    
+    Tx->>Target: Squeezed microwave pulse
+    Target-->>Rx: Weak echo signal
+    Rx->>DSP: Homodyne measurement (Selected Quadrature)
+    DSP->>DSP: Matched filtering & Threshold detection
+    DSP-->>User: Target detected / Range & Velocity
+
+    actor Tx fill:#D1C4E9, stroke:#673AB7, color:#000
+    actor Target fill:#F3E5F5, stroke:#AB47BC, color:#000
+    actor Rx fill:#E1BEE7, stroke:#8E24AA, color:#fff
+    actor DSP fill:#EDE7F6, stroke:#5E35B1, color:#000
+                    </pre>
+                </div>
+            </section>
+            <!-- No HR here -->
+            
+            <section class="content-section" id="conclusions-outlook">
+                <h2><span class="material-icons-round icon-inline">verified</span>10. Conclusions and Outlook</h2>
+                <p>Quantum-enhanced radar using squeezed microwaves promises a pathway to detect stealthy or weakly scattering targets beyond classical limits. Challenges remain in generating high-power squeezing, maintaining phase coherence over long ranges, and mitigating loss-induced decoherence. Further research into entanglement-based schemes and low-loss superconducting components can advance practical deployment.</p>
+            </section>
+            
+            <hr class="document-end-divider">
+            <p style="text-align:center; font-style:italic; opacity:0.7;">*End of document.*</p>
+
+        </main>
+
+        <footer>
+            <p>Scientific concept and logic by <strong>Lion</strong>.</p>
+            <p>UI/UX & Web Implementation inspired by modern design principles.</p>
+            <p>© 2024 Quantum-Enhanced Radar Arrays Project</p>
+        </footer>
+    </div>
+
+    <script>
+        // Initialize Mermaid
+        mermaid.initialize({ 
+            startOnLoad: true,
+            theme: 'base', 
+            themeVariables: {
+                primaryColor: getComputedStyle(document.documentElement).getPropertyValue('--diagram-element-bg').trim(),
+                primaryTextColor: getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim(),
+                primaryBorderColor: getComputedStyle(document.documentElement).getPropertyValue('--card-border').trim(),
+                lineColor: getComputedStyle(document.documentElement).getPropertyValue('--icon-color').trim(),
+                secondaryColor: getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim(),
+                tertiaryColor: getComputedStyle(document.documentElement).getPropertyValue('--bg-color').trim(),
+                sequenceActor: getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim(),
+                sequenceActorText: '#fff', 
+                sequenceActorBorder: getComputedStyle(document.documentElement).getPropertyValue('--accent-color-darker').trim(),
+                sequenceMessageText: getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim(),
+                sequenceNoteText: getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim(),
+                sequenceNoteBackground: getComputedStyle(document.documentElement).getPropertyValue('--diagram-element-bg').trim(),
+            },
+            flowchart: { 
+                htmlLabels: true,
+                nodeSpacing: 50,
+                rankSpacing: 50
+            },
+            sequence: { 
+                actorFontFamily: getComputedStyle(document.documentElement).getPropertyValue('--font-primary').trim(),
+                messageFontFamily: getComputedStyle(document.documentElement).getPropertyValue('--font-primary').trim(),
+                noteFontFamily: getComputedStyle(document.documentElement).getPropertyValue('--font-primary').trim(),
+                showSequenceNumbers: false
+            },
+            fontFamily: getComputedStyle(document.documentElement).getPropertyValue('--font-primary').trim(),
+        });
+
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Theme Switcher
+            const lightModeBtn = document.getElementById('light-mode-btn');
+            const darkModeBtn = document.getElementById('dark-mode-btn');
+            const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+
+            function updateMermaidTheme() {
+                const currentPrimaryColor = getComputedStyle(document.documentElement).getPropertyValue('--diagram-element-bg').trim();
+                const currentTextColor = getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim();
+                const currentBorderColor = getComputedStyle(document.documentElement).getPropertyValue('--card-border').trim();
+                const currentLineColor = getComputedStyle(document.documentElement).getPropertyValue('--icon-color').trim();
+                const currentAccentColor = getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim();
+                const currentAccentDarkerColor = getComputedStyle(document.documentElement).getPropertyValue('--accent-color-darker').trim();
+                const currentBgColor = getComputedStyle(document.documentElement).getPropertyValue('--bg-color').trim();
+                
+                let actorTextColor = '#fff'; 
+                if (document.documentElement.classList.contains('dark-mode') && (currentAccentColor === '#9C27B0' || currentAccentColor === '#7B1FA2')) { 
+                    // Example check for dark purple accents, if text needs to be dark
+                    // actorTextColor = '#000'; 
+                }
+
+
+                mermaid.initialize({
+                    theme: 'base',
+                    themeVariables: {
+                        primaryColor: currentPrimaryColor,
+                        primaryTextColor: currentTextColor,
+                        primaryBorderColor: currentBorderColor,
+                        lineColor: currentLineColor,
+                        secondaryColor: currentAccentColor,
+                        tertiaryColor: currentBgColor,
+                        sequenceActor: currentAccentColor,
+                        sequenceActorText: actorTextColor, 
+                        sequenceActorBorder: currentAccentDarkerColor,
+                        sequenceMessageText: currentTextColor,
+                        sequenceNoteText: currentTextColor,
+                        sequenceNoteBackground: currentPrimaryColor,
+                    }
+                });
+                document.querySelectorAll('.mermaid[data-processed="true"]').forEach((el, i) => {
+                    const code = el.textContent || el.innerText;
+                    const id = `mermaid-graph-${Date.now()}-${i}`;
+                    el.removeAttribute('data-processed');
+                    el.innerHTML = code;
+                    try {
+                         mermaid.init(undefined, el);
+                    } catch (e) {
+                        console.error("Error re-rendering Mermaid diagram:", e);
+                    }
+                });
+            }
+
+            function setTheme(theme) {
+                if (theme === 'dark') {
+                    document.documentElement.classList.add('dark-mode');
+                    localStorage.setItem('theme', 'dark');
+                } else {
+                    document.documentElement.classList.remove('dark-mode');
+                    localStorage.setItem('theme', 'light');
+                }
+                updateMermaidTheme();
+            }
+
+            lightModeBtn.addEventListener('click', () => setTheme('light'));
+            darkModeBtn.addEventListener('click', () => setTheme('dark'));
+
+            const currentTheme = localStorage.getItem('theme');
+            if (currentTheme) {
+                setTheme(currentTheme);
+            } else if (prefersDarkScheme.matches) {
+                setTheme('dark');
+            } else {
+                setTheme('light'); 
+            }
+            
+            // Scroll Animations for sections
+            const sections = document.querySelectorAll('.content-section');
+            const hrs = document.querySelectorAll('hr.section-divider, hr.document-end-divider'); 
+            const observerOptions = {
+                root: null, 
+                rootMargin: '0px',
+                threshold: 0.1 
+            };
+
+            const observer = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('is-visible');
+                    }
+                });
+            }, observerOptions);
+
+            sections.forEach(section => {
+                observer.observe(section);
+            });
+             hrs.forEach(hr => { 
+                hr.style.opacity = 0; hr.style.transition = 'opacity 0.8s var(--ease-in-out-cubic) 0.2s';
+                observer.observe(hr);
+            });
+        });
+    </script>
+</body>
+</html>

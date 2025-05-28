@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ferrimagnetic Spin Logic Sheets</title>
+
+    <!-- MathJax Configuration -->
+    <script>
+        MathJax = {
+          tex: {
+            inlineMath: [['$', '$'], ['\\(', '\\)']],
+            displayMath: [['$$', '$$'], ['\\[', '\\]'], ['```math', '```']],
+            processEscapes: true,
+            tags: 'ams',
+            macros: { // Define custom macros if needed
+                boldsymbol: ['{\\boldsymbol{#1}}', 1]
+            }
+          },
+          svg: {
+            fontCache: 'global'
+          }
+        };
+    </script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <!-- Mermaid JS for diagrams -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Google Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons|Material+Icons+Outlined|Material+Icons+Round" rel="stylesheet">
+
+    <style>
+        :root {
+            --font-primary: 'Inter', sans-serif;
+            --font-headings: 'Poppins', sans-serif;
+
+            --ease-out-quad: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            --ease-in-out-cubic: cubic-bezier(0.645, 0.045, 0.355, 1);
+
+            /* Light Mode (Default) */
+            --bg-color: #F0F2F5;
+            --text-color: #1d1d1f;
+            --heading-color: #000000;
+            --accent-color: #424242; /* Strong, Metallic Dark Gray for Ferrimagnetic/Spin Logic */
+            --accent-color-darker: #212121;
+            --card-bg: rgba(255, 255, 255, 0.6);
+            --card-border: rgba(0, 0, 0, 0.1);
+            --card-shadow-1: rgba(0, 0, 0, 0.05);
+            --card-shadow-2: rgba(0, 0, 0, 0.02);
+            --neumorphic-shadow-light: -6px -6px 12px rgba(255, 255, 255, 0.8), 6px 6px 12px rgba(0, 0, 0, 0.1);
+            --neumorphic-shadow-light-inset: inset -4px -4px 8px rgba(255, 255, 255, 0.7), inset 4px 4px 8px rgba(0, 0, 0, 0.08);
+            --icon-color: #555;
+            --diagram-element-bg: rgba(128,128,128,0.05);
+            --code-bg: #f7f7f7;
+            --code-text: #333;
+            --hr-color: rgba(0,0,0,0.1); 
+            --table-header-bg: rgba(0,0,0,0.03);
+            --table-row-hover-bg: rgba(0,0,0,0.02);
+        }
+
+        html.dark-mode {
+            --bg-color: #161616;
+            --text-color: #E0E0E0;
+            --heading-color: #FFFFFF;
+            --accent-color: #9E9E9E; /* Lighter Gray for dark mode */
+            --accent-color-darker: #757575;
+            --card-bg: rgba(35, 35, 35, 0.6);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --card-shadow-1: rgba(255, 255, 255, 0.03);
+            --card-shadow-2: rgba(0, 0, 0, 0.1);
+            --neumorphic-shadow-light: -6px -6px 12px rgba(40, 40, 40, 0.7), 6px 6px 12px rgba(0, 0, 0, 0.3);
+            --neumorphic-shadow-light-inset: inset -4px -4px 8px rgba(40, 40, 40, 0.6), inset 4px 4px 8px rgba(0, 0, 0, 0.25);
+            --icon-color: #bbb;
+            --diagram-element-bg: rgba(200,200,200,0.05);
+            --code-bg: #2a2a2a;
+            --code-text: #ccc;
+            --hr-color: rgba(255,255,255,0.1);
+            --table-header-bg: rgba(255,255,255,0.03);
+            --table-row-hover-bg: rgba(255,255,255,0.02);
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 16px;
+        }
+
+        body {
+            font-family: var(--font-primary);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.7;
+            transition: background-color 0.3s var(--ease-out-quad), color 0.3s var(--ease-out-quad);
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem 0;
+        }
+
+        header {
+            padding: 2rem 0 1rem;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .main-title {
+            font-family: var(--font-headings);
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--heading-color);
+            margin-bottom: 0.5rem;
+            letter-spacing: -1px;
+        }
+        .tagline { 
+            font-size: 1.1rem;
+            color: var(--text-color);
+            opacity: 0.8;
+            margin-bottom: 1.5rem;
+        }
+        
+        hr.section-divider { 
+            border: none;
+            height: 1px;
+            background-color: var(--hr-color);
+            margin: 2rem auto;
+            width: 80%;
+        }
+        hr.document-end-divider { 
+            border: none;
+            height: 2px;
+            background: linear-gradient(to right, transparent, var(--accent-color), transparent);
+            margin: 3rem auto 1rem;
+            width: 60%;
+            opacity: 0.6;
+        }
+
+
+        .theme-switcher {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 0.5rem;
+            border-radius: 50px;
+            box-shadow: 0 4px 15px var(--card-shadow-1);
+            display: flex;
+            align-items: center;
+        }
+
+        .theme-button {
+            background: none;
+            border: none;
+            color: var(--icon-color);
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 50%;
+            transition: background-color 0.2s ease, color 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .theme-button:hover {
+            background-color: rgba(128,128,128,0.1);
+        }
+        .theme-button .material-icons-round {
+            font-size: 24px;
+        }
+
+
+        .content-section {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            padding: 2rem 2.5rem;
+            margin-bottom: 2.5rem;
+            border-radius: 20px;
+            box-shadow: 0 8px 30px var(--card-shadow-1), 0 2px 8px var(--card-shadow-2);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s var(--ease-in-out-cubic), transform 0.6s var(--ease-in-out-cubic);
+        }
+
+        .content-section.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .content-section h2, .content-section h3, .content-section h4 {
+            font-family: var(--font-headings);
+            color: var(--heading-color);
+            margin-bottom: 1.2rem;
+            margin-top: 1.5rem;
+            position: relative;
+            padding-left: 1.5rem;
+        }
+        .content-section h2::before, .content-section h3::before, .content-section h4::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 6px;
+            height: 60%;
+            min-height: 18px;
+            background-color: var(--accent-color);
+            border-radius: 3px;
+        }
+
+
+        .content-section h2 { font-size: 1.8rem; font-weight: 700; }
+        .content-section h3 { font-size: 1.5rem; font-weight: 600; }
+        .content-section h4 { font-size: 1.2rem; font-weight: 600; }
+        .content-section h2:first-child, .content-section h3:first-child, .content-section h4:first-child {
+            margin-top: 0;
+        }
+
+        .content-section p {
+            margin-bottom: 1rem;
+            color: var(--text-color);
+        }
+
+        .content-section ul, .content-section ol {
+            list-style: none;
+            padding-left: 0;
+            margin-bottom: 1rem;
+        }
+         .content-section ol { 
+            counter-reset: list-item-counter;
+        }
+
+
+        .content-section li {
+            padding-left: 2em;
+            position: relative;
+            margin-bottom: 0.75rem;
+        }
+        
+        .content-section ul li::before { 
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 9px; 
+            width: 8px;
+            height: 8px;
+            background-color: var(--accent-color);
+            border-radius: 50%;
+        }
+
+        .content-section ol li::before { 
+            counter-increment: list-item-counter;
+            content: counter(list-item-counter) ".";
+            position: absolute;
+            left: 0;
+            top: 1px; 
+            font-weight: 600;
+            color: var(--accent-color);
+        }
+
+
+        .content-section strong {
+            font-weight: 600;
+            color: var(--heading-color);
+        }
+
+        .content-section .mjx-math, .content-section pre[class*="language-math"] { 
+            font-size: 1.1em !important; 
+            margin: 1.5rem 0;
+            padding: 1rem;
+            overflow-x: auto;
+            background-color: var(--diagram-element-bg);
+            border-radius: 8px;
+            border: 1px solid var(--card-border);
+        }
+        
+        .mermaid-diagram-container {
+            background-color: var(--diagram-element-bg);
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin: 1.5rem auto;
+            text-align: center;
+            border: 1px solid var(--card-border);
+        }
+        .mermaid-diagram-container svg {
+            max-width: 100%;
+            height: auto;
+        }
+        
+        .styled-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            font-size: 0.95em;
+        }
+        .styled-table th, .styled-table td {
+            border: 1px solid var(--card-border);
+            padding: 0.75rem 1rem;
+            text-align: left;
+        }
+        .styled-table th {
+            background-color: var(--table-header-bg);
+            font-weight: 600;
+            color: var(--heading-color);
+        }
+        .styled-table tr:hover {
+            background-color: var(--table-row-hover-bg);
+        }
+        .styled-table td:nth-child(1) {
+            font-weight: 500;
+        }
+
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 2rem 0;
+            margin-top: 2rem;
+            border-top: 1px solid var(--hr-color); 
+            font-size: 0.9rem;
+            color: var(--text-color);
+            opacity: 0.7;
+        }
+        footer strong {
+            font-weight: bold;
+            color: var(--accent-color);
+        }
+
+        /* Material Icons in text */
+        .icon-inline {
+            font-family: 'Material Icons Round';
+            font-size: 1.1em; 
+            vertical-align: -0.15em; 
+            margin-right: 0.2em;
+            color: var(--accent-color);
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .main-title { font-size: 2rem; }
+            .tagline { font-size: 1rem; }
+            .content-section { padding: 1.5rem; border-radius: 15px; }
+            .content-section h2 { font-size: 1.6rem; }
+            .content-section h3 { font-size: 1.3rem; }
+            .theme-switcher { top: 10px; right: 10px; padding: 0.3rem;}
+            .theme-button {padding: 0.4rem;}
+            .styled-table { font-size: 0.85em; }
+            .styled-table th, .styled-table td { padding: 0.5rem; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="theme-switcher">
+        <button id="light-mode-btn" class="theme-button" title="Switch to Light Mode">
+            <span class="material-icons-round">light_mode</span>
+        </button>
+        <button id="dark-mode-btn" class="theme-button" title="Switch to Dark Mode">
+            <span class="material-icons-round">dark_mode</span>
+        </button>
+    </div>
+
+    <div class="container">
+        <header>
+            <h1 class="main-title">Ferrimagnetic Spin Logic Sheets</h1>
+            <p class="tagline">Planar Spin Networks for In-Material Computation</p>
+        </header>
+        <hr class="section-divider">
+
+        <main>
+            <section class="content-section" id="introduction">
+                <h2><span class="material-icons-round icon-inline">memory</span>1. Introduction</h2>
+                <p>Ferrimagnetic spin logic sheets leverage in-plane spin textures and domain-wall conduits in thin ferrimagnetic films to perform Boolean and neuromorphic logic directly within the material. By encoding logical bits in domain states and using spin-transfer torque (STT) or spin-orbit torque (SOT) to move and interact domains, these sheets act as planar, non-von-Neumann processors with intrinsic memory and logic steps.</p>
+                <p>This purely theoretical document outlines core concepts, physics, governing equations, device architecture, fabrication strategies, operation principles, example logic circuits, application scenarios, advantages, and future prospects.</p>
+            </section>
+            <!-- No HR after intro as per MD -->
+
+            <section class="content-section" id="background-motivation">
+                <h2><span class="material-icons-round icon-inline">lightbulb</span>2. Background & Motivation</h2>
+                <ul>
+                    <li><strong>Spintronics</strong>: Uses electron spin rather than charge, enabling nonvolatile logic and memory.</li>
+                    <li><strong>Ferrimagnets</strong>: Materials like rare-earth–transition-metal alloys (e.g., GdFeCo) exhibit compensation points enabling fast dynamics and low net moment.</li>
+                    <li><strong>In-material logic</strong>: Embeds computation in the same medium as storage, reducing data transfer energy and latency.</li>
+                </ul>
+            </section>
+            <!-- No HR here -->
+
+            <section class="content-section" id="physical-principles">
+                <h2><span class="material-icons-round icon-inline">science</span>3. Physical Principles</h2>
+                <h3>3.1. Ferrimagnetic Dynamics</h3>
+                <p>Ferrimagnet comprises two sublattices (A, B) with antiparallel magnetizations $\mathbf{M}_A, \mathbf{M}_B$. The net magnetization:</p>
+                $$
+                \mathbf{M} = \mathbf{M}_A + \mathbf{M}_B,
+                $$
+                <p>and the Néel vector $\mathbf{L}=\mathbf{M}_A - \mathbf{M}_B$. Dynamics follow the coupled Landau–Lifshitz equations:</p>
+                $$
+                \frac{d\mathbf{M}_i}{dt} = -\gamma_i \mathbf{M}_i \times \mathbf{H}_{eff,i} + \alpha_i \frac{\mathbf{M}_i}{M_i} \times \frac{d\mathbf{M}_i}{dt},
+                $$
+                <p>for $i=A,B$, with effective fields including exchange, anisotropy, and applied torques.</p>
+                
+                <h3>3.2. Spin-Transfer & Spin-Orbit Torques</h3>
+                <ul>
+                    <li><strong>STT</strong>: A spin-polarized current density $J_e$ exerts torque on local $\mathbf{M}$:
+                    $$
+                    \boldsymbol{\tau}_{STT} = \frac{\hbar P J_e}{2e M_s t} \mathbf{M} \times (\mathbf{M} \times \mathbf{m}_p),
+                    $$
+                    where $\mathbf{m}_p$ is polarization.</li>
+                    <li><strong>SOT</strong>: From spin Hall effect in adjacent heavy metal with angle $\theta_{SH}$:
+                    $$
+                    \boldsymbol{\tau}_{SOT} = \frac{\hbar \theta_{SH} J_e}{2e M_s t} \mathbf{M} \times (\hat{y} \times \mathbf{M}).
+                    $$</li>
+                </ul>
+
+                <h3>3.3. Domain-Wall Logic</h3>
+                <p>Information encoded as domain orientation (bit = up/down). Domain walls (DWs) propagate under torques and interact at junctions to implement logic: AND, OR, NOT via DW collisions and pinning sites.</p>
+            </section>
+            <!-- No HR here -->
+            
+            <section class="content-section" id="logic-gate-implementations">
+                <h2><span class="material-icons-round icon-inline">mediation</span>4. Logic Gate Implementations</h2>
+                <h3>4.1. NOT Gate</h3>
+                <p>A NOT cell uses a T-junction where an incoming DW toggles an antiparallel domain in output branch via collisional annihilation and nucleation.</p>
+                <h3>4.2. AND/OR Gates</h3>
+                <p>Two input conduits merge at a Y-junction with engineered pinning. The presence of two DWs yields different output domain patterns:</p>
+                <ul>
+                    <li><strong>OR</strong>: Single DW sufficient to propagate output.</li>
+                    <li><strong>AND</strong>: Require two sequential DWs overcoming stronger pinning.</li>
+                </ul>
+                <div class="mermaid-diagram-container">
+                    <pre class="mermaid">
+flowchart LR
+  In1[Input A (DW Stream)] -->|DW Propagation| J{Merge Junction (Y-Junction with Pinning)}
+  In2[Input B (DW Stream)] -->|DW Propagation| J
+  J --> Out[Output (Resultant DW Stream)]
+
+  classDef input fill:#ECEFF1,stroke:#546E7A,color:#000;
+  classDef junction fill:#CFD8DC,stroke:#607D8B,color:#000,shape:diamond;
+  classDef output_node fill:#B0BEC5,stroke:#78909C,color:#000;
+  
+  class In1,In2 input;
+  class J junction;
+  class Out output_node;
+                    </pre>
+                </div>
+                <p><em>(Pinning strength at J sets gate type.)</em></p>
+                <h3>4.3. Cascadability & Fan-Out</h3>
+                <p>DW outputs drive multiple downstream gates via split conduits, with converters re-synchronizing DW timing.</p>
+            </section>
+            <!-- No HR here -->
+
+            <section class="content-section" id="device-architecture-diagrams">
+                <h2><span class="material-icons-round icon-inline">developer_board</span>5. Device Architecture & Diagrams</h2>
+                <div class="mermaid-diagram-container">
+                    <pre class="mermaid">
+graph TB
+  subgraph SpinSheet [Ferrimagnetic Spin Logic Sheet]
+    direction TB
+    A[Current Injector (for STT/SOT)] -- J_e --> C((Conduit Network - Nanowires))
+    C --> D{Logic Region (Junctions & Pinning Sites)}
+    D --> R[Detector (MTJ Readout)]
+  end
+  
+  subgraph Material_Stack [Material Stack]
+    direction BT
+    Ox[Oxide Capping Layer] --- FM[Ferrimagnet Film (e.g., GdFeCo)] --- HM[Heavy Metal Layer (e.g., Pt, W)]
+  end
+  
+  SpinSheet --- Material_Stack
+
+  classDef main_components fill:#CFD8DC,stroke:#607D8B,color:#000;
+  classDef material_layers fill:#B0BEC5,stroke:#78909C,color:#000,shape:parallelogram;
+
+  class A,C,D,R main_components;
+  class HM,FM,Ox material_layers;
+                    </pre>
+                </div>
+                <ul>
+                    <li><strong>Conduits</strong>: Lithographically defined nanowires (~50 nm width).</li>
+                    <li><strong>Pinning sites</strong>: Notches or material variations at logic junctions.</li>
+                    <li><strong>Layers</strong>: HM for SOT, ferrimagnet for spin transport, oxide for insulation.</li>
+                </ul>
+            </section>
+            <!-- No HR here -->
+
+            <section class="content-section" id="fabrication-process">
+                <h2><span class="material-icons-round icon-inline">precision_manufacturing</span>6. Fabrication Process</h2>
+                 <ol>
+                    <li><strong>Substrate</strong>: Si with oxide.</li>
+                    <li><strong>Heavy-Metal Deposition</strong>: Sputter Pt or W (3–5 nm).</li>
+                    <li><strong>Ferrimagnet Film</strong>: Co-sputter GdFeCo to desired compensation point.</li>
+                    <li><strong>Patterning</strong>: E-beam lithography and ion milling to define conduits and junctions.</li>
+                    <li><strong>Contacts</strong>: Deposit Ti/Au for current injection and detection pads.</li>
+                    <li><strong>Passivation</strong>: Al₂O₃ via ALD to prevent oxidation.</li>
+                </ol>
+            </section>
+            <!-- No HR here -->
+            
+            <section class="content-section" id="operation-workflow">
+                <h2><span class="material-icons-round icon-inline">play_circle_outline</span>7. Operation & Workflow</h2>
+                 <ol>
+                    <li><strong>Initialization</strong>: Set all domains to known state via global magnetic field or current sweep.</li>
+                    <li><strong>Input Writing</strong>: Inject current pulses to nucleate DWs in input conduits.</li>
+                    <li><strong>Propagation</strong>: Apply SOT currents to drive DWs through network.</li>
+                    <li><strong>Logic Interaction</strong>: DWs meet at junctions, performing gate operations per pinning design.</li>
+                    <li><strong>Readout</strong>: Magnetic tunnel junctions (MTJs) at outputs sense domain orientation via TMR.</li>
+                </ol>
+            </section>
+            <!-- No HR here -->
+
+            <section class="content-section" id="performance-metrics">
+                <h2><span class="material-icons-round icon-inline">speed</span>8. Performance Metrics</h2>
+                <table class="styled-table">
+                    <thead>
+                        <tr>
+                            <th>Metric</th>
+                            <th>Typical Values</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>DW velocity</td>
+                            <td>100–1000 m/s</td>
+                        </tr>
+                        <tr>
+                            <td>Gate delay</td>
+                            <td>100 ps–1 ns</td>
+                        </tr>
+                        <tr>
+                            <td>Energy per operation</td>
+                            <td>10–100 aJ</td>
+                        </tr>
+                        <tr>
+                            <td>Fan-out</td>
+                            <td>≥2 outputs per gate</td>
+                        </tr>
+                        <tr>
+                            <td>Device area per gate</td>
+                            <td>~0.1 μm²</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+            <!-- No HR here -->
+
+            <section class="content-section" id="applications-advantages">
+                <h2><span class="material-icons-round icon-inline">apps</span>9. Applications & Advantages</h2>
+                 <ul>
+                    <li><strong>Non-von Neumann computing</strong>: Reduces data movement energy.</li>
+                    <li><strong>Edge AI</strong>: In-memory logic for neural network inferencing.</li>
+                    <li><strong>Reconfigurable logic</strong>: Programmable via current pulse sequences.</li>
+                 </ul>
+                 <p><strong>Advantages</strong>:</p>
+                <ol>
+                    <li><strong>Nonvolatility</strong>: Logic states remain without power.</li>
+                    <li><strong>High speed</strong>: Sub-ns switching via DW dynamics.</li>
+                    <li><strong>Low energy</strong>: aJ-scale operations.</li>
+                    <li><strong>Scalability</strong>: Planar sheets integrate with CMOS back-end.</li>
+                </ol>
+            </section>
+            <!-- No HR here -->
+            
+            <section class="content-section" id="challenges-future">
+                <h2><span class="material-icons-round icon-inline">report_problem</span>10. Challenges & Future Directions</h2>
+                 <ul>
+                    <li><strong>Thermal stability</strong>: Managing Joule heating and thermal DW creep.</li>
+                    <li><strong>Manufacturing variability</strong>: Precise control of pinning site dimensions.</li>
+                    <li><strong>Integration</strong>: Co-packaging with CMOS drivers and MTJ sensors.</li>
+                    <li><strong>Complex logic</strong>: Cascading many gates and synchronization.</li>
+                </ul>
+                <p>Future work: incorporate magnonic interconnects for long-range coupling, implement majority and neuromorphic functions, explore voltage-controlled anisotropy for electric-field-driven DW motion.</p>
+            </section>
+            <!-- No HR here -->
+            
+            <section class="content-section" id="references">
+                <h2><span class="material-icons-round icon-inline">menu_book</span>11. References</h2>
+                <ol>
+                    <li>Grollier, J., et al. (2016). Neuromorphic spintronics. <em>Nature Electronics</em>, 3, 360–370.</li>
+                    <li>Torrejon, J., et al. (2017). Neuromorphic computing with nanoscale spintronic oscillators. <em>Nature</em>, 547, 428–431.</li>
+                </ol>
+            </section>
+            
+            <hr class="document-end-divider">
+            <p style="text-align:center; font-style:italic; opacity:0.7;">*End of theoretical design document for Ferrimagnetic Spin Logic Sheets.*</p>
+
+        </main>
+
+        <footer>
+            <p>Scientific concept and logic by <strong>Lion</strong>.</p>
+            <p>UI/UX & Web Implementation inspired by modern design principles.</p>
+            <p>© 2024 Ferrimagnetic Spin Logic Sheets Project</p>
+        </footer>
+    </div>
+
+    <script>
+        // Initialize Mermaid
+        mermaid.initialize({ 
+            startOnLoad: true,
+            theme: 'base', 
+            themeVariables: {
+                primaryColor: getComputedStyle(document.documentElement).getPropertyValue('--diagram-element-bg').trim(),
+                primaryTextColor: getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim(),
+                primaryBorderColor: getComputedStyle(document.documentElement).getPropertyValue('--card-border').trim(),
+                lineColor: getComputedStyle(document.documentElement).getPropertyValue('--icon-color').trim(),
+                secondaryColor: getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim(),
+                tertiaryColor: getComputedStyle(document.documentElement).getPropertyValue('--bg-color').trim()
+            },
+            flowchart: { 
+                htmlLabels: true, 
+                nodeSpacing: 50,
+                rankSpacing: 50
+            },
+            fontFamily: getComputedStyle(document.documentElement).getPropertyValue('--font-primary').trim(),
+        });
+
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Theme Switcher
+            const lightModeBtn = document.getElementById('light-mode-btn');
+            const darkModeBtn = document.getElementById('dark-mode-btn');
+            const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+
+            function updateMermaidTheme() {
+                const currentPrimaryColor = getComputedStyle(document.documentElement).getPropertyValue('--diagram-element-bg').trim();
+                const currentTextColor = getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim();
+                const currentBorderColor = getComputedStyle(document.documentElement).getPropertyValue('--card-border').trim();
+                const currentLineColor = getComputedStyle(document.documentElement).getPropertyValue('--icon-color').trim();
+                const currentAccentColor = getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim();
+                const currentBgColor = getComputedStyle(document.documentElement).getPropertyValue('--bg-color').trim();
+                
+                mermaid.initialize({
+                    theme: 'base',
+                    themeVariables: {
+                        primaryColor: currentPrimaryColor,
+                        primaryTextColor: currentTextColor,
+                        primaryBorderColor: currentBorderColor,
+                        lineColor: currentLineColor,
+                        secondaryColor: currentAccentColor,
+                        tertiaryColor: currentBgColor
+                    }
+                });
+                document.querySelectorAll('.mermaid[data-processed="true"]').forEach((el, i) => {
+                    const code = el.textContent || el.innerText;
+                    const id = `mermaid-graph-${Date.now()}-${i}`;
+                    el.removeAttribute('data-processed');
+                    el.innerHTML = code;
+                    try {
+                         mermaid.init(undefined, el);
+                    } catch (e) {
+                        console.error("Error re-rendering Mermaid diagram:", e);
+                    }
+                });
+            }
+
+            function setTheme(theme) {
+                if (theme === 'dark') {
+                    document.documentElement.classList.add('dark-mode');
+                    localStorage.setItem('theme', 'dark');
+                } else {
+                    document.documentElement.classList.remove('dark-mode');
+                    localStorage.setItem('theme', 'light');
+                }
+                updateMermaidTheme();
+            }
+
+            lightModeBtn.addEventListener('click', () => setTheme('light'));
+            darkModeBtn.addEventListener('click', () => setTheme('dark'));
+
+            const currentTheme = localStorage.getItem('theme');
+            if (currentTheme) {
+                setTheme(currentTheme);
+            } else if (prefersDarkScheme.matches) {
+                setTheme('dark');
+            } else {
+                setTheme('light'); 
+            }
+            
+            // Scroll Animations for sections
+            const sections = document.querySelectorAll('.content-section');
+            const hrs = document.querySelectorAll('hr.section-divider, hr.document-end-divider'); 
+            const observerOptions = {
+                root: null, 
+                rootMargin: '0px',
+                threshold: 0.1 
+            };
+
+            const observer = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('is-visible');
+                    }
+                });
+            }, observerOptions);
+
+            sections.forEach(section => {
+                observer.observe(section);
+            });
+             hrs.forEach(hr => { 
+                hr.style.opacity = 0; hr.style.transition = 'opacity 0.8s var(--ease-in-out-cubic) 0.2s';
+                observer.observe(hr);
+            });
+        });
+    </script>
+</body>
+</html>

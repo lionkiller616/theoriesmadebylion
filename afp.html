@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acoustic-Flux Processor</title>
+
+    <!-- MathJax Configuration -->
+    <script>
+        MathJax = {
+          tex: {
+            inlineMath: [['$', '$'], ['\\(', '\\)']],
+            displayMath: [['$$', '$$'], ['\\[', '\\]']],
+            processEscapes: true,
+            tags: 'ams', // For equation numbering
+            macros: { // Define custom macros if needed
+                ext: ['{\\text{#1}}', 1]
+            }
+          },
+          svg: {
+            fontCache: 'global'
+          }
+        };
+    </script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Google Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons|Material+Icons+Outlined|Material+Icons+Round" rel="stylesheet">
+
+    <style>
+        :root {
+            --font-primary: 'Inter', sans-serif;
+            --font-headings: 'Poppins', sans-serif;
+
+            --ease-out-quad: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            --ease-in-out-cubic: cubic-bezier(0.645, 0.045, 0.355, 1);
+
+            /* Light Mode (Default) */
+            --bg-color: #F0F2F5;
+            --text-color: #1d1d1f;
+            --heading-color: #000000;
+            --accent-color: #FF6600; /* New accent: Orange for energy/acoustics */
+            --accent-color-darker: #D95800;
+            --card-bg: rgba(255, 255, 255, 0.6);
+            --card-border: rgba(0, 0, 0, 0.1);
+            --card-shadow-1: rgba(0, 0, 0, 0.05);
+            --card-shadow-2: rgba(0, 0, 0, 0.02);
+            --neumorphic-shadow-light: -6px -6px 12px rgba(255, 255, 255, 0.8), 6px 6px 12px rgba(0, 0, 0, 0.1);
+            --neumorphic-shadow-light-inset: inset -4px -4px 8px rgba(255, 255, 255, 0.7), inset 4px 4px 8px rgba(0, 0, 0, 0.08);
+            --icon-color: #555;
+            --diagram-element-bg: rgba(128,128,128,0.05); /* Slightly darker for better contrast with new accent */
+            --diagram-inactive-color: #ccc;
+            --diagram-active-color: var(--accent-color);
+        }
+
+        html.dark-mode {
+            --bg-color: #161616;
+            --text-color: #E0E0E0;
+            --heading-color: #FFFFFF;
+            --accent-color: #FF7A1A; /* Brighter orange for dark mode */
+            --accent-color-darker: #FF6600;
+            --card-bg: rgba(35, 35, 35, 0.6);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --card-shadow-1: rgba(255, 255, 255, 0.03);
+            --card-shadow-2: rgba(0, 0, 0, 0.1);
+            --neumorphic-shadow-light: -6px -6px 12px rgba(40, 40, 40, 0.7), 6px 6px 12px rgba(0, 0, 0, 0.3);
+            --neumorphic-shadow-light-inset: inset -4px -4px 8px rgba(40, 40, 40, 0.6), inset 4px 4px 8px rgba(0, 0, 0, 0.25);
+            --icon-color: #bbb;
+            --diagram-element-bg: rgba(200,200,200,0.05);
+            --diagram-inactive-color: #555;
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 16px;
+        }
+
+        body {
+            font-family: var(--font-primary);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.7;
+            transition: background-color 0.3s var(--ease-out-quad), color 0.3s var(--ease-out-quad);
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem 0;
+        }
+
+        header {
+            padding: 3rem 0 2rem;
+            text-align: center;
+            border-bottom: 1px solid var(--card-border);
+            margin-bottom: 3rem;
+        }
+
+        .main-title {
+            font-family: var(--font-headings);
+            font-size: 2.8rem;
+            font-weight: 800;
+            color: var(--heading-color);
+            margin-bottom: 0.5rem;
+            letter-spacing: -1px;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: var(--text-color);
+            opacity: 0.8;
+        }
+
+        .theme-switcher {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 0.5rem;
+            border-radius: 50px;
+            box-shadow: 0 4px 15px var(--card-shadow-1);
+            display: flex;
+            align-items: center;
+        }
+
+        .theme-button {
+            background: none;
+            border: none;
+            color: var(--icon-color);
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 50%;
+            transition: background-color 0.2s ease, color 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .theme-button:hover {
+            background-color: rgba(128,128,128,0.1);
+        }
+        .theme-button .material-icons-round {
+            font-size: 24px;
+        }
+
+
+        .content-section {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            padding: 2rem 2.5rem;
+            margin-bottom: 2.5rem;
+            border-radius: 20px;
+            box-shadow: 0 8px 30px var(--card-shadow-1), 0 2px 8px var(--card-shadow-2);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s var(--ease-in-out-cubic), transform 0.6s var(--ease-in-out-cubic);
+        }
+
+        .content-section.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .content-section h2, .content-section h3, .content-section h4 {
+            font-family: var(--font-headings);
+            color: var(--heading-color);
+            margin-bottom: 1.2rem;
+            margin-top: 1.5rem;
+            position: relative;
+            padding-left: 1.5rem;
+        }
+        .content-section h2::before, .content-section h3::before, .content-section h4::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 6px;
+            height: 60%;
+            min-height: 18px;
+            background-color: var(--accent-color);
+            border-radius: 3px;
+        }
+
+
+        .content-section h2 { font-size: 1.8rem; font-weight: 700; }
+        .content-section h3 { font-size: 1.5rem; font-weight: 600; }
+        .content-section h4 { font-size: 1.2rem; font-weight: 600; }
+        .content-section h2:first-child, .content-section h3:first-child, .content-section h4:first-child {
+            margin-top: 0;
+        }
+
+        .content-section p {
+            margin-bottom: 1rem;
+            color: var(--text-color);
+        }
+
+        .content-section ul, .content-section ol {
+            list-style: none;
+            padding-left: 0;
+            margin-bottom: 1rem;
+        }
+        .content-section ol { /* For numbered lists in design/workflow */
+            counter-reset: list-item-counter;
+        }
+
+        .content-section li {
+            padding-left: 2em;
+            position: relative;
+            margin-bottom: 0.75rem;
+        }
+        
+        .content-section ul li::before { /* Bullet for UL */
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 9px; /* Adjust for bullet alignment */
+            width: 8px;
+            height: 8px;
+            background-color: var(--accent-color);
+            border-radius: 50%;
+        }
+
+        .content-section ol li::before { /* Counter for OL */
+            counter-increment: list-item-counter;
+            content: counter(list-item-counter) ".";
+            position: absolute;
+            left: 0;
+            top: 1px; /* Adjust for number alignment */
+            font-weight: 600;
+            color: var(--accent-color);
+        }
+
+
+        .content-section strong {
+            font-weight: 600;
+            color: var(--heading-color);
+        }
+
+        .content-section .mjx-math { 
+            font-size: 1.1em !important; 
+            margin: 1rem 0;
+            padding: 0.5rem;
+            overflow-x: auto;
+        }
+
+        .core-equations-summary ol {
+            list-style-type: none;
+            counter-reset: equation-counter;
+            padding-left: 0;
+        }
+        .core-equations-summary li {
+            counter-increment: equation-counter;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            background-color: var(--diagram-element-bg);
+            position: relative;
+            padding-left: 3.5rem; 
+        }
+        .core-equations-summary li::before {
+            content: counter(equation-counter);
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: var(--accent-color);
+            color: white;
+            font-weight: bold;
+            width: 2rem;
+            height: 2rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            line-height: 1; 
+        }
+        .core-equations-summary li .mjx-math {
+            margin: 0.5rem 0;
+        }
+
+        /* Diagram Styling */
+        .diagram-container {
+            margin: 2rem auto 1.5rem; /* Center diagram container */
+            padding: 1.5rem;
+            border: 1px dashed var(--card-border);
+            border-radius: 15px;
+            text-align: center;
+            background: rgba(0,0,0,0.02);
+            max-width: 500px; /* Constrain width of container */
+        }
+        html.dark-mode .diagram-container {
+             background: rgba(255,255,255,0.02);
+        }
+
+        .diagram-container h4 {
+            margin-bottom: 1.5rem;
+            font-size: 1.1rem;
+            color: var(--heading-color);
+            font-weight: 600;
+            padding-left: 0; 
+        }
+        .diagram-container h4::before {
+            display: none;
+        }
+
+        .acoustic-flux-diagram {
+            position: relative;
+            width: 100%;
+            height: 200px; /* Adjust height as needed */
+            background-color: var(--diagram-element-bg);
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid var(--card-border);
+        }
+
+        .idt-electrodes {
+            position: absolute;
+            left: 10px;
+            top: 10px;
+            width: 80px;
+            height: 40px;
+        }
+        .idt-finger {
+            position: absolute;
+            background-color: var(--icon-color); /* Using icon color for electrodes */
+            height: 100%;
+            width: 5px;
+            border-radius: 1px;
+        }
+        .idt-finger:nth-child(odd) { top: 0; }
+        .idt-finger:nth-child(even) { bottom: 0; height: 80%;} /* Simplified comb */
+        .idt-finger.f1 { left: 0; }
+        .idt-finger.f2 { left: 10px; }
+        .idt-finger.f3 { left: 20px; }
+        .idt-finger.f4 { left: 30px; }
+        .idt-finger.f5 { left: 40px; }
+        .idt-bus {
+            position: absolute;
+            background-color: var(--icon-color);
+            height: 5px;
+            width: 50px;
+            left:0;
+        }
+        .idt-bus.top { top: -2px; }
+        .idt-bus.bottom { bottom: -2px; }
+
+
+        .piezo-layer {
+            position: absolute;
+            top: 50px;
+            left: 0;
+            width: 100%;
+            height: 60px;
+            background-color: rgba(128,128,128,0.1);
+            border-top: 1px dashed var(--card-border);
+            border-bottom: 1px dashed var(--card-border);
+            display: flex;
+            align-items: center;
+            padding-left: 100px; /* Space for SAW to originate */
+        }
+        html.dark-mode .piezo-layer {
+             background-color: rgba(200,200,200,0.1);
+        }
+        .piezo-layer::before {
+            content: "Piezoelectric Layer";
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.7rem;
+            color: var(--text-color);
+            opacity: 0.6;
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+        }
+
+
+        .saw-wave {
+            width: 15px;
+            height: 30px;
+            border: 2px solid var(--diagram-active-color);
+            border-radius: 50%;
+            position: relative;
+            opacity: 0;
+            animation: propagateSaw 3s linear infinite;
+            margin-right: 5px; /* Spacing between wave pulses */
+        }
+        .saw-wave::before, .saw-wave::after { /* Create sine-like wave */
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border: 2px solid var(--diagram-active-color);
+            border-radius: 50%;
+        }
+        .saw-wave::before { transform: translateX(-50%) scaleY(0.6); opacity: 0.7;}
+        .saw-wave::after { transform: translateX(50%) scaleY(0.6); opacity: 0.7;}
+
+
+        @keyframes propagateSaw {
+            0% { transform: translateX(0px) scale(0.8); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateX(300px) scale(1.2); opacity: 0; } /* Adjust 300px based on diagram width */
+        }
+        .saw-wave.w2 { animation-delay: 0.5s; }
+        .saw-wave.w3 { animation-delay: 1s; }
+
+
+        .magnetostrictive-layer {
+            position: absolute;
+            bottom: 10px;
+            left: 0;
+            width: 100%;
+            height: 70px;
+            background-color: var(--diagram-element-bg);
+            border-top: 1px solid var(--card-border);
+            display: flex;
+            align-items: center;
+            padding-left: 20px; /* Initial position for domain wall */
+        }
+         .magnetostrictive-layer::before {
+            content: "Magnetostrictive Layer";
+            position: absolute;
+            left: 10px;
+            bottom: 50%;
+            transform: translateY(50%);
+            font-size: 0.7rem;
+            color: var(--text-color);
+            opacity: 0.6;
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+            transform-origin: bottom left;
+        }
+
+
+        .domain-wall-container {
+            width: 200px; /* Width of the active magnetic region */
+            height: 50px;
+            position: relative;
+            background-color: rgba(0,0,0,0.05);
+            border-radius: 4px;
+            margin-left: 100px; /* Position it further right */
+        }
+         html.dark-mode .domain-wall-container {
+            background-color: rgba(255,255,255,0.05);
+         }
+
+        .domain {
+            position: absolute;
+            top:0;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem; /* For arrows */
+            transition: width 0.5s var(--ease-in-out-cubic);
+        }
+        .domain.left {
+            left: 0;
+            width: 40%; /* Initial state */
+            background-color: rgba(var(--accent-color-rgb, 255, 102, 0), 0.3);
+            color: var(--accent-color);
+            border-top-left-radius: 4px;
+            border-bottom-left-radius: 4px;
+        }
+        .domain.right {
+            right: 0;
+            width: 60%; /* Initial state */
+            background-color: rgba(var(--icon-color-rgb, 85, 85, 85), 0.2);
+            color: var(--icon-color);
+            border-top-right-radius: 4px;
+            border-bottom-right-radius: 4px;
+        }
+        /* Interactive part for domain wall */
+        .acoustic-flux-diagram:hover .domain.left { width: 70%; }
+        .acoustic-flux-diagram:hover .domain.right { width: 30%; }
+
+        .neumorphic-btn {
+            background-color: var(--bg-color);
+            border: none;
+            padding: 0.8rem 1.5rem;
+            margin: 0.5rem;
+            border-radius: 12px;
+            font-weight: 600;
+            color: var(--accent-color);
+            cursor: pointer;
+            box-shadow: var(--neumorphic-shadow-light);
+            transition: all 0.2s var(--ease-out-quad);
+            font-family: var(--font-primary);
+        }
+
+        .neumorphic-btn:hover {
+            color: var(--accent-color-darker);
+            box-shadow: var(--neumorphic-shadow-light-inset), 0 0 0 2px var(--accent-color);
+        }
+        .neumorphic-btn:active {
+            box-shadow: var(--neumorphic-shadow-light-inset);
+            transform: translateY(1px);
+        }
+        .diagram-controls { margin-top: 1rem; }
+
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 2rem 0;
+            margin-top: 2rem;
+            border-top: 1px solid var(--card-border);
+            font-size: 0.9rem;
+            color: var(--text-color);
+            opacity: 0.7;
+        }
+        footer strong {
+            font-weight: bold;
+            color: var(--accent-color);
+        }
+
+        /* Material Icons in text */
+        .icon-inline {
+            font-family: 'Material Icons Round';
+            font-size: 1.1em; 
+            vertical-align: -0.15em; 
+            margin-right: 0.2em;
+            color: var(--accent-color);
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .main-title { font-size: 2.2rem; }
+            .subtitle { font-size: 1rem; }
+            .content-section { padding: 1.5rem; border-radius: 15px; }
+            .content-section h2 { font-size: 1.6rem; }
+            .content-section h3 { font-size: 1.3rem; }
+            .core-equations-summary li { padding-left: 3rem; }
+            .core-equations-summary li::before { left: 0.75rem; width: 1.8rem; height: 1.8rem; font-size: 0.8rem;}
+            .theme-switcher { top: 10px; right: 10px; padding: 0.3rem;}
+            .theme-button {padding: 0.4rem;}
+            .acoustic-flux-diagram { height: 250px; } /* More space on mobile */
+            .piezo-layer::before, .magnetostrictive-layer::before { display: none; } /* Hide vertical labels */
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="theme-switcher">
+        <button id="light-mode-btn" class="theme-button" title="Switch to Light Mode">
+            <span class="material-icons-round">light_mode</span>
+        </button>
+        <button id="dark-mode-btn" class="theme-button" title="Switch to Dark Mode">
+            <span class="material-icons-round">dark_mode</span>
+        </button>
+    </div>
+
+    <div class="container">
+        <header>
+            <h1 class="main-title">Acoustic-Flux Processor</h1>
+            <p class="subtitle">Domain Wall Logic Driven by Sound</p>
+        </header>
+
+        <main>
+            <section class="content-section" id="introduction">
+                <h2><span class="material-icons-round icon-inline">rocket_launch</span>1. Introduction</h2>
+                <p>An Acoustic-Flux Processor harnesses the coupling between mechanical acoustic waves and magnetic domain dynamics in magnetostrictive materials to implement logic operations. By generating controlled acoustic fields, magnetic domain walls are driven to configure spin textures that encode logic states, offering a low-power, non-volatile platform for computation.</p>
+            </section>
+
+            <section class="content-section" id="concept-motivation">
+                <h2><span class="material-icons-round icon-inline">lightbulb</span>2. Concept and Motivation</h2>
+                <ul>
+                    <li><strong>Acoustic-Magnetic Coupling</strong>: Magnetostrictive materials deform under magnetic fields and, conversely, acoustic strain influences magnetic anisotropy and domain configurations.</li>
+                    <li><strong>Domain-Wall Logic</strong>: Magnetic domains separated by walls act as nanoscale logic bits; moving these walls via acoustic pressure realizes switches and gates.</li>
+                    <li><strong>Energy Efficiency</strong>: Acoustic actuation minimizes Joule heating compared to charge-based methods, and domain configurations retain state without power.</li>
+                    <li><strong>Parallelism & Integration</strong>: Surface acoustic waves (SAWs) can address multiple gates in parallel on a single substrate.</li>
+                </ul>
+            </section>
+            
+            <section class="content-section" id="processor-diagram-section">
+                <h2><span class="material-icons-round icon-inline">waves</span>Acoustic-Flux Processor Diagram</h2>
+                <div class="diagram-container">
+                    <h4>Conceptual Operation: SAW-Driven Domain Wall Motion</h4>
+                    <div class="acoustic-flux-diagram" id="afpDiagram">
+                        <div class="idt-electrodes">
+                            <div class="idt-bus top"></div>
+                            <div class="idt-finger f1"></div>
+                            <div class="idt-finger f2"></div>
+                            <div class="idt-finger f3"></div>
+                            <div class="idt-finger f4"></div>
+                            <div class="idt-finger f5"></div>
+                            <div class="idt-bus bottom"></div>
+                        </div>
+                        <div class="piezo-layer">
+                            <div class="saw-wave w1"></div>
+                            <div class="saw-wave w2"></div>
+                            <div class="saw-wave w3"></div>
+                        </div>
+                        <div class="magnetostrictive-layer">
+                            <div class="domain-wall-container">
+                                <div class="domain left" id="domainLeft"><span class="material-icons-round">arrow_forward</span></div>
+                                <div class="domain right" id="domainRight"><span class="material-icons-round">arrow_back</span></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="diagram-controls">
+                         <button id="pulse-saw-btn" class="neumorphic-btn">
+                            <span class="material-icons-round icon-inline" style="font-size: 1.2em; vertical-align: -0.2em;">play_circle_filled</span> Pulse SAW
+                        </button>
+                        <p style="font-size:0.8em; opacity:0.7; margin-top:0.5em;">(Hover over diagram or click button to simulate SAW effect)</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="content-section" id="underlying-theory">
+                <h2><span class="material-icons-round icon-inline">functions</span>3. Underlying Theory</h2>
+                
+                <h3>3.1 Magnetoelastic Energy</h3>
+                <p>Total energy density in a magnetostrictive medium:</p>
+                $$ E = E_{\ext{ex}} + E_{\ext{aniso}} + E_{\ext{mag}} + E_{\ext{me}}, $$
+                <p>where:</p>
+                <ul>
+                    <li>Exchange: $E_{\ext{ex}} = A (\nabla\mathbf{m})^2$.</li>
+                    <li>Anisotropy: $E_{\ext{aniso}} = K_u (1 - (\mathbf{m}\cdot\mathbf{u})^2)$.</li>
+                    <li>Magnetostatic: $E_{\ext{mag}} = -\mu_0 M_s \mathbf{H}_{\ext{ext}}\cdot\mathbf{m}$.</li>
+                    <li>Magnetoelastic:
+                    $$ E_{\ext{me}} = -\tfrac{3}{2} \lambda_s \sigma_{ij} m_i m_j, $$
+                    with magnetostriction constant $\lambda_s$, stress tensor $\sigma$, and magnetization unit vector $\mathbf{m}$.</li>
+                </ul>
+
+                <h3>3.2 Acoustic Wave Propagation</h3>
+                <p>Surface acoustic wave (Rayleigh mode) displacement field:</p>
+                $$ \mathbf{u}(x,t) = u_0 \begin{pmatrix}1\\\xi\end{pmatrix} e^{i(kx-\omega t)}, $$
+                <p>inducing time-varying strain $\varepsilon_{ij} = \tfrac{1}{2}(\partial_i u_j + \partial_j u_i)$.</p>
+
+                <h3>3.3 Landau-Lifshitz-Gilbert (LLG) with Strain</h3>
+                <p>Magnetization dynamics under combined magnetic and elastic torques:</p>
+                $$ \frac{d\mathbf{m}}{dt} = -\gamma \mathbf{m} \times \mathbf{H}_{\ext{eff}} + \alpha \mathbf{m} \times \frac{d\mathbf{m}}{dt}, $$
+                <p>with effective field</p>
+                $$ \mathbf{H}_{\ext{eff}} = -\frac{1}{\mu_0 M_s} \frac{\delta E}{\delta \mathbf{m}} = \mathbf{H}_{\ext{mag}} + \frac{2A}{\mu_0 M_s} \nabla^2\mathbf{m} + \frac{2K_u}{\mu_0 M_s}(\mathbf{u}\cdot\mathbf{m})\mathbf{u} + \frac{3\lambda_s}{\mu_0 M_s} \mathbf{\sigma}\cdot\mathbf{m}. $$
+
+                <h3>3.4 Domain-Wall Motion by Acoustic Pulses</h3>
+                <p>Acoustic strain exerts a force on domain walls:</p>
+                $$ F_{\ext{ac}} = -\frac{\partial E_\text{me}}{\partial x} \approx \tfrac{3}{2}\lambda_s \frac{\partial \sigma}{\partial x}. $$
+                <p>Balance with damping yields wall velocity:</p>
+                $$ v = \frac{F_\text{ac}}{\alpha_w}, $$
+                <p>and switching time $\tau = L_\text{wall}/v$.</p>
+            </section>
+
+            <section class="content-section" id="design-implementation">
+                <h2><span class="material-icons-round icon-inline">architecture</span>4. Design and Implementation</h2>
+                <h3>4.1 Material and Substrate</h3>
+                <ul>
+                    <li><strong>Magnetostrictive Layer</strong>: Terfenol-D or Galfenol thin film.</li>
+                    <li><strong>Piezoelectric Layer</strong>: LiNbO₃ substrate to generate SAWs.</li>
+                    <li><strong>Interdigital Transducers (IDTs)</strong>: Patterned electrodes to launch SAWs at desired frequency (100 MHz–1 GHz).</li>
+                </ul>
+                <h3>4.2 Gate Geometry and Layout</h3>
+                <ol>
+                    <li><strong>Logic Bit Cells</strong>: Magnetostrictive strips with pinned domain walls.</li>
+                    <li><strong>Acoustic Pathways</strong>: IDT-aligned waveguides directing SAWs across each cell.</li>
+                    <li><strong>Read-out Scheme</strong>: Magnetoresistive sensors at cell ends to detect domain configuration.</li>
+                </ol>
+                <h3>4.3 Control and Timing</h3>
+                <ul>
+                    <li><strong>Write Operation</strong>: Apply SAW burst of duration $\tau_w$ to move wall across notch, toggling state.</li>
+                    <li><strong>Read Operation</strong>: Low-amplitude SAW to probe without switching, measure resistance change.</li>
+                    <li><strong>Parallel Addressing</strong>: Frequency multiplexing of IDTs to target specific rows/columns.</li>
+                </ul>
+            </section>
+
+            <section class="content-section" id="logical-workflow">
+                <h2><span class="material-icons-round icon-inline">account_tree</span>5. Logical Workflow</h2>
+                <ol>
+                    <li><strong>Initialization</strong>: Set all domain walls to default positions via global magnetic bias.</li>
+                    <li><strong>Input Encoding</strong>: Generate SAW patterns corresponding to input bits.</li>
+                    <li><strong>Processing</strong>: SAWs propagate and interact, domain wall positions evolve to represent gate outputs.</li>
+                    <li><strong>Output Read-out</strong>: MR sensors convert domain states to voltage signals.</li>
+                    <li><strong>Reset/Reuse</strong>: Global SAW or magnetic pulse returns walls to initial state.</li>
+                </ol>
+            </section>
+
+            <section class="content-section core-equations-summary" id="key-equations">
+                <h2><span class="material-icons-round icon-inline">integration_instructions</span>6. Key Equations Summary</h2>
+                <ol>
+                    <li>Magnetoelastic energy: $E_\text{me} = -\tfrac{3}{2}\lambda_s \sigma_{ij}m_im_j$</li>
+                    <li>LLG with strain-driven field: $d\mathbf{m}/dt = -\gamma\mathbf{m}\times\mathbf{H}_\text{eff} + \alpha\mathbf{m}\times d\mathbf{m}/dt$</li>
+                    <li>Domain-wall force: $F_\text{ac} \approx \tfrac{3}{2}\lambda_s \partial_x\sigma$</li>
+                    <li>Wall velocity: $v = F_\text{ac}/\alpha_w$</li>
+                </ol>
+            </section>
+
+            <section class="content-section" id="potential-applications">
+                <h2><span class="material-icons-round icon-inline">widgets</span>7. Potential Applications</h2>
+                <ul>
+                    <li>Acoustic-driven non-volatile logic arrays</li>
+                    <li>On-chip signal processing with picosecond latency</li>
+                    <li>Low-energy neuromorphic computing elements</li>
+                    <li>Radiation-hard logic for space applications</li>
+                </ul>
+            </section>
+
+            <section class="content-section" id="conclusion">
+                <h2><span class="material-icons-round icon-inline">verified</span>8. Conclusion</h2>
+                <p>The Acoustic-Flux Processor merges acoustics and magnetism to steer domain walls for logic, achieving low-power, non-volatile computation. Advancements in SAW technology and magnetostrictive materials will enable scalable, high-speed logic fabrics for future computing paradigms.</p>
+            </section>
+        </main>
+
+        <footer>
+            <p>Scientific concept and logic by <strong>Lion</strong>.</p>
+            <p>UI/UX & Web Implementation inspired by modern design principles.</p>
+            <p>© 2024 Acoustic-Flux Processor Project</p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Theme Switcher
+            const lightModeBtn = document.getElementById('light-mode-btn');
+            const darkModeBtn = document.getElementById('dark-mode-btn');
+            const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+
+            function setRootCssVariable(variableName, value) {
+                document.documentElement.style.setProperty(variableName, value);
+            }
+            function hexToRgb(hex) {
+                let r = 0, g = 0, b = 0;
+                if (hex.length == 4) { // #RGB
+                    r = parseInt(hex[1] + hex[1], 16);
+                    g = parseInt(hex[2] + hex[2], 16);
+                    b = parseInt(hex[3] + hex[3], 16);
+                } else if (hex.length == 7) { // #RRGGBB
+                    r = parseInt(hex[1] + hex[2], 16);
+                    g = parseInt(hex[3] + hex[4], 16);
+                    b = parseInt(hex[5] + hex[6], 16);
+                }
+                return `${r}, ${g}, ${b}`;
+            }
+
+
+            function setTheme(theme) {
+                const lightAccent = '#FF6600';
+                const darkAccent = '#FF7A1A';
+                const lightIcon = '#555';
+                const darkIcon = '#bbb';
+
+                if (theme === 'dark') {
+                    document.documentElement.classList.add('dark-mode');
+                    localStorage.setItem('theme', 'dark');
+                    setRootCssVariable('--accent-color-rgb', hexToRgb(darkAccent));
+                    setRootCssVariable('--icon-color-rgb', hexToRgb(darkIcon));
+                } else {
+                    document.documentElement.classList.remove('dark-mode');
+                    localStorage.setItem('theme', 'light');
+                    setRootCssVariable('--accent-color-rgb', hexToRgb(lightAccent));
+                     setRootCssVariable('--icon-color-rgb', hexToRgb(lightIcon));
+                }
+            }
+
+            lightModeBtn.addEventListener('click', () => setTheme('light'));
+            darkModeBtn.addEventListener('click', () => setTheme('dark'));
+
+            const currentTheme = localStorage.getItem('theme');
+            if (currentTheme) {
+                setTheme(currentTheme);
+            } else if (prefersDarkScheme.matches) {
+                setTheme('dark');
+            } else {
+                setTheme('light'); // Default to light if no preference and no stored theme
+            }
+            
+
+            // Scroll Animations for sections
+            const sections = document.querySelectorAll('.content-section');
+            const observerOptions = {
+                root: null, 
+                rootMargin: '0px',
+                threshold: 0.1 
+            };
+
+            const observer = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('is-visible');
+                    }
+                });
+            }, observerOptions);
+
+            sections.forEach(section => {
+                observer.observe(section);
+            });
+
+            // Diagram interaction
+            const pulseSawBtn = document.getElementById('pulse-saw-btn');
+            const afpDiagram = document.getElementById('afpDiagram');
+            const domainLeft = document.getElementById('domainLeft');
+            const domainRight = document.getElementById('domainRight');
+
+            let isPulsed = false;
+
+            function toggleDomainWall() {
+                if (isPulsed) {
+                    domainLeft.style.width = '40%';
+                    domainRight.style.width = '60%';
+                } else {
+                    domainLeft.style.width = '70%';
+                    domainRight.style.width = '30%';
+                }
+                isPulsed = !isPulsed;
+            }
+            
+            if (pulseSawBtn) {
+                 pulseSawBtn.addEventListener('click', () => {
+                    // Add a class to trigger SAW animation visually if needed,
+                    // or directly call the domain wall toggle.
+                    // For simplicity, we'll just toggle the domain wall.
+                    // The SAW CSS animation is continuous.
+                    toggleDomainWall();
+
+                    // Add a temporary class to diagram for visual feedback on click
+                    afpDiagram.classList.add('diagram-pulsed');
+                    setTimeout(() => {
+                        afpDiagram.classList.remove('diagram-pulsed');
+                    }, 500); // Match transition duration
+                 });
+            }
+
+            // Initial setup for CSS variables needed for RGBA in domain backgrounds
+            // Ensure this runs after initial theme is set
+            const initialTheme = document.documentElement.classList.contains('dark-mode') ? 'dark' : 'light';
+            setTheme(initialTheme); // This will set the --accent-color-rgb
+
+        });
+    </script>
+</body>
+</html>

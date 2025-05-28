@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Holographic Interferometric Metrology</title>
+
+    <!-- MathJax Configuration -->
+    <script>
+        MathJax = {
+          tex: {
+            inlineMath: [['$', '$'], ['\\(', '\\)']],
+            displayMath: [['$$', '$$'], ['\\[', '\\]'], ['```math', '```']],
+            processEscapes: true,
+            tags: 'ams',
+            macros: { // Define custom macros if needed
+                Re: ['{\\mathrm{Re}}'], // For \Re
+                mathcal: ['{\\mathcal{#1}}', 1] // For \mathcal{F}
+            }
+          },
+          svg: {
+            fontCache: 'global'
+          }
+        };
+    </script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <!-- Mermaid JS for diagrams -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Google Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons|Material+Icons+Outlined|Material+Icons+Round" rel="stylesheet">
+
+    <style>
+        :root {
+            --font-primary: 'Inter', sans-serif;
+            --font-headings: 'Poppins', sans-serif;
+
+            --ease-out-quad: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            --ease-in-out-cubic: cubic-bezier(0.645, 0.045, 0.355, 1);
+
+            /* Light Mode (Default) */
+            --bg-color: #F0F2F5;
+            --text-color: #1d1d1f;
+            --heading-color: #000000;
+            --accent-color: #03A9F4; /* Clear Scientific Blue for Optics/Metrology */
+            --accent-color-darker: #0288D1;
+            --card-bg: rgba(255, 255, 255, 0.6);
+            --card-border: rgba(0, 0, 0, 0.1);
+            --card-shadow-1: rgba(0, 0, 0, 0.05);
+            --card-shadow-2: rgba(0, 0, 0, 0.02);
+            --neumorphic-shadow-light: -6px -6px 12px rgba(255, 255, 255, 0.8), 6px 6px 12px rgba(0, 0, 0, 0.1);
+            --neumorphic-shadow-light-inset: inset -4px -4px 8px rgba(255, 255, 255, 0.7), inset 4px 4px 8px rgba(0, 0, 0, 0.08);
+            --icon-color: #555;
+            --diagram-element-bg: rgba(128,128,128,0.05);
+            --code-bg: #f7f7f7;
+            --code-text: #333;
+            --hr-color: rgba(0,0,0,0.1);
+            --table-header-bg: rgba(0,0,0,0.03);
+            --table-row-hover-bg: rgba(0,0,0,0.02);
+        }
+
+        html.dark-mode {
+            --bg-color: #161616;
+            --text-color: #E0E0E0;
+            --heading-color: #FFFFFF;
+            --accent-color: #4FC3F7; /* Lighter Blue for dark mode */
+            --accent-color-darker: #29B6F6;
+            --card-bg: rgba(35, 35, 35, 0.6);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --card-shadow-1: rgba(255, 255, 255, 0.03);
+            --card-shadow-2: rgba(0, 0, 0, 0.1);
+            --neumorphic-shadow-light: -6px -6px 12px rgba(40, 40, 40, 0.7), 6px 6px 12px rgba(0, 0, 0, 0.3);
+            --neumorphic-shadow-light-inset: inset -4px -4px 8px rgba(40, 40, 40, 0.6), inset 4px 4px 8px rgba(0, 0, 0, 0.25);
+            --icon-color: #bbb;
+            --diagram-element-bg: rgba(200,200,200,0.05);
+            --code-bg: #2a2a2a;
+            --code-text: #ccc;
+            --hr-color: rgba(255,255,255,0.1);
+            --table-header-bg: rgba(255,255,255,0.03);
+            --table-row-hover-bg: rgba(255,255,255,0.02);
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 16px;
+        }
+
+        body {
+            font-family: var(--font-primary);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.7;
+            transition: background-color 0.3s var(--ease-out-quad), color 0.3s var(--ease-out-quad);
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem 0;
+        }
+
+        header {
+            padding: 2rem 0 1rem;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .main-title {
+            font-family: var(--font-headings);
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--heading-color);
+            margin-bottom: 0.5rem;
+            letter-spacing: -1px;
+        }
+
+        .tagline {
+            font-size: 1.1rem;
+            color: var(--text-color);
+            opacity: 0.8;
+            margin-bottom: 1.5rem;
+        }
+        
+        hr {
+            border: none;
+            height: 1px;
+            background-color: var(--hr-color);
+            margin: 2rem auto;
+            width: 80%;
+        }
+
+
+        .theme-switcher {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 0.5rem;
+            border-radius: 50px;
+            box-shadow: 0 4px 15px var(--card-shadow-1);
+            display: flex;
+            align-items: center;
+        }
+
+        .theme-button {
+            background: none;
+            border: none;
+            color: var(--icon-color);
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 50%;
+            transition: background-color 0.2s ease, color 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .theme-button:hover {
+            background-color: rgba(128,128,128,0.1);
+        }
+        .theme-button .material-icons-round {
+            font-size: 24px;
+        }
+
+
+        .content-section {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            padding: 2rem 2.5rem;
+            margin-bottom: 2.5rem;
+            border-radius: 20px;
+            box-shadow: 0 8px 30px var(--card-shadow-1), 0 2px 8px var(--card-shadow-2);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s var(--ease-in-out-cubic), transform 0.6s var(--ease-in-out-cubic);
+        }
+
+        .content-section.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .content-section h2, .content-section h3, .content-section h4 {
+            font-family: var(--font-headings);
+            color: var(--heading-color);
+            margin-bottom: 1.2rem;
+            margin-top: 1.5rem;
+            position: relative;
+            padding-left: 1.5rem;
+        }
+        .content-section h2::before, .content-section h3::before, .content-section h4::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 6px;
+            height: 60%;
+            min-height: 18px;
+            background-color: var(--accent-color);
+            border-radius: 3px;
+        }
+
+
+        .content-section h2 { font-size: 1.8rem; font-weight: 700; }
+        .content-section h3 { font-size: 1.5rem; font-weight: 600; }
+        .content-section h4 { font-size: 1.2rem; font-weight: 600; }
+        .content-section h2:first-child, .content-section h3:first-child, .content-section h4:first-child {
+            margin-top: 0;
+        }
+
+        .content-section p {
+            margin-bottom: 1rem;
+            color: var(--text-color);
+        }
+
+        .content-section ul, .content-section ol {
+            list-style: none;
+            padding-left: 0;
+            margin-bottom: 1rem;
+        }
+         .content-section ol { 
+            counter-reset: list-item-counter;
+        }
+
+
+        .content-section li {
+            padding-left: 2em;
+            position: relative;
+            margin-bottom: 0.75rem;
+        }
+        
+        .content-section ul li::before { 
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 9px; 
+            width: 8px;
+            height: 8px;
+            background-color: var(--accent-color);
+            border-radius: 50%;
+        }
+
+        .content-section ol li::before { 
+            counter-increment: list-item-counter;
+            content: counter(list-item-counter) ".";
+            position: absolute;
+            left: 0;
+            top: 1px; 
+            font-weight: 600;
+            color: var(--accent-color);
+        }
+
+
+        .content-section strong {
+            font-weight: 600;
+            color: var(--heading-color);
+        }
+
+        .content-section .mjx-math, .content-section pre[class*="language-math"] { 
+            font-size: 1.1em !important; 
+            margin: 1.5rem 0;
+            padding: 1rem;
+            overflow-x: auto;
+            background-color: var(--diagram-element-bg);
+            border-radius: 8px;
+            border: 1px solid var(--card-border);
+        }
+        
+        .mermaid-diagram-container {
+            background-color: var(--diagram-element-bg);
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin: 1.5rem auto;
+            text-align: center;
+            border: 1px solid var(--card-border);
+        }
+        .mermaid-diagram-container svg {
+            max-width: 100%;
+            height: auto;
+        }
+        
+        .styled-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            font-size: 0.95em;
+        }
+        .styled-table th, .styled-table td {
+            border: 1px solid var(--card-border);
+            padding: 0.75rem 1rem;
+            text-align: left;
+        }
+        .styled-table th {
+            background-color: var(--table-header-bg);
+            font-weight: 600;
+            color: var(--heading-color);
+        }
+        .styled-table tr:hover {
+            background-color: var(--table-row-hover-bg);
+        }
+        .styled-table td:nth-child(1) {
+            font-weight: 500;
+        }
+
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 2rem 0;
+            margin-top: 2rem;
+            border-top: 1px solid var(--card-border);
+            font-size: 0.9rem;
+            color: var(--text-color);
+            opacity: 0.7;
+        }
+        footer strong {
+            font-weight: bold;
+            color: var(--accent-color);
+        }
+
+        /* Material Icons in text */
+        .icon-inline {
+            font-family: 'Material Icons Round';
+            font-size: 1.1em; 
+            vertical-align: -0.15em; 
+            margin-right: 0.2em;
+            color: var(--accent-color);
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .main-title { font-size: 2rem; }
+            .tagline { font-size: 1rem; }
+            .content-section { padding: 1.5rem; border-radius: 15px; }
+            .content-section h2 { font-size: 1.6rem; }
+            .content-section h3 { font-size: 1.3rem; }
+            .theme-switcher { top: 10px; right: 10px; padding: 0.3rem;}
+            .theme-button {padding: 0.4rem;}
+            .styled-table { font-size: 0.85em; }
+            .styled-table th, .styled-table td { padding: 0.5rem; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="theme-switcher">
+        <button id="light-mode-btn" class="theme-button" title="Switch to Light Mode">
+            <span class="material-icons-round">light_mode</span>
+        </button>
+        <button id="dark-mode-btn" class="theme-button" title="Switch to Dark Mode">
+            <span class="material-icons-round">dark_mode</span>
+        </button>
+    </div>
+
+    <div class="container">
+        <header>
+            <h1 class="main-title">Holographic Interferometric Metrology</h1>
+            <p class="tagline">Real-time 3D deformation measurement via digital holography</p>
+        </header>
+        <hr>
+
+        <main>
+            <section class="content-section" id="concept-overview">
+                <h2><span class="material-icons-round icon-inline">filter_drama</span>Concept Overview</h2>
+                <p>Holographic interferometric metrology captures the full 3D deformation field of a specimen by recording and comparing <strong>object</strong> and <strong>reference</strong> wavefronts. A high-resolution camera records interference fringes in real time; phase‐extraction and unwrapping algorithms convert those fringes into quantitative surface displacement and strain maps with sub-micron precision.</p>
+            </section>
+            <hr>
+
+            <section class="content-section" id="scientific-principles">
+                <h2><span class="material-icons-round icon-inline">science</span>Scientific Principles</h2>
+                <h3>1. Holography</h3>
+                <ul>
+                    <li>A coherent laser is split into an <strong>object beam</strong> (illuminating the test sample) and a <strong>reference beam</strong>.</li>
+                    <li>The scattered object wavefront $E_o(x,y)$ interferes with the reference $E_r(x,y)$ on a recording sensor, creating a hologram $H(x,y)$.</li>
+                </ul>
+                <h3>2. Interferometry</h3>
+                <ul>
+                    <li>The recorded intensity:
+                    \[
+                      I(x,y) = |E_o + E_r|^2
+                      = |E_o|^2 + |E_r|^2 + 2\,\Re\{E_o E_r^*\}
+                    \]</li>
+                    <li>The cross-term $2\,\Re\{E_o E_r^*\}$ encodes the <strong>phase difference</strong> $\Delta\phi(x,y)$.</li>
+                </ul>
+                <h3>3. Phase‐to‐Displacement Conversion</h3>
+                <ul>
+                    <li>For out-of-plane motion $w(x,y)$, the change in optical path ΔOPL = 2·$w$.</li>
+                    <li>Phase change Δφ relates to deformation:
+                    \[
+                      \Delta\phi(x,y) = \frac{4\pi}{\lambda}\,w(x,y)
+                      \quad\Longrightarrow\quad
+                      w(x,y) = \frac{\lambda}{4\pi}\,\Delta\phi(x,y)
+                    \]</li>
+                </ul>
+                 <h3>4. Digital Reconstruction & Unwrapping</h3>
+                <ul>
+                    <li>The recorded hologram is numerically propagated back to the object plane (Fresnel or angular spectrum methods).</li>
+                    <li>A wrapped phase map (–π to π) is unwrapped to yield continuous deformation fields.</li>
+                </ul>
+            </section>
+            <hr>
+
+            <section class="content-section" id="system-architecture">
+                <h2><span class="material-icons-round icon-inline">settings_ethernet</span>System Architecture</h2>
+                <div class="mermaid-diagram-container">
+                    <pre class="mermaid">
+graph LR
+  Laser[Coherent Laser Source] --> BS((Beam Splitter))
+  BS -->|Object Beam| ObjPath
+  BS -->|Reference Beam| RefPath
+  
+  subgraph ObjPath [Object Path]
+    direction LR
+    ObjBeamOptics[Optics] --> Sample[Specimen Surface]
+  end
+
+  subgraph RefPath [Reference Path]
+    direction LR
+    RefBeamOptics[Delay/Align Optics]
+  end
+
+  Sample --> Cam((Digital Camera))
+  RefPath --> Cam
+  Cam --> Proc{Real-time Reconstruction & Phase Extraction}
+  Proc --> Display[3D Deformation & Strain Maps]
+
+  classDef source fill:#E3F2FD,stroke:#0277BD,color:#000;
+  classDef optics_component fill:#B3E5FC,stroke:#0288D1,color:#000;
+  classDef process fill:#E0F7FA,stroke:#00796B,color:#000;
+  classDef output fill:#E8F5E9,stroke:#2E7D32,color:#000;
+
+  class Laser source;
+  class BS,ObjBeamOptics,RefBeamOptics,Sample,Cam optics_component;
+  class Proc process;
+  class Display output;
+                    </pre>
+                </div>
+                <ul>
+                    <li><strong>Laser</strong>: Single‐frequency, low‐noise (e.g. Nd:YAG @ 532 nm)</li>
+                    <li><strong>Optics</strong>: Beam splitters, mirrors, telescopes to match wavefront curvatures</li>
+                    <li><strong>Camera</strong>: High-frame-rate CMOS/CCD for dynamic studies</li>
+                    <li><strong>Processing</strong>: GPU‐accelerated Fresnel propagation + phase‐unwrapping</li>
+                </ul>
+            </section>
+            <hr>
+
+            <section class="content-section" id="key-equations">
+                <h2><span class="material-icons-round icon-inline">functions</span>Key Equations</h2>
+                <h3>1. Hologram Intensity</h3>
+                $$
+                  I(x,y) = |E_o|^2 + |E_r|^2 + 2\,|E_o||E_r|\cos\!\bigl(\phi_o - \phi_r\bigr)
+                $$
+                <h3>2. Fresnel Reconstruction</h3>
+                $$
+                  E_{\rm rec}(x,y; z) 
+                  = \mathcal{F}^{-1}\!\Bigl\{\mathcal{F}\{H\}\,\exp\!\bigl(i k_z z\bigr)\Bigr\}
+                $$
+                <p>where $k_z = \sqrt{(2\pi/\lambda)^2 - k_x^2 - k_y^2}$.</p>
+                <h3>3. Phase Unwrapping Constraint</h3>
+                $$
+                  |\phi_{\rm unwrapped}(x+\Delta x) - \phi_{\rm unwrapped}(x)| < \pi
+                $$
+                <p>ensuring a continuous phase surface.</p>
+                <h3>4. Strain Calculation</h3>
+                <p>For small gradients:</p>
+                $$
+                  \varepsilon_{xx} = \frac{\partial w}{\partial x}, 
+                  \quad
+                  \varepsilon_{yy} = \frac{\partial w}{\partial y}
+                $$
+            </section>
+            <hr>
+
+            <section class="content-section" id="control-logic-measurement">
+                <h2><span class="material-icons-round icon-inline">mediation</span>Control Logic & Measurement Flow</h2>
+                <div class="mermaid-diagram-container">
+                     <pre class="mermaid">
+flowchart TD
+  Init([System Initialization & Calibration]) --> Align{Beams Co-aligned & Stable?}
+  Align -- No --> AdjustOptics[Mirror & Lens Tweaks / Auto-Align] --> Align
+  Align -- Yes --> RecordRef(Record Reference Hologram I₀)
+  RecordRef --> ApplyLoad[Apply Mechanical/Thermal Load to Sample]
+  ApplyLoad --> RecordDef(Record Deformed Hologram I₁)
+  RecordDef --> Reconstruct[Numerical Reconstruction (H₀, H₁)]
+  Reconstruct --> ExtractPhase[Phase‐Difference Map Δφ = φ₁ - φ₀]
+  ExtractPhase --> UnwrapPhase[Phase Unwrapping Algorithm]
+  UnwrapPhase --> ComputeW[Displacement Field w(x,y) Calculation]
+  ComputeW --> Display3D[Render 3D Deformation & Strain Maps]
+  Display3D --> Monitor{Continue Monitoring / Next Measurement?}
+  Monitor -- Yes --> ApplyNextLoad[Apply Next Load Increment or Hold] --> RecordDef
+  Monitor -- No --> End([Finish Measurement Sequence])
+
+  classDef init_end fill:#E0F2F1,stroke:#00897B,color:#000,shape:stadium;
+  classDef decision fill:#B2EBF2,stroke:#0097A7,color:#000,shape:diamond;
+  classDef process fill:#E0F7FA,stroke:#00796B,color:#000,shape:rect;
+    
+  class Init,End init_end;
+  class Align,Monitor decision;
+  class AdjustOptics,RecordRef,ApplyLoad,RecordDef,Reconstruct,ExtractPhase,UnwrapPhase,ComputeW,Display3D,ApplyNextLoad process;
+                    </pre>
+                </div>
+                <ul>
+                    <li>Automated <strong>beam alignment</strong> and <strong>calibration</strong></li>
+                    <li>Real‐time display up to kHz update rates for dynamic events</li>
+                </ul>
+            </section>
+            <hr>
+            
+            <section class="content-section" id="materials-fabrication">
+                <h2><span class="material-icons-round icon-inline">build</span>Materials & Fabrication</h2>
+                <ul>
+                    <li><strong>Optical Table</strong>: Vibration‐isolated breadboard</li>
+                    <li><strong>Beam Splitters & Mirrors</strong>: λ/10 flatness dielectric optics</li>
+                    <li><strong>Diffusers/Filters</strong>: To homogenize intensity if needed</li>
+                    <li><strong>Camera Sensor</strong>: Global‐shutter, low‐noise, high bit‐depth</li>
+                </ul>
+            </section>
+            <hr>
+
+            <section class="content-section" id="applications-table">
+                <h2><span class="material-icons-round icon-inline">apps</span>Applications</h2>
+                <table class="styled-table">
+                    <thead>
+                        <tr>
+                            <th>Application</th>
+                            <th>Benefit</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Structural testing</strong></td>
+                            <td>Full‐field vibration and modal analysis</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Thermal deformation</strong></td>
+                            <td>Real-time mapping of heat-induced warpage</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Microelectronics QA</strong></td>
+                            <td>Sub-micron warpage measurement of wafers & dies</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Aerospace component fatigue</strong></td>
+                            <td>In situ strain mapping under dynamic loading</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+            <hr>
+            
+            <section class="content-section" id="advantages-challenges">
+                <h2><span class="material-icons-round icon-inline">balance</span>Advantages & Challenges</h2>
+                <table class="styled-table">
+                    <thead>
+                        <tr>
+                            <th>Aspect</th>
+                            <th>Advantage</th>
+                            <th>Challenge</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Non-contact, full-field</strong></td>
+                            <td>Measures entire surface at once</td>
+                            <td>Requires stable environmental control</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Sub-micron sensitivity</strong></td>
+                            <td><< wavelength resolution</td>
+                            <td>Phase‐noise and speckle decorrelation</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Real-time operation</strong></td>
+                            <td>kHz measurement rates</td>
+                            <td>High data throughput & GPU processing demands</td>
+                        </tr>
+                        <tr>
+                            <td><strong>3D surface reconstruction</strong></td>
+                            <td>Direct out-of-plane measurement</td>
+                            <td>Complex calibration of reference curvature</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+            <hr>
+
+            <section class="content-section" id="future-directions">
+                <h2><span class="material-icons-round icon-inline">rocket_launch</span>Future Directions</h2>
+                <ul>
+                    <li><strong>Speckle‐reduction techniques</strong> (e.g. wavelength tuning, angular diversity)</li>
+                    <li><strong>Multi-wavelength holography</strong> for unambiguous large deformation mapping</li>
+                    <li><strong>Machine-learning phase unwrapping</strong> to accelerate computation</li>
+                    <li><strong>Fiber-based probes</strong> for in-field or confined-space metrology</li>
+                </ul>
+            </section>
+            <hr>
+
+            <section class="content-section" id="references">
+                <h2><span class="material-icons-round icon-inline">menu_book</span>References</h2>
+                <ol>
+                    <li>Kreis, T. (2005). <em>Handbook of Holographic Interferometry: Optical and Digital Methods</em>.</li>
+                    <li>Schnars, U., & Jueptner, W. (2002). <em>Digital Holography</em>.</li>
+                    <li>Picart, P., & Leval, J. (2004). “Phase unwrapping algorithm for real-time holographic interferometry,” <em>Optics and Lasers in Engineering</em>, <strong>42</strong>(5), 641–657.</li>
+                </ol>
+            </section>
+        </main>
+
+        <footer>
+            <p>Scientific concept and logic by <strong>Lion</strong>.</p>
+            <p>UI/UX & Web Implementation inspired by modern design principles.</p>
+            <p>© 2024 Holographic Interferometric Metrology Project</p>
+        </footer>
+    </div>
+
+    <script>
+        // Initialize Mermaid
+        mermaid.initialize({ 
+            startOnLoad: true,
+            theme: 'base', 
+            themeVariables: {
+                primaryColor: getComputedStyle(document.documentElement).getPropertyValue('--diagram-element-bg').trim(),
+                primaryTextColor: getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim(),
+                primaryBorderColor: getComputedStyle(document.documentElement).getPropertyValue('--card-border').trim(),
+                lineColor: getComputedStyle(document.documentElement).getPropertyValue('--icon-color').trim(),
+                secondaryColor: getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim(),
+                tertiaryColor: getComputedStyle(document.documentElement).getPropertyValue('--bg-color').trim()
+            },
+            flowchart: { 
+                htmlLabels: true,
+                nodeSpacing: 50,
+                rankSpacing: 50
+            },
+            fontFamily: getComputedStyle(document.documentElement).getPropertyValue('--font-primary').trim(),
+        });
+
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Theme Switcher
+            const lightModeBtn = document.getElementById('light-mode-btn');
+            const darkModeBtn = document.getElementById('dark-mode-btn');
+            const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+
+            function updateMermaidTheme() {
+                const currentPrimaryColor = getComputedStyle(document.documentElement).getPropertyValue('--diagram-element-bg').trim();
+                const currentTextColor = getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim();
+                const currentBorderColor = getComputedStyle(document.documentElement).getPropertyValue('--card-border').trim();
+                const currentLineColor = getComputedStyle(document.documentElement).getPropertyValue('--icon-color').trim();
+                const currentAccentColor = getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim();
+                const currentBgColor = getComputedStyle(document.documentElement).getPropertyValue('--bg-color').trim();
+                
+                mermaid.initialize({
+                    theme: 'base',
+                    themeVariables: {
+                        primaryColor: currentPrimaryColor,
+                        primaryTextColor: currentTextColor,
+                        primaryBorderColor: currentBorderColor,
+                        lineColor: currentLineColor,
+                        secondaryColor: currentAccentColor,
+                        tertiaryColor: currentBgColor
+                    }
+                });
+                document.querySelectorAll('.mermaid[data-processed="true"]').forEach((el, i) => {
+                    const code = el.textContent || el.innerText;
+                    const id = `mermaid-graph-${Date.now()}-${i}`;
+                    el.removeAttribute('data-processed');
+                    el.innerHTML = code;
+                    try {
+                         mermaid.init(undefined, el);
+                    } catch (e) {
+                        console.error("Error re-rendering Mermaid diagram:", e);
+                    }
+                });
+            }
+
+            function setTheme(theme) {
+                if (theme === 'dark') {
+                    document.documentElement.classList.add('dark-mode');
+                    localStorage.setItem('theme', 'dark');
+                } else {
+                    document.documentElement.classList.remove('dark-mode');
+                    localStorage.setItem('theme', 'light');
+                }
+                updateMermaidTheme();
+            }
+
+            lightModeBtn.addEventListener('click', () => setTheme('light'));
+            darkModeBtn.addEventListener('click', () => setTheme('dark'));
+
+            const currentTheme = localStorage.getItem('theme');
+            if (currentTheme) {
+                setTheme(currentTheme);
+            } else if (prefersDarkScheme.matches) {
+                setTheme('dark');
+            } else {
+                setTheme('light'); 
+            }
+            
+            // Scroll Animations for sections
+            const sections = document.querySelectorAll('.content-section');
+            const hrs = document.querySelectorAll('hr');
+            const observerOptions = {
+                root: null, 
+                rootMargin: '0px',
+                threshold: 0.1 
+            };
+
+            const observer = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('is-visible');
+                    }
+                });
+            }, observerOptions);
+
+            sections.forEach(section => {
+                observer.observe(section);
+            });
+            hrs.forEach(hr => { 
+                hr.style.opacity = 0; hr.style.transition = 'opacity 0.8s var(--ease-in-out-cubic) 0.2s';
+                observer.observe(hr);
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ambient EM Harvesting</title>
+
+    <!-- MathJax Configuration -->
+    <script>
+        MathJax = {
+          tex: {
+            inlineMath: [['$', '$'], ['\\(', '\\)']],
+            displayMath: [['$$', '$$'], ['\\[', '\\]']],
+            processEscapes: true,
+            tags: 'ams' // For equation numbering if needed
+          },
+          svg: {
+            fontCache: 'global'
+          }
+        };
+    </script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Google Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons|Material+Icons+Outlined|Material+Icons+Round" rel="stylesheet">
+
+    <style>
+        :root {
+            --font-primary: 'Inter', sans-serif;
+            --font-headings: 'Poppins', sans-serif;
+
+            --ease-out-quad: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            --ease-in-out-cubic: cubic-bezier(0.645, 0.045, 0.355, 1);
+
+            /* Light Mode (Default) */
+            --bg-color: #F0F2F5;
+            --text-color: #1d1d1f;
+            --heading-color: #000000;
+            --accent-color: #0A84FF; 
+            --accent-color-darker: #0060D0;
+            --card-bg: rgba(255, 255, 255, 0.6);
+            --card-border: rgba(0, 0, 0, 0.1);
+            --card-shadow-1: rgba(0, 0, 0, 0.05);
+            --card-shadow-2: rgba(0, 0, 0, 0.02);
+            --neumorphic-shadow-light: -6px -6px 12px rgba(255, 255, 255, 0.8), 6px 6px 12px rgba(0, 0, 0, 0.1);
+            --neumorphic-shadow-light-inset: inset -4px -4px 8px rgba(255, 255, 255, 0.7), inset 4px 4px 8px rgba(0, 0, 0, 0.08);
+            --icon-color: #555;
+            --diagram-element-bg: rgba(128,128,128,0.1);
+        }
+
+        html.dark-mode {
+            --bg-color: #161616;
+            --text-color: #E0E0E0;
+            --heading-color: #FFFFFF;
+            --accent-color: #0A94FF;
+            --accent-color-darker: #0070E0;
+            --card-bg: rgba(35, 35, 35, 0.6);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --card-shadow-1: rgba(255, 255, 255, 0.03);
+            --card-shadow-2: rgba(0, 0, 0, 0.1);
+            --neumorphic-shadow-light: -6px -6px 12px rgba(40, 40, 40, 0.7), 6px 6px 12px rgba(0, 0, 0, 0.3);
+            --neumorphic-shadow-light-inset: inset -4px -4px 8px rgba(40, 40, 40, 0.6), inset 4px 4px 8px rgba(0, 0, 0, 0.25);
+            --icon-color: #bbb;
+            --diagram-element-bg: rgba(200,200,200,0.05);
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 16px;
+        }
+
+        body {
+            font-family: var(--font-primary);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.7;
+            transition: background-color 0.3s var(--ease-out-quad), color 0.3s var(--ease-out-quad);
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem 0;
+        }
+
+        header {
+            padding: 3rem 0 2rem;
+            text-align: center;
+            border-bottom: 1px solid var(--card-border);
+            margin-bottom: 3rem;
+        }
+
+        .main-title {
+            font-family: var(--font-headings);
+            font-size: 2.8rem;
+            font-weight: 800;
+            color: var(--heading-color);
+            margin-bottom: 0.5rem;
+            letter-spacing: -1px;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: var(--text-color);
+            opacity: 0.8;
+        }
+
+        .theme-switcher {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 0.5rem;
+            border-radius: 50px;
+            box-shadow: 0 4px 15px var(--card-shadow-1);
+            display: flex;
+            align-items: center;
+        }
+
+        .theme-button {
+            background: none;
+            border: none;
+            color: var(--icon-color);
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 50%;
+            transition: background-color 0.2s ease, color 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .theme-button:hover {
+            background-color: rgba(128,128,128,0.1);
+        }
+        .theme-button .material-icons-round {
+            font-size: 24px;
+        }
+
+
+        .content-section {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            padding: 2rem 2.5rem;
+            margin-bottom: 2.5rem;
+            border-radius: 20px;
+            box-shadow: 0 8px 30px var(--card-shadow-1), 0 2px 8px var(--card-shadow-2);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s var(--ease-in-out-cubic), transform 0.6s var(--ease-in-out-cubic);
+        }
+
+        .content-section.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .content-section h2, .content-section h3, .content-section h4 {
+            font-family: var(--font-headings);
+            color: var(--heading-color);
+            margin-bottom: 1.2rem;
+            margin-top: 1.5rem;
+            position: relative;
+            padding-left: 1.5rem;
+        }
+        .content-section h2::before, .content-section h3::before, .content-section h4::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 6px;
+            height: 60%;
+            min-height: 18px;
+            background-color: var(--accent-color);
+            border-radius: 3px;
+        }
+
+
+        .content-section h2 { font-size: 1.8rem; font-weight: 700; }
+        .content-section h3 { font-size: 1.5rem; font-weight: 600; }
+        .content-section h4 { font-size: 1.2rem; font-weight: 600; }
+        .content-section h2:first-child, .content-section h3:first-child, .content-section h4:first-child {
+            margin-top: 0;
+        }
+
+        .content-section p {
+            margin-bottom: 1rem;
+            color: var(--text-color);
+        }
+
+        .content-section ul {
+            list-style: none;
+            padding-left: 0;
+            margin-bottom: 1rem;
+        }
+
+        .content-section li {
+            padding-left: 2em;
+            position: relative;
+            margin-bottom: 0.75rem;
+        }
+
+        .content-section li::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 4px;
+            color: var(--accent-color);
+            font-size: 1.2em;
+            width: 1.2em; 
+            height: 1.2em; 
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%230A84FF'%3E%3Cpath d='M15.71,12.71a1,1,0,0,0-.71.29L9.29,18.71a1,1,0,0,0,1.42,1.42l5.29-5.3a1,1,0,0,0,0-1.42L10.71,8.12a1,1,0,0,0-1.42,1.42l5.29,5.29A1,1,0,0,0,15.71,12.71Z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-size: contain;
+        }
+        html.dark-mode .content-section li::before {
+             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%230A94FF'%3E%3Cpath d='M15.71,12.71a1,1,0,0,0-.71.29L9.29,18.71a1,1,0,0,0,1.42,1.42l5.29-5.3a1,1,0,0,0,0-1.42L10.71,8.12a1,1,0,0,0-1.42,1.42l5.29,5.29A1,1,0,0,0,15.71,12.71Z'/%3E%3C/svg%3E");
+        }
+
+
+        .content-section strong {
+            font-weight: 600;
+            color: var(--heading-color);
+        }
+
+        .content-section .mjx-math { 
+            font-size: 1.1em !important; 
+            margin: 1rem 0;
+            padding: 0.5rem;
+            overflow-x: auto;
+        }
+
+        .core-equations-summary ol {
+            list-style-type: none;
+            counter-reset: equation-counter;
+            padding-left: 0;
+        }
+        .core-equations-summary li {
+            counter-increment: equation-counter;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            background-color: rgba(128,128,128,0.05);
+            position: relative;
+            padding-left: 3.5rem; 
+        }
+        .core-equations-summary li::before {
+            content: counter(equation-counter);
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: var(--accent-color);
+            color: white;
+            font-weight: bold;
+            width: 2rem;
+            height: 2rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            line-height: 1; 
+        }
+        .core-equations-summary li .mjx-math {
+            margin: 0.5rem 0;
+        }
+
+        /* Diagram Styling */
+        .diagram-container {
+            margin-top: 2rem;
+            margin-bottom: 1.5rem;
+            padding: 1.5rem;
+            border: 1px dashed var(--card-border);
+            border-radius: 15px;
+            text-align: center;
+            background: rgba(0,0,0,0.02);
+        }
+        html.dark-mode .diagram-container {
+             background: rgba(255,255,255,0.02);
+        }
+
+        .diagram-container h4 {
+            margin-bottom: 1.5rem;
+            font-size: 1.1rem;
+            color: var(--heading-color);
+            font-weight: 600;
+            padding-left: 0; 
+        }
+        .diagram-container h4::before {
+            display: none;
+        }
+
+        .metasurface-diagram {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px; /* Reduced gap */
+            padding: 15px;
+            border: 1px solid var(--card-border);
+            border-radius: 10px;
+            background-color: var(--diagram-element-bg); /* Use CSS var */
+            margin-top: 1rem;
+            max-width: 350px; /* Constrain width */
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .em-waves {
+            display: flex;
+            gap: 6px; /* Increased gap for visual separation */
+            margin-bottom: 10px;
+        }
+        .wave {
+            width: 8px; /* Thinner waves */
+            height: 50px; /* Shorter waves */
+            background-color: var(--accent-color);
+            opacity: 0.7;
+            animation: wave-animate 1.5s infinite ease-in-out;
+            border-radius: 2px; /* Slightly rounded ends */
+        }
+        .wave:nth-child(1) { animation-delay: 0s; }
+        .wave:nth-child(2) { animation-delay: 0.15s; }
+        .wave:nth-child(3) { animation-delay: 0.3s; }
+        .wave:nth-child(4) { animation-delay: 0.45s; }
+
+        @keyframes wave-animate {
+            0%, 100% { transform: scaleY(0.2); opacity: 0.3; }
+            50% { transform: scaleY(1); opacity: 0.8; }
+        }
+
+        .metasurface-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 25px); /* Smaller cells */
+            grid-template-rows: repeat(3, 25px);
+            gap: 4px; /* Smaller gap */
+            border: 2px solid var(--text-color);
+            padding: 4px;
+            background-color: var(--bg-color); /* Match page bg for distinct layer */
+            border-radius: 4px;
+            transition: background-color 0.3s var(--ease-out-quad);
+        }
+        
+        .unit-cell-diagram {
+            width: 100%; /* Fill grid cell */
+            height: 100%; /* Fill grid cell */
+            background-color: var(--diagram-element-bg); /* Use CSS var */
+            border: 1px solid var(--accent-color);
+            border-radius: 2px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent-color);
+            box-shadow: inset 0 0 3px rgba(0,0,0,0.05);
+        }
+        html.dark-mode .unit-cell-diagram {
+            box-shadow: inset 0 0 3px rgba(255,255,255,0.05);
+        }
+        .unit-cell-diagram .material-icons-round { /* Optional: icon inside cell */
+            font-size: 14px;
+            opacity: 0.5;
+        }
+
+
+        .arrow-down {
+            width: 0;
+            height: 0;
+            border-left: 8px solid transparent; /* Smaller arrow */
+            border-right: 8px solid transparent;
+            border-top: 12px solid var(--accent-color);
+            margin: 5px 0;
+        }
+
+        .dc-output {
+            display: flex;
+            align-items: center;
+            gap: 8px; /* Smaller gap */
+            font-weight: 600; /* Bolder */
+            font-size: 0.9rem; /* Slightly smaller text */
+            color: var(--accent-color);
+            padding: 5px 10px;
+            background-color: var(--diagram-element-bg);
+            border-radius: 6px;
+        }
+        .dc-output .material-icons-round {
+            font-size: 20px; /* Smaller icon */
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 2rem 0;
+            margin-top: 2rem;
+            border-top: 1px solid var(--card-border);
+            font-size: 0.9rem;
+            color: var(--text-color);
+            opacity: 0.7;
+        }
+        footer strong {
+            font-weight: bold;
+            color: var(--accent-color);
+        }
+
+        /* Material Icons in text */
+        .icon-inline {
+            font-family: 'Material Icons Round';
+            font-size: 1.1em; 
+            vertical-align: -0.15em; 
+            margin-right: 0.2em;
+            color: var(--accent-color);
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .main-title { font-size: 2.2rem; }
+            .subtitle { font-size: 1rem; }
+            .content-section { padding: 1.5rem; border-radius: 15px; }
+            .content-section h2 { font-size: 1.6rem; }
+            .content-section h3 { font-size: 1.3rem; }
+            .core-equations-summary li { padding-left: 3rem; }
+            .core-equations-summary li::before { left: 0.75rem; width: 1.8rem; height: 1.8rem; font-size: 0.8rem;}
+            .theme-switcher { top: 10px; right: 10px; padding: 0.3rem;}
+            .theme-button {padding: 0.4rem;}
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="theme-switcher">
+        <button id="light-mode-btn" class="theme-button" title="Switch to Light Mode">
+            <span class="material-icons-round">light_mode</span>
+        </button>
+        <button id="dark-mode-btn" class="theme-button" title="Switch to Dark Mode">
+            <span class="material-icons-round">dark_mode</span>
+        </button>
+    </div>
+
+    <div class="container">
+        <header>
+            <h1 class="main-title">Ambient EM Harvesting</h1>
+            <p class="subtitle">Metasurface-Enhanced RF Energy Scavenging</p>
+        </header>
+
+        <main>
+            <section class="content-section" id="concept">
+                <h2><span class="material-icons-round icon-inline">lightbulb</span>Concept</h2>
+                <p>Ambient Electromagnetic (EM) Harvesting via metasurfaces is an innovative approach to convert background electromagnetic radiation—such as Wi-Fi, cellular, and radio frequency (RF) signals—into usable direct current (DC) electrical power. This is achieved through engineered metasurfaces that utilize nonlinear rectification mechanisms, offering a substantial increase in efficiency over conventional RF harvesters.</p>
+            </section>
+
+            <section class="content-section" id="design-details">
+                <h2><span class="material-icons-round icon-inline">layers</span>Design and Details</h2>
+                <ul>
+                    <li><strong>Metasurface Array</strong>: The harvester is composed of subwavelength metallic or dielectric elements arranged in a planar array to absorb specific frequency bands.</li>
+                    <li><strong>Nonlinear Rectification Layer</strong>: Each unit cell incorporates a nonlinear component, such as a Schottky diode or tunneling junction, which rectifies the high-frequency AC signal into DC.</li>
+                    <li><strong>Resonant Tuning</strong>: Structures are tuned to resonate at 2.4 GHz (Wi-Fi), 900 MHz (cellular), and other common EM bands.</li>
+                    <li><strong>DC Collection Grid</strong>: Rectified power from each unit is collected via a network of conductive paths and stored in a capacitor or battery.</li>
+                </ul>
+            </section>
+            
+            <section class="content-section" id="harvester-diagram-section">
+                <h2><span class="material-icons-round icon-inline">antenna</span>Metasurface Harvester Diagram</h2>
+                <div class="diagram-container">
+                    <h4>Conceptual EM Harvester Operation</h4>
+                    <div class="metasurface-diagram">
+                        <div class="em-waves">
+                            <div class="wave"></div>
+                            <div class="wave"></div>
+                            <div class="wave"></div>
+                            <div class="wave"></div>
+                        </div>
+                        <div class="metasurface-grid">
+                            <div class="unit-cell-diagram"><span class="material-icons-round">memory</span></div>
+                            <div class="unit-cell-diagram"><span class="material-icons-round">memory</span></div>
+                            <div class="unit-cell-diagram"><span class="material-icons-round">memory</span></div>
+                            <div class="unit-cell-diagram"><span class="material-icons-round">memory</span></div>
+                            <div class="unit-cell-diagram"><span class="material-icons-round">memory</span></div>
+                            <div class="unit-cell-diagram"><span class="material-icons-round">memory</span></div>
+                            <div class="unit-cell-diagram"><span class="material-icons-round">memory</span></div>
+                            <div class="unit-cell-diagram"><span class="material-icons-round">memory</span></div>
+                            <div class="unit-cell-diagram"><span class="material-icons-round">memory</span></div>
+                            <div class="unit-cell-diagram"><span class="material-icons-round">memory</span></div>
+                            <div class="unit-cell-diagram"><span class="material-icons-round">memory</span></div>
+                            <div class="unit-cell-diagram"><span class="material-icons-round">memory</span></div>
+                            <div class="unit-cell-diagram"><span class="material-icons-round">memory</span></div>
+                            <div class="unit-cell-diagram"><span class="material-icons-round">memory</span></div>
+                            <div class="unit-cell-diagram"><span class="material-icons-round">memory</span></div>
+                        </div>
+                        <div class="arrow-down"></div>
+                        <div class="dc-output">
+                            <span class="material-icons-round">battery_charging_full</span>
+                            <span>DC Power</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="content-section" id="theoretical-foundations">
+                <h2><span class="material-icons-round icon-inline">functions</span>Theoretical Foundation</h2>
+                
+                <h3>Incident Power Density</h3>
+                <p>The power density $P_{inc}$ of ambient EM waves:</p>
+                $$ P_{inc} = \frac{1}{2} \text{Re}(E \times H^*) = \frac{|E|^2}{2Z_0} $$
+                <p>Where:</p>
+                <ul>
+                    <li>$E$: Electric field amplitude</li>
+                    <li>$H$: Magnetic field amplitude</li>
+                    <li>$Z_0$: Free-space impedance (≈ 377 Ω)</li>
+                </ul>
+
+                <h3>Rectified Power Output</h3>
+                <p>For a nonlinear rectifier:</p>
+                $$ P_{DC} = \eta \cdot P_{AC} $$
+                <p>Where:</p>
+                <ul>
+                    <li>$\eta$: Rectification efficiency</li>
+                    <li>$P_{AC}$: Incident RF power absorbed</li>
+                </ul>
+
+                <h3>Nonlinear Rectification (Schottky Diode Model)</h3>
+                <p>The diode current-voltage behavior:</p>
+                $$ I(V) = I_s \left( e^{\frac{qV}{nkT}} - 1 \right) $$
+                <p>Where:</p>
+                <ul>
+                    <li>$I_s$: Saturation current</li>
+                    <li>$q$: Electron charge</li>
+                    <li>$n$: Ideality factor</li>
+                    <li>$k$: Boltzmann constant</li>
+                    <li>$T$: Temperature</li>
+                </ul>
+                <p>DC voltage across the load:</p>
+                $$ V_{DC} = \frac{1}{T} \int_0^T V(t) \cdot \Theta(V(t)) dt $$
+                <p>$\Theta$: Rectification function (nonlinear response)</p>
+            </section>
+
+            <section class="content-section core-equations-summary" id="core-equations">
+                <h2><span class="material-icons-round icon-inline">integration_instructions</span>Core Equations Summary</h2>
+                <ol>
+                    <li><strong>Incident Power Density:</strong> $P_{inc} = \frac{|E|^2}{2Z_0}$</li>
+                    <li><strong>Rectified Power Output:</strong> $P_{DC} = \eta \cdot P_{AC}$</li>
+                    <li><strong>Diode Current-Voltage:</strong> $I(V) = I_s \left( e^{\frac{qV}{nkT}} - 1 \right)$</li>
+                    <li><strong>DC Voltage (Load):</strong> $V_{DC} = \frac{1}{T} \int_0^T V(t) \cdot \Theta(V(t)) dt$</li>
+                </ol>
+            </section>
+
+            <section class="content-section" id="logical-workflow">
+                <h2><span class="material-icons-round icon-inline">account_tree</span>Logical Workflow</h2>
+                <ol>
+                    <li><strong>Absorption</strong>: Metasurface elements resonate with incoming EM waves.</li>
+                    <li><strong>AC-to-DC Conversion</strong>: Nonlinear components rectify oscillating currents into a unidirectional flow.</li>
+                    <li><strong>Aggregation</strong>: Individual DC outputs are collected into a storage element.</li>
+                    <li><strong>Load Delivery</strong>: Stored energy powers low-power electronic devices.</li>
+                    <li><strong>Adaptive Tuning</strong>: Variable load or impedance matching circuits optimize energy capture.</li>
+                </ol>
+            </section>
+
+            <section class="content-section" id="predicted-efficiency">
+                <h2><span class="material-icons-round icon-inline">insights</span>Predicted Efficiency</h2>
+                <ul>
+                    <li><strong>Target Frequency</strong>: 2.4 GHz (Wi-Fi band)</li>
+                    <li><strong>Conversion Efficiency</strong>: Theoretical models predict ~40% under optimized impedance matching and material selection.</li>
+                    <li><strong>Benchmark</strong>: Current state-of-the-art RF harvesters achieve 10–15% efficiency.</li>
+                </ul>
+            </section>
+
+            <section class="content-section" id="applications">
+                <h2><span class="material-icons-round icon-inline">widgets</span>Applications</h2>
+                <ul>
+                    <li>Battery-free IoT sensors</li>
+                    <li>Energy-scavenging wearables</li>
+                    <li>Wireless surveillance systems</li>
+                    <li>Self-powered smart home devices</li>
+                    <li>Remote environmental monitors</li>
+                </ul>
+            </section>
+        </main>
+
+        <footer>
+            <p>Scientific concept and logic by <strong>Lion</strong>.</p>
+            <p>UI/UX & Web Implementation inspired by modern design principles.</p>
+            <p>© 2024 Ambient EM Harvesting Project</p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Theme Switcher
+            const lightModeBtn = document.getElementById('light-mode-btn');
+            const darkModeBtn = document.getElementById('dark-mode-btn');
+            const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+
+            function setTheme(theme) {
+                if (theme === 'dark') {
+                    document.documentElement.classList.add('dark-mode');
+                    localStorage.setItem('theme', 'dark');
+                } else {
+                    document.documentElement.classList.remove('dark-mode');
+                    localStorage.setItem('theme', 'light');
+                }
+            }
+
+            lightModeBtn.addEventListener('click', () => setTheme('light'));
+            darkModeBtn.addEventListener('click', () => setTheme('dark'));
+
+            const currentTheme = localStorage.getItem('theme');
+            if (currentTheme) {
+                setTheme(currentTheme);
+            } else if (prefersDarkScheme.matches) {
+                setTheme('dark');
+            }
+
+
+            // Scroll Animations for sections
+            const sections = document.querySelectorAll('.content-section');
+            const observerOptions = {
+                root: null, 
+                rootMargin: '0px',
+                threshold: 0.1 
+            };
+
+            const observer = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('is-visible');
+                    }
+                });
+            }, observerOptions);
+
+            sections.forEach(section => {
+                observer.observe(section);
+            });
+            
+            // JS for diagram interaction is removed as the new diagram is static CSS based.
+            // If dynamic updates to CSS diagram were needed on theme change (beyond CSS vars),
+            // the themeObserver logic could be reinstated here.
+            // For current setup, CSS variables handle theme changes for the diagram.
+        });
+    </script>
+</body>
+</html>

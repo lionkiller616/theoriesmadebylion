@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Graphene-Oxide Ion Pumps</title>
+
+    <!-- MathJax Configuration -->
+    <script>
+        MathJax = {
+          tex: {
+            inlineMath: [['$', '$'], ['\\(', '\\)']],
+            displayMath: [['$$', '$$'], ['\\[', '\\]'], ['```math', '```']],
+            processEscapes: true,
+            tags: 'ams',
+            macros: { // Define custom macros if needed
+                // No specific macros from content, but can add if needed
+            }
+          },
+          svg: {
+            fontCache: 'global'
+          }
+        };
+    </script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <!-- Mermaid JS for diagrams -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Google Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons|Material+Icons+Outlined|Material+Icons+Round" rel="stylesheet">
+
+    <style>
+        :root {
+            --font-primary: 'Inter', sans-serif;
+            --font-headings: 'Poppins', sans-serif;
+
+            --ease-out-quad: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            --ease-in-out-cubic: cubic-bezier(0.645, 0.045, 0.355, 1);
+
+            /* Light Mode (Default) */
+            --bg-color: #F0F2F5;
+            --text-color: #1d1d1f;
+            --heading-color: #000000;
+            --accent-color: #00695C; /* Sophisticated Dark Teal/Gray for Graphene/Ion Pumps */
+            --accent-color-darker: #004D40;
+            --card-bg: rgba(255, 255, 255, 0.6);
+            --card-border: rgba(0, 0, 0, 0.1);
+            --card-shadow-1: rgba(0, 0, 0, 0.05);
+            --card-shadow-2: rgba(0, 0, 0, 0.02);
+            --neumorphic-shadow-light: -6px -6px 12px rgba(255, 255, 255, 0.8), 6px 6px 12px rgba(0, 0, 0, 0.1);
+            --neumorphic-shadow-light-inset: inset -4px -4px 8px rgba(255, 255, 255, 0.7), inset 4px 4px 8px rgba(0, 0, 0, 0.08);
+            --icon-color: #555;
+            --diagram-element-bg: rgba(128,128,128,0.05);
+            --code-bg: #f7f7f7;
+            --code-text: #333;
+            --hr-color: rgba(0,0,0,0.1); 
+            --table-header-bg: rgba(0,0,0,0.03);
+            --table-row-hover-bg: rgba(0,0,0,0.02);
+        }
+
+        html.dark-mode {
+            --bg-color: #161616;
+            --text-color: #E0E0E0;
+            --heading-color: #FFFFFF;
+            --accent-color: #26A69A; /* Lighter Teal for dark mode */
+            --accent-color-darker: #00897B;
+            --card-bg: rgba(35, 35, 35, 0.6);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --card-shadow-1: rgba(255, 255, 255, 0.03);
+            --card-shadow-2: rgba(0, 0, 0, 0.1);
+            --neumorphic-shadow-light: -6px -6px 12px rgba(40, 40, 40, 0.7), 6px 6px 12px rgba(0, 0, 0, 0.3);
+            --neumorphic-shadow-light-inset: inset -4px -4px 8px rgba(40, 40, 40, 0.6), inset 4px 4px 8px rgba(0, 0, 0, 0.25);
+            --icon-color: #bbb;
+            --diagram-element-bg: rgba(200,200,200,0.05);
+            --code-bg: #2a2a2a;
+            --code-text: #ccc;
+            --hr-color: rgba(255,255,255,0.1);
+            --table-header-bg: rgba(255,255,255,0.03);
+            --table-row-hover-bg: rgba(255,255,255,0.02);
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 16px;
+        }
+
+        body {
+            font-family: var(--font-primary);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.7;
+            transition: background-color 0.3s var(--ease-out-quad), color 0.3s var(--ease-out-quad);
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem 0;
+        }
+
+        header {
+            padding: 2rem 0 1rem;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .main-title {
+            font-family: var(--font-headings);
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--heading-color);
+            margin-bottom: 0.5rem;
+            letter-spacing: -1px;
+        }
+        .tagline { 
+            font-size: 1.1rem;
+            color: var(--text-color);
+            opacity: 0.8;
+            margin-bottom: 1.5rem;
+        }
+        
+        hr {
+            border: none;
+            height: 1px;
+            background-color: var(--hr-color);
+            margin: 2rem auto;
+            width: 80%;
+        }
+
+
+        .theme-switcher {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 0.5rem;
+            border-radius: 50px;
+            box-shadow: 0 4px 15px var(--card-shadow-1);
+            display: flex;
+            align-items: center;
+        }
+
+        .theme-button {
+            background: none;
+            border: none;
+            color: var(--icon-color);
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 50%;
+            transition: background-color 0.2s ease, color 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .theme-button:hover {
+            background-color: rgba(128,128,128,0.1);
+        }
+        .theme-button .material-icons-round {
+            font-size: 24px;
+        }
+
+
+        .content-section {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            padding: 2rem 2.5rem;
+            margin-bottom: 2.5rem;
+            border-radius: 20px;
+            box-shadow: 0 8px 30px var(--card-shadow-1), 0 2px 8px var(--card-shadow-2);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s var(--ease-in-out-cubic), transform 0.6s var(--ease-in-out-cubic);
+        }
+
+        .content-section.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .content-section h2, .content-section h3, .content-section h4 {
+            font-family: var(--font-headings);
+            color: var(--heading-color);
+            margin-bottom: 1.2rem;
+            margin-top: 1.5rem;
+            position: relative;
+            padding-left: 1.5rem;
+        }
+        .content-section h2::before, .content-section h3::before, .content-section h4::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 6px;
+            height: 60%;
+            min-height: 18px;
+            background-color: var(--accent-color);
+            border-radius: 3px;
+        }
+
+
+        .content-section h2 { font-size: 1.8rem; font-weight: 700; }
+        .content-section h3 { font-size: 1.5rem; font-weight: 600; }
+        .content-section h4 { font-size: 1.2rem; font-weight: 600; }
+        .content-section h2:first-child, .content-section h3:first-child, .content-section h4:first-child {
+            margin-top: 0;
+        }
+
+        .content-section p {
+            margin-bottom: 1rem;
+            color: var(--text-color);
+        }
+
+        .content-section ul, .content-section ol {
+            list-style: none;
+            padding-left: 0;
+            margin-bottom: 1rem;
+        }
+         .content-section ol { 
+            counter-reset: list-item-counter;
+        }
+
+
+        .content-section li {
+            padding-left: 2em;
+            position: relative;
+            margin-bottom: 0.75rem;
+        }
+        
+        .content-section ul li::before { 
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 9px; 
+            width: 8px;
+            height: 8px;
+            background-color: var(--accent-color);
+            border-radius: 50%;
+        }
+
+        .content-section ol li::before { 
+            counter-increment: list-item-counter;
+            content: counter(list-item-counter) ".";
+            position: absolute;
+            left: 0;
+            top: 1px; 
+            font-weight: 600;
+            color: var(--accent-color);
+        }
+
+
+        .content-section strong {
+            font-weight: 600;
+            color: var(--heading-color);
+        }
+
+        .content-section .mjx-math, .content-section pre[class*="language-math"] { 
+            font-size: 1.1em !important; 
+            margin: 1.5rem 0;
+            padding: 1rem;
+            overflow-x: auto;
+            background-color: var(--diagram-element-bg);
+            border-radius: 8px;
+            border: 1px solid var(--card-border);
+        }
+        
+        .mermaid-diagram-container {
+            background-color: var(--diagram-element-bg);
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin: 1.5rem auto;
+            text-align: center;
+            border: 1px solid var(--card-border);
+        }
+        .mermaid-diagram-container svg {
+            max-width: 100%;
+            height: auto;
+        }
+        
+        .styled-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            font-size: 0.95em;
+        }
+        .styled-table th, .styled-table td {
+            border: 1px solid var(--card-border);
+            padding: 0.75rem 1rem;
+            text-align: left;
+        }
+        .styled-table th {
+            background-color: var(--table-header-bg);
+            font-weight: 600;
+            color: var(--heading-color);
+        }
+        .styled-table tr:hover {
+            background-color: var(--table-row-hover-bg);
+        }
+        .styled-table td:nth-child(1) {
+            font-weight: 500;
+        }
+
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 2rem 0;
+            margin-top: 2rem;
+            border-top: 1px solid var(--hr-color); 
+            font-size: 0.9rem;
+            color: var(--text-color);
+            opacity: 0.7;
+        }
+        footer strong {
+            font-weight: bold;
+            color: var(--accent-color);
+        }
+
+        /* Material Icons in text */
+        .icon-inline {
+            font-family: 'Material Icons Round';
+            font-size: 1.1em; 
+            vertical-align: -0.15em; 
+            margin-right: 0.2em;
+            color: var(--accent-color);
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .main-title { font-size: 2rem; }
+            .tagline { font-size: 1rem; }
+            .content-section { padding: 1.5rem; border-radius: 15px; }
+            .content-section h2 { font-size: 1.6rem; }
+            .content-section h3 { font-size: 1.3rem; }
+            .theme-switcher { top: 10px; right: 10px; padding: 0.3rem;}
+            .theme-button {padding: 0.4rem;}
+            .styled-table { font-size: 0.85em; }
+            .styled-table th, .styled-table td { padding: 0.5rem; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="theme-switcher">
+        <button id="light-mode-btn" class="theme-button" title="Switch to Light Mode">
+            <span class="material-icons-round">light_mode</span>
+        </button>
+        <button id="dark-mode-btn" class="theme-button" title="Switch to Dark Mode">
+            <span class="material-icons-round">dark_mode</span>
+        </button>
+    </div>
+
+    <div class="container">
+        <header>
+            <h1 class="main-title">Graphene-Oxide Ion Pumps</h1>
+            <p class="tagline">Membrane-Based, Voltage-Controlled Desalination Units</p>
+        </header>
+        <hr>
+
+        <main>
+            <section class="content-section" id="introduction">
+                <h2><span class="material-icons-round icon-inline">water_drop</span>1. Introduction</h2>
+                <p>Graphene-oxide (GO) ion pumps utilize electrically biased GO membranes to selectively transport ions, enabling desalination and water purification with low energy consumption. By applying a transmembrane voltage, charged GO nanochannels act as ion-selective pathways, pumping salt ions against concentration gradients.</p>
+                <p><strong>Key Advantages:</strong></p>
+                <ul>
+                    <li><strong>High Flux & Selectivity:</strong> Tunable channel size (~0.7–1.2 nm) for monovalent ion transport</li>
+                    <li><strong>Low Energy:</strong> Voltage-driven rather than pressure-driven, reducing mechanical energy demand</li>
+                    <li><strong>Scalability:</strong> Printable GO membranes on flexible substrates for module integration</li>
+                </ul>
+            </section>
+            <!-- No HR after intro as per MD -->
+
+            <section class="content-section" id="membrane-structure-fabrication">
+                <h2><span class="material-icons-round icon-inline">layers</span>2. Membrane Structure & Fabrication</h2>
+                <div class="mermaid-diagram-container">
+                    <pre class="mermaid">
+graph LR
+  A[Porous Substrate (PVDF/Ceramic)] --> B((Graphene Oxide Layer - Stacked Sheets))
+  B --> C{Nanochannel Network (Interlayer Spacing)}
+  B --> D[Electrode Coating (Au/Ag - Anode/Cathode)]
+  D --> E((Current Collector))
+  C --> F[Selective Ion Transport Pathways]
+
+  classDef substrate fill:#E0F2F1,stroke:#00796B,color:#000;
+  classDef go_layer fill:#B2DFDB,stroke:#00897B,color:#000;
+  classDef channel_path fill:#A7FFEB,stroke:#00BFA5,color:#000;
+  classDef electrode fill:#CFD8DC,stroke:#455A64,color:#000;
+  
+  class A,D,E substrate; 
+  class B go_layer;
+  class C,F channel_path;
+                    </pre>
+                </div>
+                <ul>
+                    <li><strong>Graphene Oxide Layer:</strong> Stacked GO sheets with interlayer spacing controlled via chemical reduction or intercalation</li>
+                    <li><strong>Nanochannel Network:</strong> 2D slit-like channels between GO flakes</li>
+                    <li><strong>Electrodes:</strong> Conductive coating (Au or Ag) on both membrane faces acting as anode/cathode</li>
+                    <li><strong>Support Substrate:</strong> Porous polymer (PVDF) or ceramic for mechanical strength</li>
+                </ul>
+            </section>
+            <!-- No HR here -->
+
+            <section class="content-section" id="operating-principle">
+                <h2><span class="material-icons-round icon-inline">bolt</span>3. Operating Principle</h2>
+                <h3>3.1 Ion Transport Mechanisms</h3>
+                <ul>
+                    <li><strong>Electromigration:</strong> Ions migrate under applied electric field $E = V/d$</li>
+                    <li><strong>Donnan Exclusion:</strong> Fixed negative charges on GO repel anions, enhancing cation selectivity</li>
+                    <li><strong>Electroosmotic Flow:</strong> Coupling of water movement with ion transport</li>
+                </ul>
+                <h3>3.2 Desalination Cycle</h3>
+                <ol>
+                    <li><strong>Forward Pumping:</strong> Apply positive voltage at feed side; cations move into permeate chamber against gradient</li>
+                    <li><strong>Recovery:</strong> Reverse polarity or short-circuit to flush concentrated chamber</li>
+                    <li><strong>Continuous Flow:</strong> Alternating voltage wave allows steady extraction of salts</li>
+                </ol>
+            </section>
+            <!-- No HR here -->
+            
+            <section class="content-section" id="theoretical-modeling">
+                <h2><span class="material-icons-round icon-inline">functions</span>4. Theoretical Modeling</h2>
+                <h3>4.1 Nernst–Planck Equation</h3>
+                <p>Ion flux for species $i$:</p>
+                $$
+                J_i = -D_i \nabla c_i - \mu_i z_i e c_i \nabla \phi + c_i v
+                $$
+                <ul>
+                    <li>$D_i$: diffusion coefficient</li>
+                    <li>$\mu_i$: mobility</li>
+                    <li>$z_i$: ion valence</li>
+                    <li>$\phi$: electric potential</li>
+                    <li>$v$: solvent velocity (electroosmotic term)</li>
+                </ul>
+                <h3>4.2 Poisson Equation</h3>
+                <p>Electrostatic potential relates to charge density:</p>
+                $$
+                \nabla^2 \phi = -\frac{e}{\varepsilon \varepsilon_0} \sum_i z_i c_i - \frac{\rho_{fixed}}{\varepsilon \varepsilon_0}
+                $$
+                <ul>
+                    <li>$\rho_{fixed}$: fixed charge density on GO</li>
+                </ul>
+                <h3>4.3 Energy Consumption</h3>
+                <p>Specific energy per volume:</p>
+                $$
+                E = \frac{V I t}{Q_{water}} = \frac{V \times (\sum_i z_i J_i A) \times t}{A v t} = \frac{V \sum_i z_i J_i}{v}
+                $$
+                <ul>
+                    <li>$A$: membrane area</li>
+                    <li>$v$: permeate flow rate</li>
+                </ul>
+            </section>
+            <!-- No HR here -->
+
+            <section class="content-section" id="performance-metrics">
+                <h2><span class="material-icons-round icon-inline">speed</span>5. Performance Metrics</h2>
+                <table class="styled-table">
+                    <thead>
+                        <tr>
+                            <th>Metric</th>
+                            <th>Typical Value</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Ion Flux</td>
+                            <td>10–100 mmol m⁻² s⁻¹</td>
+                        </tr>
+                        <tr>
+                            <td>Salt Rejection</td>
+                            <td>>99% for NaCl</td>
+                        </tr>
+                        <tr>
+                            <td>Energy Consumption</td>
+                            <td>0.1–0.5 kWh m⁻³</td>
+                        </tr>
+                        <tr>
+                            <td>Operating Voltage</td>
+                            <td>1–5 V</td>
+                        </tr>
+                        <tr>
+                            <td>Membrane Stability</td>
+                            <td>>1000 cycles</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+            <!-- No HR here -->
+
+            <section class="content-section" id="module-design-integration">
+                <h2><span class="material-icons-round icon-inline">view_module</span>6. Module Design & Integration</h2>
+                 <ul>
+                    <li><strong>Module Flow Configuration:</strong> Cross-flow or dead-end arrangements</li>
+                    <li><strong>Stacking:</strong> Multiple membranes in series/parallel for throughput scaling</li>
+                    <li><strong>Electronics:</strong> Low-voltage power supply and polarity-switching controller</li>
+                </ul>
+            </section>
+            <!-- No HR here -->
+
+            <section class="content-section" id="applications">
+                <h2><span class="material-icons-round icon-inline">apps</span>7. Applications</h2>
+                 <ul>
+                    <li><strong>Seawater Desalination:</strong> Decentralized, off-grid units</li>
+                    <li><strong>Brackish Water Treatment:</strong> High-efficiency salt removal in rural areas</li>
+                    <li><strong>Industrial Effluent:</strong> Removal of heavy-metal ions by functionalized GO</li>
+                    <li><strong>Smart Textiles:</strong> Integration into wearable fabrics for sweat desalination</li>
+                </ul>
+            </section>
+            <!-- No HR here -->
+            
+            <section class="content-section" id="challenges-future">
+                <h2><span class="material-icons-round icon-inline">report_problem</span>8. Challenges & Future Directions</h2>
+                 <ul>
+                    <li><strong>Fouling:</strong> Organic and biofouling mitigation via surface functionalization</li>
+                    <li><strong>Long-Term Stability:</strong> Maintaining interlayer spacing over cycles</li>
+                    <li><strong>Scale-Up:</strong> Uniform GO coating and defect control in large-area membranes</li>
+                    <li><strong>Advanced Control:</strong> Feedback systems for real-time voltage optimization</li>
+                </ul>
+            </section>
+            <!-- No HR here -->
+            
+            <section class="content-section" id="references">
+                <h2><span class="material-icons-round icon-inline">menu_book</span>9. References</h2>
+                <ol>
+                    <li>Abraham, J., et al. (2017). Tunable sieving of ions using graphene oxide membranes. <em>Nature Nanotechnology</em>, 12, 546–550.</li>
+                    <li>Nair, R. R., et al. (2012). Unimpeded permeation of water through graphene oxide membranes. <em>Science</em>, 335(6067), 442–444.</li>
+                </ol>
+            </section>
+        </main>
+
+        <footer>
+            <p>Scientific concept and logic by <strong>Lion</strong>.</p>
+            <p>UI/UX & Web Implementation inspired by modern design principles.</p>
+            <p>© 2024 Graphene-Oxide Ion Pumps Project</p>
+        </footer>
+    </div>
+
+    <script>
+        // Initialize Mermaid
+        mermaid.initialize({ 
+            startOnLoad: true,
+            theme: 'base', 
+            themeVariables: {
+                primaryColor: getComputedStyle(document.documentElement).getPropertyValue('--diagram-element-bg').trim(),
+                primaryTextColor: getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim(),
+                primaryBorderColor: getComputedStyle(document.documentElement).getPropertyValue('--card-border').trim(),
+                lineColor: getComputedStyle(document.documentElement).getPropertyValue('--icon-color').trim(),
+                secondaryColor: getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim(),
+                tertiaryColor: getComputedStyle(document.documentElement).getPropertyValue('--bg-color').trim()
+            },
+            flowchart: { 
+                htmlLabels: true,
+                nodeSpacing: 50,
+                rankSpacing: 50
+            },
+            fontFamily: getComputedStyle(document.documentElement).getPropertyValue('--font-primary').trim(),
+        });
+
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Theme Switcher
+            const lightModeBtn = document.getElementById('light-mode-btn');
+            const darkModeBtn = document.getElementById('dark-mode-btn');
+            const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+
+            function updateMermaidTheme() {
+                const currentPrimaryColor = getComputedStyle(document.documentElement).getPropertyValue('--diagram-element-bg').trim();
+                const currentTextColor = getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim();
+                const currentBorderColor = getComputedStyle(document.documentElement).getPropertyValue('--card-border').trim();
+                const currentLineColor = getComputedStyle(document.documentElement).getPropertyValue('--icon-color').trim();
+                const currentAccentColor = getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim();
+                const currentBgColor = getComputedStyle(document.documentElement).getPropertyValue('--bg-color').trim();
+                
+                mermaid.initialize({
+                    theme: 'base',
+                    themeVariables: {
+                        primaryColor: currentPrimaryColor,
+                        primaryTextColor: currentTextColor,
+                        primaryBorderColor: currentBorderColor,
+                        lineColor: currentLineColor,
+                        secondaryColor: currentAccentColor,
+                        tertiaryColor: currentBgColor
+                    }
+                });
+                document.querySelectorAll('.mermaid[data-processed="true"]').forEach((el, i) => {
+                    const code = el.textContent || el.innerText;
+                    const id = `mermaid-graph-${Date.now()}-${i}`;
+                    el.removeAttribute('data-processed');
+                    el.innerHTML = code;
+                    try {
+                         mermaid.init(undefined, el);
+                    } catch (e) {
+                        console.error("Error re-rendering Mermaid diagram:", e);
+                    }
+                });
+            }
+
+            function setTheme(theme) {
+                if (theme === 'dark') {
+                    document.documentElement.classList.add('dark-mode');
+                    localStorage.setItem('theme', 'dark');
+                } else {
+                    document.documentElement.classList.remove('dark-mode');
+                    localStorage.setItem('theme', 'light');
+                }
+                updateMermaidTheme();
+            }
+
+            lightModeBtn.addEventListener('click', () => setTheme('light'));
+            darkModeBtn.addEventListener('click', () => setTheme('dark'));
+
+            const currentTheme = localStorage.getItem('theme');
+            if (currentTheme) {
+                setTheme(currentTheme);
+            } else if (prefersDarkScheme.matches) {
+                setTheme('dark');
+            } else {
+                setTheme('light'); 
+            }
+            
+            // Scroll Animations for sections
+            const sections = document.querySelectorAll('.content-section');
+            // No HRs between sections in this MD
+            const observerOptions = {
+                root: null, 
+                rootMargin: '0px',
+                threshold: 0.1 
+            };
+
+            const observer = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('is-visible');
+                    }
+                });
+            }, observerOptions);
+
+            sections.forEach(section => {
+                observer.observe(section);
+            });
+        });
+    </script>
+</body>
+</html>

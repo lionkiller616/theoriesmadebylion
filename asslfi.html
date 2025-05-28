@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All-Solid-State Laser Fusion Igniters</title>
+
+    <!-- MathJax Configuration -->
+    <script>
+        MathJax = {
+          tex: {
+            inlineMath: [['$', '$'], ['\\(', '\\)']],
+            displayMath: [['$$', '$$'], ['\\[', '\\]'], ['```math', '```']],
+            processEscapes: true,
+            tags: 'ams',
+            macros: { // Define custom macros if needed
+                rm: ['{\\rm #1}', 1] // for \rm (e.g., \rm ab)
+            }
+          },
+          svg: {
+            fontCache: 'global'
+          }
+        };
+    </script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <!-- Mermaid JS for diagrams -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Google Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons|Material+Icons+Outlined|Material+Icons+Round" rel="stylesheet">
+
+    <style>
+        :root {
+            --font-primary: 'Inter', sans-serif;
+            --font-headings: 'Poppins', sans-serif;
+
+            --ease-out-quad: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            --ease-in-out-cubic: cubic-bezier(0.645, 0.045, 0.355, 1);
+
+            /* Light Mode (Default) */
+            --bg-color: #F0F2F5;
+            --text-color: #1d1d1f;
+            --heading-color: #000000;
+            --accent-color: #C62828; /* Crimson Red for Lasers/Fusion */
+            --accent-color-darker: #B71C1C;
+            --card-bg: rgba(255, 255, 255, 0.6);
+            --card-border: rgba(0, 0, 0, 0.1);
+            --card-shadow-1: rgba(0, 0, 0, 0.05);
+            --card-shadow-2: rgba(0, 0, 0, 0.02);
+            --neumorphic-shadow-light: -6px -6px 12px rgba(255, 255, 255, 0.8), 6px 6px 12px rgba(0, 0, 0, 0.1);
+            --neumorphic-shadow-light-inset: inset -4px -4px 8px rgba(255, 255, 255, 0.7), inset 4px 4px 8px rgba(0, 0, 0, 0.08);
+            --icon-color: #555;
+            --diagram-element-bg: rgba(128,128,128,0.05);
+            --code-bg: #f7f7f7;
+            --code-text: #333;
+            --hr-color: rgba(0,0,0,0.1);
+            --table-header-bg: rgba(0,0,0,0.03);
+            --table-row-hover-bg: rgba(0,0,0,0.02);
+        }
+
+        html.dark-mode {
+            --bg-color: #161616;
+            --text-color: #E0E0E0;
+            --heading-color: #FFFFFF;
+            --accent-color: #E57373; /* Lighter Crimson for dark mode */
+            --accent-color-darker: #EF5350;
+            --card-bg: rgba(35, 35, 35, 0.6);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --card-shadow-1: rgba(255, 255, 255, 0.03);
+            --card-shadow-2: rgba(0, 0, 0, 0.1);
+            --neumorphic-shadow-light: -6px -6px 12px rgba(40, 40, 40, 0.7), 6px 6px 12px rgba(0, 0, 0, 0.3);
+            --neumorphic-shadow-light-inset: inset -4px -4px 8px rgba(40, 40, 40, 0.6), inset 4px 4px 8px rgba(0, 0, 0, 0.25);
+            --icon-color: #bbb;
+            --diagram-element-bg: rgba(200,200,200,0.05);
+            --code-bg: #2a2a2a;
+            --code-text: #ccc;
+            --hr-color: rgba(255,255,255,0.1);
+            --table-header-bg: rgba(255,255,255,0.03);
+            --table-row-hover-bg: rgba(255,255,255,0.02);
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 16px;
+        }
+
+        body {
+            font-family: var(--font-primary);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.7;
+            transition: background-color 0.3s var(--ease-out-quad), color 0.3s var(--ease-out-quad);
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem 0;
+        }
+
+        header {
+            padding: 2rem 0 1rem;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .main-title {
+            font-family: var(--font-headings);
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--heading-color);
+            margin-bottom: 0.5rem;
+            letter-spacing: -1px;
+        }
+
+        .tagline {
+            font-size: 1.1rem;
+            color: var(--text-color);
+            opacity: 0.8;
+            margin-bottom: 1.5rem;
+        }
+        
+        hr {
+            border: none;
+            height: 1px;
+            background-color: var(--hr-color);
+            margin: 2rem auto;
+            width: 80%;
+        }
+
+
+        .theme-switcher {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 0.5rem;
+            border-radius: 50px;
+            box-shadow: 0 4px 15px var(--card-shadow-1);
+            display: flex;
+            align-items: center;
+        }
+
+        .theme-button {
+            background: none;
+            border: none;
+            color: var(--icon-color);
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 50%;
+            transition: background-color 0.2s ease, color 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .theme-button:hover {
+            background-color: rgba(128,128,128,0.1);
+        }
+        .theme-button .material-icons-round {
+            font-size: 24px;
+        }
+
+
+        .content-section {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            padding: 2rem 2.5rem;
+            margin-bottom: 2.5rem;
+            border-radius: 20px;
+            box-shadow: 0 8px 30px var(--card-shadow-1), 0 2px 8px var(--card-shadow-2);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s var(--ease-in-out-cubic), transform 0.6s var(--ease-in-out-cubic);
+        }
+
+        .content-section.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .content-section h2, .content-section h3, .content-section h4 {
+            font-family: var(--font-headings);
+            color: var(--heading-color);
+            margin-bottom: 1.2rem;
+            margin-top: 1.5rem;
+            position: relative;
+            padding-left: 1.5rem;
+        }
+        .content-section h2::before, .content-section h3::before, .content-section h4::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 6px;
+            height: 60%;
+            min-height: 18px;
+            background-color: var(--accent-color);
+            border-radius: 3px;
+        }
+
+
+        .content-section h2 { font-size: 1.8rem; font-weight: 700; }
+        .content-section h3 { font-size: 1.5rem; font-weight: 600; }
+        .content-section h4 { font-size: 1.2rem; font-weight: 600; }
+        .content-section h2:first-child, .content-section h3:first-child, .content-section h4:first-child {
+            margin-top: 0;
+        }
+
+        .content-section p {
+            margin-bottom: 1rem;
+            color: var(--text-color);
+        }
+
+        .content-section ul, .content-section ol {
+            list-style: none;
+            padding-left: 0;
+            margin-bottom: 1rem;
+        }
+         .content-section ol { 
+            counter-reset: list-item-counter;
+        }
+
+
+        .content-section li {
+            padding-left: 2em;
+            position: relative;
+            margin-bottom: 0.75rem;
+        }
+        
+        .content-section ul li::before { 
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 9px; 
+            width: 8px;
+            height: 8px;
+            background-color: var(--accent-color);
+            border-radius: 50%;
+        }
+
+        .content-section ol li::before { 
+            counter-increment: list-item-counter;
+            content: counter(list-item-counter) ".";
+            position: absolute;
+            left: 0;
+            top: 1px; 
+            font-weight: 600;
+            color: var(--accent-color);
+        }
+
+
+        .content-section strong {
+            font-weight: 600;
+            color: var(--heading-color);
+        }
+
+        .content-section .mjx-math, .content-section pre[class*="language-math"] { 
+            font-size: 1.1em !important; 
+            margin: 1.5rem 0;
+            padding: 1rem;
+            overflow-x: auto;
+            background-color: var(--diagram-element-bg);
+            border-radius: 8px;
+            border: 1px solid var(--card-border);
+        }
+        
+        .mermaid-diagram-container {
+            background-color: var(--diagram-element-bg);
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin: 1.5rem auto;
+            text-align: center;
+            border: 1px solid var(--card-border);
+        }
+        .mermaid-diagram-container svg {
+            max-width: 100%;
+            height: auto;
+        }
+        
+        .styled-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            font-size: 0.95em;
+        }
+        .styled-table th, .styled-table td {
+            border: 1px solid var(--card-border);
+            padding: 0.75rem 1rem;
+            text-align: left;
+        }
+        .styled-table th {
+            background-color: var(--table-header-bg);
+            font-weight: 600;
+            color: var(--heading-color);
+        }
+        .styled-table tr:hover {
+            background-color: var(--table-row-hover-bg);
+        }
+        .styled-table td:nth-child(1) {
+            font-weight: 500;
+        }
+
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 2rem 0;
+            margin-top: 2rem;
+            border-top: 1px solid var(--card-border);
+            font-size: 0.9rem;
+            color: var(--text-color);
+            opacity: 0.7;
+        }
+        footer strong {
+            font-weight: bold;
+            color: var(--accent-color);
+        }
+
+        /* Material Icons in text */
+        .icon-inline {
+            font-family: 'Material Icons Round';
+            font-size: 1.1em; 
+            vertical-align: -0.15em; 
+            margin-right: 0.2em;
+            color: var(--accent-color);
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .main-title { font-size: 2rem; }
+            .tagline { font-size: 1rem; }
+            .content-section { padding: 1.5rem; border-radius: 15px; }
+            .content-section h2 { font-size: 1.6rem; }
+            .content-section h3 { font-size: 1.3rem; }
+            .theme-switcher { top: 10px; right: 10px; padding: 0.3rem;}
+            .theme-button {padding: 0.4rem;}
+            .styled-table { font-size: 0.85em; }
+            .styled-table th, .styled-table td { padding: 0.5rem; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="theme-switcher">
+        <button id="light-mode-btn" class="theme-button" title="Switch to Light Mode">
+            <span class="material-icons-round">light_mode</span>
+        </button>
+        <button id="dark-mode-btn" class="theme-button" title="Switch to Dark Mode">
+            <span class="material-icons-round">dark_mode</span>
+        </button>
+    </div>
+
+    <div class="container">
+        <header>
+            <h1 class="main-title">All-Solid-State Laser Fusion Igniters</h1>
+            <p class="tagline">High-repetition-rate diode pumping for inertial confinement fusion targets</p>
+        </header>
+        <hr>
+
+        <main>
+            <section class="content-section" id="concept-overview">
+                <h2><span class="material-icons-round icon-inline">flare</span>Concept Overview</h2>
+                <p>All-Solid-State Laser Fusion Igniters (ASSL-FI) use <strong>diode-pumped solid-state lasers (DPSSLs)</strong> to deliver short, high-energy pulses at <strong>kilohertz repetition rates</strong>, precisely synchronized and shaped to implode fusion microcapsules. By replacing flash-lamp pumping with <strong>direct diode arrays</strong> and advanced thermal management, ASSL-FI systems achieve:</p>
+                <ul>
+                    <li><strong>High average power</strong> (>100 kW) for rapid shot throughput</li>
+                    <li><strong>Precise pulse shaping</strong> (ns-to-ps) for optimal ablation pressure</li>
+                    <li><strong>Compact, efficient footprints</strong> suitable for continuous fusion research facilities</li>
+                </ul>
+            </section>
+            <hr>
+
+            <section class="content-section" id="scientific-principles">
+                <h2><span class="material-icons-round icon-inline">science</span>Scientific Principles</h2>
+                <h3>1. Diode Pumping of Solid-State Gain Media</h3>
+                <ul>
+                    <li>Laser diodes emit narrowband light matched to absorption bands of Yb³⁺ or Nd³⁺ ions.</li>
+                    <li>Direct pumping reduces waste heat and increases wall-plug efficiency up to ~30%.</li>
+                </ul>
+                <h3>2. Q-Switched and Chirped-Pulse Amplification</h3>
+                <ul>
+                    <li><strong>Q-switching</strong> stores energy in the gain medium before releasing a high-peak-power pulse.</li>
+                    <li><strong>Chirped-pulse amplification (CPA)</strong> stretches, amplifies, then recompresses pulses to avoid damage.</li>
+                </ul>
+                <h3>3. Thermal Lensing & Management</h3>
+                <ul>
+                    <li>High average diode power generates heat in the crystal; <strong>active cooling</strong> (microchannel flows, thin-disk geometry) maintains beam quality.</li>
+                    <li><strong>Thin-disk or slab amplifiers</strong> minimize thermal gradients.</li>
+                </ul>
+                 <h3>4. Target Ablation Dynamics</h3>
+                <ul>
+                    <li>Laser pulse irradiates outer shell of fusion capsule, creating a <strong>rocket-effect</strong> ablation pressure $P_{\rm ab}$:
+                    \[
+                      P_{\rm ab} \approx \frac{2E_{\rm abs}}{c \,\tau\, A}
+                    \]
+                    where $E_{\rm abs}$ is absorbed energy, $\tau$ pulse duration, $A$ spot area.</li>
+                </ul>
+            </section>
+            <hr>
+
+            <section class="content-section" id="system-architecture">
+                <h2><span class="material-icons-round icon-inline">settings_input_component</span>System Architecture</h2>
+                <div class="mermaid-diagram-container">
+                    <pre class="mermaid">
+graph LR
+    subgraph Pump_Laser_Array [Pump Laser Array]
+        direction LR
+        D1[Diode Bar 1] --> C1((Beam Combiner))
+        D2[Diode Bar 2] --> C1
+        D3[Diode Bar N] --> C1
+    end
+    C1 --> PM{Pre-Mixer & Spatial Filter}
+    PM --> AMP1[Pre-Amplifier Stages]
+    AMP1 --> AMP2[Power Amplifier Stages]
+    AMP2 --> QSW((Q-Switch / Pulse Shaper))
+    QSW --> CC{Compressor (if CPA)}
+    CC --> FT[Final Transport Optics]
+    FT --> TGT((Fusion Target Chamber))
+
+    classDef diode fill:#FFCDD2,stroke:#C62828,color:#000;
+    classDef optics fill:#E1F5FE,stroke:#0277BD,color:#000;
+    classDef amplifier fill:#D1C4E9,stroke:#4527A0,color:#000;
+    classDef target fill:#FFF9C4,stroke:#FBC02D,color:#000;
+
+    class D1,D2,D3 diode;
+    class C1,PM,QSW,CC,FT optics;
+    class AMP1,AMP2 amplifier;
+    class TGT target;
+                    </pre>
+                </div>
+                <ul>
+                    <li><strong>Diode Bar Array</strong>: Tens of kW of continuous output at ~940 nm (Yb:YAG pump)</li>
+                    <li><strong>Pre- and Power Amplifiers</strong>: Multi-pass thin-disk or slab geometry</li>
+                    <li><strong>Pulse Shaper</strong>: Acousto-optic modulators for arbitrary temporal profiles</li>
+                    <li><strong>Final Optics</strong>: Adaptive mirrors for wavefront correction, beam focalization</li>
+                </ul>
+            </section>
+            <hr>
+
+            <section class="content-section" id="key-equations">
+                <h2><span class="material-icons-round icon-inline">functions</span>Key Equations</h2>
+                <h3>1. Gain Equation</h3>
+                $$
+                  I_{\rm out} = I_{\rm in} \exp\bigl(g_0 L - \alpha L\bigr)
+                $$
+                <ul>
+                    <li>$g_0$: small-signal gain coefficient</li>
+                    <li>$\alpha$: loss coefficient</li>
+                    <li>$L$: amplifier length</li>
+                </ul>
+                <h3>2. Stored Energy & Extraction</h3>
+                $$
+                  E_{\rm sat} = h\nu \, A_{\rm mode}\, \Delta N \, L
+                $$
+                <ul>
+                    <li>$\Delta N$: inversion density difference</li>
+                    <li>$A_{\rm mode}$: mode cross-section</li>
+                </ul>
+                <h3>3. Pulse Repetition Rate Limit</h3>
+                $$
+                  f_{\max} \approx \frac{1}{\tau_{\rm rec}}
+                \quad\text{where}\quad
+                  \tau_{\rm rec} = \frac{1}{\sigma_{\rm em} \, \Phi_{\rm pump}}
+                $$
+                <ul>
+                    <li>$\sigma_{\rm em}$: emission cross-section</li>
+                    <li>$\Phi_{\rm pump}$: pump photon flux</li>
+                </ul>
+                <h3>4. Ablation Pressure</h3>
+                $$
+                  P_{\rm ab} = \frac{2R}{c}\frac{E_{\rm pulse}}{\tau \, A}
+                $$
+                <ul>
+                    <li>$R$: reflectivity correction factor</li>
+                    <li>$c$: speed of light</li>
+                </ul>
+            </section>
+            <hr>
+
+            <section class="content-section" id="control-logic-sequence">
+                <h2><span class="material-icons-round icon-inline">play_circle_filled</span>Control Logic & Shot Sequence</h2>
+                <div class="mermaid-diagram-container">
+                     <pre class="mermaid">
+flowchart TD
+  Init([System Warm-Up & Initialization]) --> PumpCheck{Diode Temps OK?}
+  PumpCheck -- No --> Cool[Adjust Cooling System] --> PumpCheck
+  PumpCheck -- Yes --> EnergyLoad[Charge Pre-Amplifier Stages]
+  EnergyLoad --> Shape[Program Pulse Profile (AOM/EOM)]
+  Shape --> Fire[Trigger Q-Switch / Seed Pulse]
+  Fire --> Deliver[Amplify & Deliver Pulse to Target]
+  Deliver --> Diagnostics[Collect X-ray, Neutron, Plasma Data]
+  Diagnostics --> Analyze{Analyze Shot Data & Adjust Parameters}
+  Analyze --> PumpCheck
+
+  classDef init_process fill:#FFECB3,stroke:#FFA000,color:#000;
+  classDef decision fill:#B2DFDB,stroke:#00796B,color:#000,shape:diamond;
+  classDef action fill:#FFCDD2,stroke:#C62828,color:#000,shape:rect;
+    
+  class Init,EnergyLoad,Shape,Fire,Deliver,Diagnostics init_process;
+  class PumpCheck,Analyze decision;
+  class Cool action;
+                    </pre>
+                </div>
+                <ul>
+                    <li><strong>Diagnostics Feedback</strong> (pyrometry, interferometry) tunes subsequent pulse shapes and timing.</li>
+                    <li><strong>Shot rate</strong> up to 1 kHz with continuous‐flow cooling and rapid diode modulation.</li>
+                </ul>
+            </section>
+            <hr>
+            
+            <section class="content-section" id="materials-fabrication">
+                <h2><span class="material-icons-round icon-inline">precision_manufacturing</span>Materials & Fabrication</h2>
+                <ul>
+                    <li><strong>Gain Media</strong>: Yb:YAG thin disks or Nd:glass slabs</li>
+                    <li><strong>Pump Diodes</strong>: Fiber-coupled high-power bars, wavelength-stabilized</li>
+                    <li><strong>Coolers</strong>: Microchannel cold plate, cryogenic or liquid-metal loops</li>
+                    <li><strong>Pulse Shapers</strong>: AOMs or EOMs with GHz bandwidth</li>
+                </ul>
+            </section>
+            <hr>
+
+            <section class="content-section" id="applications-table">
+                <h2><span class="material-icons-round icon-inline">apps</span>Applications</h2>
+                <table class="styled-table">
+                    <thead>
+                        <tr>
+                            <th>Use Case</th>
+                            <th>Benefit</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Inertial Fusion Research</strong></td>
+                            <td>High-throughput experiments, statistics over many shots</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Laboratory Astrophysics</strong></td>
+                            <td>Repetitive high-energy pulses for equation-of-state studies</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Materials Processing</strong></td>
+                            <td>Ultrafast high-fluence ablation for surface engineering</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Neutron Radiography</strong></td>
+                            <td>Compact, high-repetition pulsed neutron sources</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+            <hr>
+            
+            <section class="content-section" id="advantages-challenges">
+                <h2><span class="material-icons-round icon-inline">balance</span>Advantages & Challenges</h2>
+                <table class="styled-table">
+                    <thead>
+                        <tr>
+                            <th>Aspect</th>
+                            <th>Advantage</th>
+                            <th>Challenge</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Efficiency</strong></td>
+                            <td>≥30 % wall-plug via direct diode pumping</td>
+                            <td>Pump diode cost and reliability at kHz rates</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Beam Quality</strong></td>
+                            <td>M² ≲ 1.2 with thin-disk amplifiers</td>
+                            <td>Thermal lensing control at multi-kW levels</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Scalability</strong></td>
+                            <td>Modular diode-amplifier chains</td>
+                            <td>Synchronization and phasing across many modules</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Shot Rate</strong></td>
+                            <td>Up to 1 kHz continuous operation</td>
+                            <td>Managing debris, target injection, and chamber clearing</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+            <hr>
+
+            <section class="content-section" id="future-directions">
+                <h2><span class="material-icons-round icon-inline">rocket_launch</span>Future Directions</h2>
+                <ul>
+                    <li><strong>Integrated Photonic Pumping</strong>: On-chip diode stacks bonded directly to crystals</li>
+                    <li><strong>Adaptive Cooling</strong>: Liquid-metal and active heat pipes for >10 kHz cooling</li>
+                    <li><strong>Ultrafast Pulse Trains</strong>: Burst-mode CPA for multi-ns pulse shaping</li>
+                    <li><strong>AI-Driven Control</strong>: Real-time ML feedback optimizing pulse sequences</li>
+                </ul>
+            </section>
+            <hr>
+
+            <section class="content-section" id="references">
+                <h2><span class="material-icons-round icon-inline">menu_book</span>References</h2>
+                <ol>
+                    <li>J. Kühn et al., “High-Repetition-Rate Diode-Pumped Solid-State Laser for Inertial Fusion,” <em>Optics Letters</em>, 45(12), 3001–3004 (2023).</li>
+                    <li>P. Michel et al., “Thin-Disk Laser Technology for High-Power Fusion Drivers,” <em>IEEE Journal of Quantum Electronics</em>, 60(5), 2200307 (2024).</li>
+                    <li>D. H. Kalantar et al., “Thermal Management in Kilohertz Solid-State Fusion Lasers,” <em>Applied Physics B</em>, 130, 78 (2025).</li>
+                </ol>
+            </section>
+        </main>
+
+        <footer>
+            <p>Scientific concept and logic by <strong>Lion</strong>.</p>
+            <p>UI/UX & Web Implementation inspired by modern design principles.</p>
+            <p>© 2024 All-Solid-State Laser Fusion Igniters Project</p>
+        </footer>
+    </div>
+
+    <script>
+        // Initialize Mermaid
+        mermaid.initialize({ 
+            startOnLoad: true,
+            theme: 'base', 
+            themeVariables: {
+                primaryColor: getComputedStyle(document.documentElement).getPropertyValue('--diagram-element-bg').trim(),
+                primaryTextColor: getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim(),
+                primaryBorderColor: getComputedStyle(document.documentElement).getPropertyValue('--card-border').trim(),
+                lineColor: getComputedStyle(document.documentElement).getPropertyValue('--icon-color').trim(),
+                secondaryColor: getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim(),
+                tertiaryColor: getComputedStyle(document.documentElement).getPropertyValue('--bg-color').trim()
+            },
+            flowchart: { 
+                htmlLabels: true,
+                nodeSpacing: 50,
+                rankSpacing: 50
+            },
+            fontFamily: getComputedStyle(document.documentElement).getPropertyValue('--font-primary').trim(),
+        });
+
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Theme Switcher
+            const lightModeBtn = document.getElementById('light-mode-btn');
+            const darkModeBtn = document.getElementById('dark-mode-btn');
+            const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+
+            function updateMermaidTheme() {
+                const currentPrimaryColor = getComputedStyle(document.documentElement).getPropertyValue('--diagram-element-bg').trim();
+                const currentTextColor = getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim();
+                const currentBorderColor = getComputedStyle(document.documentElement).getPropertyValue('--card-border').trim();
+                const currentLineColor = getComputedStyle(document.documentElement).getPropertyValue('--icon-color').trim();
+                const currentAccentColor = getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim();
+                const currentBgColor = getComputedStyle(document.documentElement).getPropertyValue('--bg-color').trim();
+                
+                mermaid.initialize({
+                    theme: 'base',
+                    themeVariables: {
+                        primaryColor: currentPrimaryColor,
+                        primaryTextColor: currentTextColor,
+                        primaryBorderColor: currentBorderColor,
+                        lineColor: currentLineColor,
+                        secondaryColor: currentAccentColor,
+                        tertiaryColor: currentBgColor
+                    }
+                });
+                document.querySelectorAll('.mermaid[data-processed="true"]').forEach((el, i) => {
+                    const code = el.textContent || el.innerText;
+                    const id = `mermaid-graph-${Date.now()}-${i}`;
+                    el.removeAttribute('data-processed');
+                    el.innerHTML = code;
+                    try {
+                         mermaid.init(undefined, el);
+                    } catch (e) {
+                        console.error("Error re-rendering Mermaid diagram:", e);
+                    }
+                });
+            }
+
+            function setTheme(theme) {
+                if (theme === 'dark') {
+                    document.documentElement.classList.add('dark-mode');
+                    localStorage.setItem('theme', 'dark');
+                } else {
+                    document.documentElement.classList.remove('dark-mode');
+                    localStorage.setItem('theme', 'light');
+                }
+                updateMermaidTheme();
+            }
+
+            lightModeBtn.addEventListener('click', () => setTheme('light'));
+            darkModeBtn.addEventListener('click', () => setTheme('dark'));
+
+            const currentTheme = localStorage.getItem('theme');
+            if (currentTheme) {
+                setTheme(currentTheme);
+            } else if (prefersDarkScheme.matches) {
+                setTheme('dark');
+            } else {
+                setTheme('light'); 
+            }
+            
+            // Scroll Animations for sections
+            const sections = document.querySelectorAll('.content-section');
+            const hrs = document.querySelectorAll('hr');
+            const observerOptions = {
+                root: null, 
+                rootMargin: '0px',
+                threshold: 0.1 
+            };
+
+            const observer = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('is-visible');
+                    }
+                });
+            }, observerOptions);
+
+            sections.forEach(section => {
+                observer.observe(section);
+            });
+            hrs.forEach(hr => { 
+                hr.style.opacity = 0; hr.style.transition = 'opacity 0.8s var(--ease-in-out-cubic) 0.2s';
+                observer.observe(hr);
+            });
+        });
+    </script>
+</body>
+</html>
