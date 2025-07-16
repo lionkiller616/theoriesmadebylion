@@ -1,0 +1,84 @@
+# Example Daxa file 
+!daxa text v1.0
+
+schema {
+  # This section would contain Daxa's native schema syntax if not using TOML.
+  # For now, we'll assume the parser can extract and use the TOML example above,
+  # or a simplified version of Daxa's syntax from the original problem description.
+  # Example of Daxa's native syntax (to be parsed by schema::parser):
+  
+  enum Role {
+    ADMIN
+    USER
+    GUEST
+  }
+
+  struct Address {
+    street: string
+    city: string
+    zip: string
+  }
+
+  struct User {
+    id: uint64
+    name: string
+    email: string # @maxLength(100) - attributes are future work for parser
+    created_at: datetime
+    role: Role
+    isActive: bool? # '?' for optional
+    address: Address?
+    tags: [string]
+    metadata: map<string, string>
+  }
+}
+
+data {
+  # This is Daxa's data syntax, which also needs a dedicated parser.
+  # The current parser stubbed it out to expect JSON here.
+  # A real parser would handle this structure.
+
+  users: [User] = [
+    { 
+      id: 1, 
+      name: "Alice Wonderland", 
+      email: "alice@example.com", 
+      created_at: 2025-05-30T12:00:00Z, 
+      role: ADMIN, 
+      isActive: true,
+      address: { street: "123 Rabbit Hole", city: "Wonderland", zip: "12345" },
+      tags: ["admin", "tester"],
+      metadata: { "group": "A", "status_level": "gold" }
+    },
+    { 
+      id: 2, 
+      name: "Bob The Builder", 
+      email: "bob@example.com", 
+      created_at: 2025-05-29T09:30:00Z,
+      role: USER,
+      isActive: false,
+      # address is optional, so omitted here
+      tags: ["user", "contributor"],
+      metadata: { "group": "B" }
+    },
+    {
+      id: 3,
+      name: "Charlie Chaplin",
+      email: "charlie@example.com",
+      created_at: 2024-01-15T10:00:00Z,
+      role: GUEST,
+      # isActive is optional, if missing should be treated as null/None for the field
+      tags: [],
+      metadata: {}
+    }
+  ]; # Semicolon to terminate dataset (optional, TBD by parser design)
+
+  app_settings: map<string, any> = { # 'any' is not formally defined yet, implies schemaless value
+    "theme": "dark",
+    "fontSize": 12,
+    "autoSave": true,
+    "features": {
+        "betaAccess": false,
+        "analyticsOptIn": true
+    } 
+  };
+}

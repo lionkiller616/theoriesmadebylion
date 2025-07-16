@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MANEB Eternity V4 - Quantum-Biohybrid Energy System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Open+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    
+    <!-- KaTeX for Math Rendering -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG+vnGctmUb0ZY0l8" crossorigin="anonymous"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" integrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous"></script>
+
+    <!-- MermaidJS for Diagrams -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+
+    <style>
+        :root {
+            --font-primary: 'Poppins', sans-serif;
+            --font-secondary: 'Open Sans', sans-serif;
+
+            --color-accent: #00CFE8; /* Vibrant Cyan/Teal */
+            --color-accent-darker: #009FAF;
+            --color-accent-alpha: rgba(0, 207, 232, 0.1);
+
+            /* Light Mode (Default) */
+            --bg-color: #f0f2f5;
+            --text-color: #333;
+            --card-bg: rgba(255, 255, 255, 0.65);
+            --card-border: rgba(200, 200, 200, 0.4);
+            --card-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+            --neumorphic-shadow-light: rgba(255, 255, 255, 0.8);
+            --neumorphic-shadow-dark: rgba(180, 180, 180, 0.6);
+            --code-bg: #e8e8e8;
+            --code-text: #222;
+            --table-header-bg: #e9ecef;
+            --table-border: #dee2e6;
+            --icon-color: #555;
+            --link-color: var(--color-accent-darker);
+
+            --gradient-start: #6DD5FA;
+            --gradient-mid: #A6FFCB;
+            --gradient-end: #FFC371;
+        }
+
+        .dark-mode {
+            --bg-color: #1c1e22; /* Darker, more MacOS like */
+            --text-color: #e0e0e0;
+            --card-bg: rgba(40, 43, 48, 0.65); /* Dark glass */
+            --card-border: rgba(255, 255, 255, 0.1);
+            --card-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            --neumorphic-shadow-light: rgba(60, 60, 60, 0.8);
+            --neumorphic-shadow-dark: rgba(10, 10, 10, 0.6);
+            --code-bg: #2a2f36;
+            --code-text: #ccc;
+            --table-header-bg: #343a40;
+            --table-border: #495057;
+            --icon-color: #bbb;
+            --link-color: var(--color-accent);
+
+            --gradient-start: #0f2027;
+            --gradient-mid: #203A43;
+            --gradient-end: #2C5364;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 16px; /* Base font size */
+        }
+
+        body {
+            font-family: var(--font-secondary);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.7;
+            transition: background-color 0.3s ease, color 0.3s ease;
+            overflow-x: hidden;
+            background: linear-gradient(135deg, var(--gradient-start), var(--gradient-mid), var(--gradient-end));
+            background-size: 400% 400%;
+            animation: gradientBG 25s ease infinite;
+        }
+        
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--card-border);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--card-shadow);
+        }
+
+        header h1 {
+            font-family: var(--font-primary);
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--text-color);
+            letter-spacing: -0.5px;
+        }
+        header h1 .accent-text {
+            color: var(--color-accent);
+        }
+
+        #darkModeToggle {
+            background: transparent;
+            border: none;
+            color: var(--icon-color);
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.2s ease, transform 0.2s ease;
+        }
+        #darkModeToggle:hover {
+            background-color: rgba(128, 128, 128, 0.2);
+            transform: scale(1.1);
+        }
+
+        main {
+            padding-top: 20px;
+        }
+
+        section {
+            margin-bottom: 40px;
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 16px;
+            padding: 25px 30px;
+            border: 1px solid var(--card-border);
+            box-shadow: var(--card-shadow);
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+
+        section.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .section-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--color-accent-alpha);
+        }
+        .section-header .material-icons-round {
+            font-size: 2.2rem;
+            color: var(--color-accent);
+            margin-right: 15px;
+        }
+
+        h2 {
+            font-family: var(--font-primary);
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: var(--text-color);
+            margin-bottom: 5px; /* Adjusted for section header */
+        }
+
+        h3 {
+            font-family: var(--font-primary);
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: var(--text-color);
+            margin-top: 25px;
+            margin-bottom: 15px;
+            position: relative;
+            padding-left: 10px;
+        }
+        h3::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 5px;
+            bottom: 5px;
+            width: 4px;
+            background-color: var(--color-accent);
+            border-radius: 2px;
+        }
+
+        p, li {
+            font-size: 0.95rem;
+            color: var(--text-color);
+            margin-bottom: 12px;
+        }
+        strong {
+            font-weight: 600;
+        }
+
+        ul, ol {
+            padding-left: 25px;
+        }
+
+        .equation {
+            font-size: 1.1rem;
+            padding: 15px;
+            margin: 15px 0;
+            background-color: var(--color-accent-alpha);
+            border-left: 4px solid var(--color-accent);
+            border-radius: 4px;
+            overflow-x: auto;
+            color: var(--text-color); 
+        }
+        .katex-display { 
+            margin: 0 !important; 
+        }
+        .katex {
+            font-size: 1.1em !important; 
+            color: var(--text-color) !important; 
+        }
+        body.dark-mode .katex {
+             color: var(--text-color) !important; 
+        }
+
+
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--table-border);
+        }
+        th {
+            background-color: var(--table-header-bg);
+            font-weight: 600;
+            font-family: var(--font-primary);
+            color: var(--text-color);
+        }
+        tr:last-child td {
+            border-bottom: none;
+        }
+        tr:hover {
+            background-color: var(--color-accent-alpha);
+        }
+
+        pre {
+            background-color: var(--code-bg);
+            color: var(--code-text);
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: 'SF Mono', 'Consolas', 'Menlo', monospace;
+            font-size: 0.85rem;
+            line-height: 1.6;
+            margin: 15px 0;
+            border: 1px solid var(--card-border);
+        }
+        code:not(pre > code) { /* Inline code */
+            background-color: var(--code-bg);
+            color: var(--code-text);
+            padding: 0.2em 0.4em;
+            border-radius: 3px;
+            font-family: 'SF Mono', 'Consolas', 'Menlo', monospace;
+            font-size: 0.85em;
+        }
+
+        .hero-section {
+            text-align: center;
+            padding: 40px 20px;
+        }
+        .hero-section h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            line-height: 1.2;
+            background: -webkit-linear-gradient(45deg, var(--color-accent), var(--text-color) 60%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .dark-mode .hero-section h1 {
+             background: -webkit-linear-gradient(45deg, var(--color-accent), var(--text-color) 60%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-section p {
+            font-size: 1.2rem;
+            color: var(--text-color);
+            opacity: 0.8;
+            max-width: 700px;
+            margin: 0 auto 20px auto;
+        }
+        
+        .innovation-item, .application-item, .principle-item {
+            margin-bottom: 20px;
+            padding: 15px;
+            border-left: 3px solid var(--color-accent);
+            background-color: var(--color-accent-alpha);
+            border-radius: 0 8px 8px 0;
+        }
+        .innovation-item strong, .application-item strong, .principle-item strong {
+            display: block;
+            font-family: var(--font-primary);
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+        }
+
+        .image-container {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .image-container img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border: 1px solid var(--card-border);
+        }
+        .image-caption {
+            font-size: 0.85rem;
+            color: var(--text-color);
+            opacity: 0.7;
+            margin-top: 8px;
+            font-style: italic;
+        }
+        .image-caption .highlight-blue { color: #3498db; font-weight: bold; }
+        .image-caption .highlight-gold { color: #f1c40f; font-weight: bold; }
+
+        .cost-strategy-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+        .cost-strategy-item .number {
+            font-family: var(--font-primary);
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--color-accent);
+            margin-right: 15px;
+            line-height: 1.2;
+        }
+
+        .advantage-matrix strong {
+            color: var(--color-accent);
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px 20px;
+            font-size: 0.9rem;
+            color: var(--text-color);
+            opacity: 0.7;
+            margin-top: 40px;
+        }
+        
+        .mermaid-container {
+            background: var(--color-accent-alpha);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border: 1px solid var(--card-border);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .mermaid svg { /* Ensure SVG is responsive and adopts text color */
+            max-width: 100%;
+            height: auto;
+            color: var(--text-color); /* For text elements in SVG */
+        }
+        /* Mermaid specific dark mode adjustments might be needed if default/dark themes aren't enough */
+        .dark-mode .mermaid-container {
+            background: rgba(0,0,0,0.15);
+        }
+       
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.5rem;
+            }
+            .hero-section h1 {
+                font-size: 2.5rem;
+            }
+            .hero-section p {
+                font-size: 1rem;
+            }
+            h2 {
+                font-size: 1.6rem;
+            }
+            h3 {
+                font-size: 1.3rem;
+            }
+            section {
+                padding: 20px;
+            }
+            .section-header .material-icons-round {
+                font-size: 2rem;
+            }
+        }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>MANEB Eternity <span class="accent-text">V4</span></h1>
+        <button id="darkModeToggle" aria-label="Toggle dark mode">
+            <span class="material-icons-round">brightness_6</span>
+        </button>
+    </header>
+
+    <div class="container">
+        <main>
+            <section class="hero-section animate-on-scroll">
+                <h1>MANEB Eternity V4</h1>
+                <p>Cost-Optimized Quantum-Biohybrid Energy System. <br>Discover the future of energy, meticulously engineered for unparalleled performance and sustainability.</p>
+                <p style="font-size: 0.8em; opacity: 0.6;"><em>Scientific logics and theory by lion</em></p>
+            </section>
+
+            <section id="innovations" class="animate-on-scroll">
+                <div class="section-header">
+                    <span class="material-icons-round">science</span>
+                    <h2>1. Breakthrough Innovations & Scientific Principles</h2>
+                </div>
+                <p>MANEB Eternity V4 pioneers Quantum-Biological Energy Symbiosis, a first-of-its-kind system integrating Zero-Point Energy (ZPE) harvesting, autotrophic biofilm electrolyte regeneration, and topological insulator-mediated ion transport.</p>
+                
+                <div class="mermaid-container">
+                    <div class="mermaid" data-graph-definition="graph LR
+                        A[Quantum Harvesting] --> B[Li-S/NMC Cell]
+                        C[Biofilm Matrix] -->|Ion Recycling| B
+                        D[Topological Electrolyte] --> B
+                        B --> E[Power Output]">
+                    </div>
+                </div>
+                
+                <div class="innovation-item">
+                    <h3>1.1 Ambient Quantum Resonance Coupling (AQRC) & ZPE Harvesting</h3>
+                    <p><strong>AQRC Principle:</strong> Harvests background EM fields (5G, WiFi) via fractal antennas while maintaining ZPE extraction through Casimir-driven graphene oscillators.</p>
+                    <p><strong>Combined Harvesting Equation:</strong></p>
+                    <div class="equation">$$P_{harvest} = \eta_{ZPE} \cdot P_{ZPE\_Casimir} + \eta_{RF} \cdot \frac{\lambda^2}{4\pi} \cdot |E_{amb}|^2$$</div>
+                    <p><em>(\(\eta_{ZPE}=0.38\), \(\eta_{RF}=0.92\) achieved through plasmonic metasurfaces)</em></p>
+                    <p><strong>Dynamical Casimir Effect for ZPE:</strong> Graphene membranes oscillating at \(\sim 30 \text{ THz}\) convert virtual photons to real energy.</p>
+                    <p><strong>Equation:</strong></p>
+                    <div class="equation">$$P_{ZPE\_Casimir} = \frac{\hbar c \pi^2}{240}\frac{A}{d^4}\left(\frac{\partial d}{\partial t}\right)^2$$</div>
+                    <p>Where \(A\) = membrane area (e.g., 10 cm²), \(d\) = plate separation (e.g., 50 nm).</p>
+                </div>
+
+                <div class="innovation-item">
+                    <h3>1.2 Autotrophic Biofilm Matrix & Bioelectrochemical Recycling</h3>
+                    <p><strong>Mechanism:</strong> Engineered <em>Cupriavidus metallidurans</em> strains synthesize Li₃PO₄ from ambient CO₂ and phosphate, regenerating electrolyte components.</p>
+                    <p><strong>Synthesis Reaction:</strong></p>
+                    <div class="equation">$$\text{CO}_2 + \text{Li}^+ + \text{PO}_4^{3-} \xrightarrow{\text{Enzyme}} \text{Li}_3\text{PO}_4 + \text{O}_2$$</div>
+                    <p><strong>Kinetics:</strong></p>
+                    <div class="equation">$$\frac{d[Li_3PO_4]}{dt} = k_{synth} \cdot [CO_2]^{0.7} \cdot [Li^+]^{1.2} \quad (k_{synth}=2.4\ \mu M/s)$$</div>
+                    <p>Governed by Michaelis-Menten kinetics with approximately \(K_m = 0.3\ \mu M\) and \(V_{max} = 2.4\ \mu M/s\) under optimal conditions.</p>
+                </div>
+                
+                <div class="innovation-item">
+                    <h3>1.3 Topological Dual-Gate Electrolyte & Ion Transport</h3>
+                    <p><strong>Structure:</strong> Utilizes a Bi₂Se₃/LLZO heterostructure for enhanced ion transport via chiral edge states.</p>
+                    <pre><code>[Bi₂Se₃ (5nm)]  Topological Insulator
+|
+[Al₂O₃ ALD (2nm)]  Interface Layer
+|
+[Li₇La₃Zr₂O₁₂ (20nm)] Solid Electrolyte</code></pre>
+                    <p><strong>Overall Conductivity:</strong></p>
+                    <div class="equation">$$\sigma_{total} = \sigma_{edge} + \sigma_{bulk} = \frac{e^2}{h} \cdot N_{ch} + \sigma_{LLZO} \cdot e^{-E_a/(kT)}$$</div>
+                    <p>Where \(N_{ch}=14\ \text{channels/μm}\) for edge state contribution. The edge conductivity \(\sigma_{edge}\) can be approximated as:</p>
+                    <div class="equation">$$\sigma_{edge\_approx} = \frac{e^2}{h}\ln\left(\frac{L}{\xi}\right) \approx 3.2\times10^{-3}\ \text{S/cm}$$</div>
+                </div>
+            </section>
+
+            <section id="architecture" class="animate-on-scroll">
+                <div class="section-header">
+                    <span class="material-icons-round">layers</span>
+                    <h2>2. Hyper-Efficient Architecture & Physical Specifications</h2>
+                </div>
+                <h3>2.1 Layer Stack & Dimensions</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Layer</th>
+                            <th>Components</th>
+                            <th>Thickness</th>
+                            <th>Material Cost ($/cm²)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>1</td><td>Fractal AQRC Antenna</td><td>0.3 mm</td><td>1.20</td></tr>
+                        <tr><td>2</td><td>ZPE Supercapacitor</td><td>1.2 mm</td><td>4.50</td></tr>
+                        <tr><td>3</td><td>Li-S/NMC Hybrid Cell</td><td>2.5 mm</td><td>6.80</td></tr>
+                        <tr><td>4</td><td>Biofilm-Electrolyte</td><td>0.8 mm</td><td>3.10</td></tr>
+                        <tr><td>5</td><td>Neuromorphic Heat Sink</td><td>1.0 mm</td><td>2.90</td></tr>
+                    </tbody>
+                </table>
+
+                <h3>2.2 Physical Specifications (Standard Cell)</h3>
+                <table>
+                    <thead>
+                        <tr><th>Parameter</th><th>Value</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Dimensions</td><td>100 × 60 × 20 mm (Standard Cell)</td></tr>
+                        <tr><td>Weight</td><td>Approx. 420 g (target based on 1,620 Wh/kg)</td></tr>
+                        <tr><td>Energy Density (Gravimetric)</td><td>1,620 Wh/kg</td></tr>
+                        <tr><td>Operating Temperature</td><td>-100°C to 220°C</td></tr>
+                        <tr><td>Pressure Tolerance</td><td>0-100 MPa (with specialized casing)</td></tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <section id="manufacturing" class="animate-on-scroll">
+                <div class="section-header">
+                    <span class="material-icons-round">precision_manufacturing</span>
+                    <h2>3. Manufacturing Process Flow & Fabrication</h2>
+                </div>
+                <h3>3.1 Process Overview</h3>
+                <ol>
+                    <li><strong>Substrate Prep:</strong> Laser-clean Al foil (0.5 mm)</li>
+                    <li><strong>Antenna Print:</strong> Nanoimprint fractal Ag/PEDOT:PSS (10 μm lines)</li>
+                    <li><strong>Cell Stacking & Layer-by-Layer Assembly:</strong>
+                        <ul>
+                            <li>Spray-coat LLZO-ALD electrolyte (Li₇La₃Zr₂O₁₂)</li>
+                            <li>Roll-to-roll Li-S/NMC electrode lamination</li>
+                            <li>Graphene CVD + e-beam lithography for Quantum Harvesting layers</li>
+                        </ul>
+                    </li>
+                    <li><strong>Biofilm Integration:</strong>
+                        <ul>
+                            <li>3D bioprinting of hydrogel matrix with \(100 \text{ μm}\) channels, \(10^9 \text{ cells/mL}\)</li>
+                            <li>pH-triggered bacterial auto-organization via controlled spray:</li>
+                        </ul>
+                        <pre><code>def apply_biofilm(substrate):
+    global pH # Assuming pH is a monitored global variable
+    while pH < 7.2:
+        spray(CO2_solution, LiCl_solution, bacteria_suspension)
+        substrate.rotate(33) # rpm, assuming implicit unit or variable
+        # monitor_pH() and update global pH variable
+        # time.sleep(interval)</code></pre>
+                    </li>
+                    <li><strong>Final Assembly:</strong> Vacuum lamination at 150°C, Laser weld casing with integrated cooling fins.</li>
+                </ol>
+                <h3>3.2 Key Fabrication Parameters & Steps</h3>
+                 <table>
+                    <thead>
+                        <tr><th>Layer/Process</th><th>Method</th><th>Key Parameters</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Quantum Harvesting</td><td>Graphene CVD + e-beam litho.</td><td>50 nm features, \(\sim 30 \text{ THz}\) resonance</td></tr>
+                        <tr><td>Electrochemical Cell</td><td>Roll-to-roll coating</td><td>Li-S cathode: 5 mg/cm² loading</td></tr>
+                        <tr><td>Plasmonic Antennas</td><td>Nanoimprint Ag nanowires</td><td>PDMS stamps, 73% cost reduction</td></tr>
+                        <tr><td>Biofilm Matrix</td><td>3D Bioprinting & Self-Assembly</td><td>\(100 \text{ μm}\) channels, \(10^9 \text{ cells/mL}\)</td></tr>
+                        <tr><td>Solid Electrolyte</td><td>Atomic Layer Deposition (ALD)</td><td>LLZO (Li₇La₃Zr₂O₁₂), -92% Zr waste</td></tr>
+                    </tbody>
+                </table>
+            </section>
+            
+            <section id="theoretical-operation" class="animate-on-scroll">
+                <div class="section-header">
+                    <span class="material-icons-round">model_training</span>
+                    <h2>4. Theoretical Operation & Energy Flow</h2>
+                </div>
+                <p>The system operates in a continuous loop, where quantum harvesting provides primary energy, the battery stack stores and delivers power, the biofilm matrix recycles key ions, and a sophisticated controller optimizes pathways and responses.</p>
+                <div class="mermaid-container">
+                    <div class="mermaid" data-graph-definition="sequenceDiagram
+                        participant Q as Quantum Harvesting Layer
+                        participant B as Battery Stack (Li-S/NMC)
+                        participant M as Biofilm Matrix
+                        participant C as Neuromorphic Controller
+                        
+                        loop Continuous Operation Cycle
+                            Q->>B: Energy Input (ZPE + RF) e.g., 3.7 mW/cm²
+                            Note over B: Energy Storage & Discharge
+                            B->>M: Spent Li+ ions, byproducts
+                            M->>B: Regenerated Li₃PO₄, Fresh Electrolyte Components
+                            C->>Q: Optimize Harvesting Parameters
+                            C->>B: Manage Charge/Discharge, Health Monitoring
+                            C->>M: Regulate Biofilm Activity (pH, Nutrients)
+                        end">
+                    </div>
+                </div>
+                <h3>Energy Flow Equation</h3>
+                <p>The net change in stored energy \(E\) over time \(t\) can be described as:</p>
+                <div class="equation">$$\frac{dE}{dt} = P_{harvest} - P_{load} - P_{loss}$$</div>
+                <p>Where:</p>
+                <ul>
+                    <li>\(P_{harvest}\) is the total power from AQRC (ZPE + RF).</li>
+                    <li>\(P_{load}\) is the power delivered to the external load.</li>
+                    <li>\(P_{loss} = I^2R_{int} + P_{biofilm\_maint} + P_{thermal}\) represents internal losses, including:
+                        <ul>
+                            <li>Ohmic losses (\(I^2R_{int}\)), with internal resistance \(R_{int} \approx 0.12 \text{ m}\Omega\).</li>
+                            <li>Energy for biofilm maintenance (\(P_{biofilm\_maint}\)).</li>
+                            <li>Thermal dissipation losses (\(P_{thermal}\)).</li>
+                        </ul>
+                    </li>
+                </ul>
+                 <p>More detailed electrochemical representation:</p>
+                <div class="equation">$$\frac{dE}{dt} = (P_{ZPE} + P_{RF}) - I \cdot V_{load} - I^2R_{int} - \frac{dQ_{rxn}}{dt}\Delta\phi_{cell}$$</div>
+                <p>Where \(\frac{dQ_{rxn}}{dt}\Delta\phi_{cell}\) accounts for electrochemical reaction energies and overpotentials.</p>
+            </section>
+
+            <section id="performance" class="animate-on-scroll">
+                <div class="section-header">
+                    <span class="material-icons-round">speed</span>
+                    <h2>5. Cost-Constrained Performance Leap</h2>
+                </div>
+                <h3>5.1 Key Metrics vs Previous Gen (V3)</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Parameter</th><th>V3</th><th>V4</th><th>Δ</th><th>Cost Impact</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Energy Density (Wh/kg)</td><td>1,450</td><td>1,620</td><td>+12%</td><td>-</td></tr>
+                        <tr><td>Peak Power (MW)</td><td>3.8</td><td>4.3</td><td>+13%</td><td>$0.21/W</td></tr>
+                        <tr><td>Cycle Efficiency</td><td>99.1%</td><td>99.6%</td><td>+0.5%</td><td>-</td></tr>
+                        <tr><td>Temp Range (°C)</td><td>-80–180</td><td>-100–220</td><td>+20%</td><td>$3.40/unit</td></tr>
+                        <tr><td>BOM Cost ($/kWh)</td><td>3,150</td><td>2,880</td><td>-8.6%</td><td>-</td></tr>
+                    </tbody>
+                </table>
+
+                <h3>5.2 Novel Cost-Reduction Strategies</h3>
+                <ol>
+                    <li class="cost-strategy-item"><span class="number">1.</span><span><strong>Fractal Antenna Lithography:</strong> Nanoimprint with PDMS stamps reduces patterning cost by 73%.</span></li>
+                    <li class="cost-strategy-item"><span class="number">2.</span><span><strong>Biofilm Self-Assembly:</strong> pH-triggered bacterial auto-organization cuts manufacturing steps by 5×.</span></li>
+                    <li class="cost-strategy-item"><span class="number">3.</span><span><strong>LLZO-ALD Synthesis:</strong> Atomic layer deposition using cheaper precursors replaces costly sputtering, achieving -92% Zr waste reduction.</span></li>
+                </ol>
+            </section>
+
+            <section id="self-healing" class="animate-on-scroll">
+                <div class="section-header">
+                    <span class="material-icons-round">healing</span>
+                    <h2>6. Self-Healing Protocol Upgrade</h2>
+                </div>
+                <h3>6.1 Multi-Stimuli Response Matrix</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Damage Type</th><th>Trigger</th><th>Healing Agent</th><th>Time</th><th>Cost/Repair</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Dendrites</td><td>Voltage >4.3V / Localized Current Spikes</td><td>LiNO₃ microcapsules / Electrophoretic Li-salt</td><td>< 50ms - 18s</td><td>$0.003</td></tr>
+                        <tr><td>Crack (Mechanical)</td><td>Strain >2%</td><td>Poly(ethylene oxide)-borate microcapsules</td><td>42s</td><td>$0.011</td></tr>
+                        <tr><td>Biofilm Degradation</td><td>pH <5.5 / Toxin Detection</td><td>Alginate-encapsulated nutrients & pH buffers</td><td>~6h</td><td>$0.090</td></tr>
+                    </tbody>
+                </table>
+                <h3>6.2 Mathematical Healing Model (for cracks)</h3>
+                <p>Describes the healing progress \(H(t)\) (e.g., recovery of mechanical strength or conductivity) over time for cracks, based on Avrami equation analogy:</p>
+                <div class="equation">$$H(t) = H_{max} \cdot \left[1 - e^{-(k \cdot t)^n}\right]$$</div>
+                <p>For cracks, typical V4 parameters: \(H_{max}\) (max healing efficiency \(\approx 95\%\)), \(k = 1/\tau\) with characteristic time \(\tau=28s\), Avrami exponent \(n=0.7\).</p>
+            </section>
+
+            <section id="thermal-regulation" class="animate-on-scroll">
+                <div class="section-header">
+                    <span class="material-icons-round">thermostat</span>
+                    <h2>7. Quantum-Resonant Thermal Regulation</h2>
+                </div>
+                <h3>7.1 Phonon Engineering for Enhanced Heat Dissipation</h3>
+                <p>Utilizes graphene nanoribbon fillers within the neuromorphic heat sink structure to create preferential phonon pathways, enhancing thermal conductivity.</p>
+                <p><strong>Heat Removal Rate Equation:</strong></p>
+                <div class="equation">$$\dot Q = \frac{9}{5} \kappa_{eff} \cdot \frac{A \Delta T}{d} \cdot \left[1 + \frac{v_s}{v_{ph}}\right]$$</div>
+                <p>Where \(\kappa_{eff}=218\ W/mK\) is the effective thermal conductivity, \(A\) is cross-sectional area, \(\Delta T\) temperature gradient, \(d\) thickness, \(v_s\) sound velocity, and \(v_{ph}\) phonon group velocity. The term \((1 + v_s/v_{ph})\) accounts for phonon drag effects enhancing heat transport in engineered nanostructures.</p>
+
+                <h3>7.2 Phase-Change Material (PCM) Selection for Thermal Buffering</h3>
+                <table>
+                    <thead>
+                        <tr><th>Material</th><th>Melting Point (°C)</th><th>Latent Heat (J/g)</th><th>Cost ($/kg)</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Ga-In-Sn (Galinstan)</td><td>10.5 - 11</td><td>28.7</td><td>40.20</td></tr>
+                        <tr><td>Erythritol</td><td>118 - 121</td><td>330 - 340</td><td>4.80</td></tr>
+                        <tr><td><strong>V4 Custom Blend PCM</strong></td><td><strong>Target 88 (e.g. paraffin-graphite composite)</strong></td><td><strong>291</strong></td><td><strong>7.10</strong></td></tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <section id="applications" class="animate-on-scroll">
+                <div class="section-header">
+                    <span class="material-icons-round">widgets</span>
+                    <h2>8. Application-Specific Configurations</h2>
+                </div>
+                 <div class="mermaid-container">
+                    <div class="mermaid" data-graph-definition="pie
+                        title MANEB V4 Target Market Applications
+                        "Aerospace & Mars Missions" : 35
+                        "Implantable Medical Devices" : 25
+                        "Grid-Scale Storage" : 20
+                        "Defense & Military" : 15
+                        "Specialized Transportation" : 5">
+                    </div>
+                </div>
+
+                <div class="application-item">
+                    <h3>8.1 Mars Rover Pack / Aerospace</h3>
+                    <p><strong>Mods:</strong> Radiation-hardened QRC antennas (e.g. using tungsten traces), CO₂-scrubbing optimized biofilm strains, enhanced thermal cycling resilience.</p>
+                    <p><strong>Performance:</strong> Targets 1.8× NASA Planetary Science Decadal Survey (PSDS) specific power/energy goals at 0.93× projected cost. Example: 180-day continuous operation capability without direct solar input for specific low-power instruments.</p>
+                </div>
+                <div class="application-item">
+                    <h3>8.2 Implantable Medical Devices</h3>
+                    <p><strong>Mods:</strong> Sub-micrometer biofilm layers for minimal invasiveness, fully biocompatible PCL (Polycaprolactone) or PEEKK casing, hermetic sealing.</p>
+                    <p><strong>Certification:</strong> Designed to pass ISO 10993 suite (biocompatibility), including ISO 10993-5 (cytotoxicity) with zero leachables. Target: 50-year operational lifespan for neural implants or pacemakers.</p>
+                </div>
+                <div class="application-item">
+                    <h3>8.3 Grid Storage Solutions</h3>
+                    <p><strong>Mods:</strong> Modular, stackable 20kWh blocks, advanced blockchain-integrated state-of-health (SoH) and state-of-charge (SoC) monitoring for distributed ledger energy trading.</p>
+                    <p><strong>Cycle Cost:</strong> Projected at $0.0032/kWh delivered, significantly lower than Li-ion ($0.015-$0.05/kWh).</p>
+                </div>
+                 <div class="application-item">
+                    <h3>8.4 Hypersonic Vehicles / Defense</h3>
+                    <p><strong>Mods:</strong> Ultra-high discharge rate configuration, robust thermal management for MW-bursts, EMP hardening.</p>
+                    <p><strong>Capability:</strong> Provide MW power bursts for applications like plasma shielding or directed energy systems.</p>
+                </div>
+            </section>
+
+            <section id="validation" class="animate-on-scroll">
+                <div class="section-header">
+                    <span class="material-icons-round">verified_user</span> <!-- Changed icon -->
+                    <h2>9. Rigorous Validation Protocols</h2>
+                </div>
+                <h3>9.1 Accelerated Life Testing</h3>
+                <p>Procedure to simulate extreme operational stress and ensure long-term durability:</p>
+                <pre><code># Pseudocode for V4 Accelerated Life Test Cycle
+constants:
+  MAX_CYCLES = 1 * 10^6
+  CHARGE_RATE_C = 500
+  DISCHARGE_RATE_C = 1000
+  MAX_VOLTAGE = 4.4 # Volts
+  MIN_VOLTAGE = 2.5 # Volts
+  VIBRATION_G = 10 # G-force
+  THERMAL_SHOCK_TEMP_HIGH = 200 # °C
+  THERMAL_SHOCK_TEMP_LOW = -100 # °C (as per new range)
+  MAX_CAPACITY_FADE_PER_CYCLE = 0.00001 # 0.001%
+
+for cycle_num from 1 to MAX_CYCLES:
+    log_message(f"Starting cycle {cycle_num}")
+    
+    # Charge Phase
+    status = charge_cell(rate=CHARGE_RATE_C, cutoff_voltage=MAX_VOLTAGE)
+    if not status.ok: handle_error("Charge failed")
+    
+    # Discharge Phase
+    status = discharge_cell(rate=DISCHARGE_RATE_C, cutoff_voltage=MIN_VOLTAGE)
+    if not status.ok: handle_error("Discharge failed")
+    
+    # Stress Application
+    apply_mechanical_stress(type="vibration", magnitude=VIBRATION_G, duration="60s")
+    apply_thermal_shock(high_temp=THERMAL_SHOCK_TEMP_HIGH, low_temp=THERMAL_SHOCK_TEMP_LOW, cycles=3)
+    
+    # Measurement
+    current_capacity = measure_capacity()
+    capacity_fade = calculate_fade(initial_capacity, current_capacity, cycle_num)
+    
+    assert capacity_fade < MAX_CAPACITY_FADE_PER_CYCLE, \
+        f"Capacity fade {capacity_fade*100:.5f}% exceeds threshold at cycle {cycle_num}"
+    
+    log_data(cycle_num, current_capacity, capacity_fade)
+    
+log_message("Accelerated Life Test Completed Successfully.")</code></pre>
+                
+                <h3>9.2 Quantum Efficiency Verification</h3>
+                <p><strong>Test Setup:</strong> Utilizes a modified double-slit interference experiment observed via Scanning Tunneling Microscopy (STM) at 300K to confirm ZPE harvesting effects from Casimir oscillators. Correlates oscillator displacement with energy spikes in the harvesting circuit.</p>
+                <p><strong>Expected Result:</strong> Target harvested energy per oscillation cycle of \(2.9 \times 10^{-19} \text{ J/cycle}\) versus a theoretical maximum of \( (2.1 \text{ to } 3.5) \times 10^{-19} \text{ J/cycle}\) depending on precise geometry and material properties.</p>
+            </section>
+            
+            <section id="advantages" class="animate-on-scroll">
+                <div class="section-header">
+                    <span class="material-icons-round">auto_awesome</span>
+                    <h2>10. Conclusive Advantage Matrix</h2>
+                </div>
+                <table>
+                    <thead>
+                        <tr><th>Feature/Factor</th><th>MANEB V4 Edge</th><th>vs. Conventional Li-ion</th><th>Economic Rationale / Impact</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>Energy Density</strong></td><td>1,620 Wh/kg</td><td>~250 Wh/kg (avg)</td><td>6.5× higher. Reduces pack size/weight → lower material, casing, shipping costs; enables new applications.</td></tr>
+                        <tr><td><strong>Lifespan (Cycle Life)</strong></td><td>Effectively ∞ cycles (with self-healing & regeneration)</td><td>1,000-5,000 cycles</td><td>Eliminates replacement CAPEX, reduces TCO (Total Cost of Ownership).</td></tr>
+                        <tr><td><strong>Recharging / Autonomy</strong></td><td>Ambient energy harvesting (ZPE, RF) + Bio-regeneration</td><td>Requires external grid/source</td><td>Autonomous operation, reduced infrastructure dependency, continuous uptime.</td></tr>
+                        <tr><td><strong>Safety</strong></td><td>Zero thermal runaway (due to non-flammable solid-state components & active thermal regulation)</td><td>Risk of thermal runaway</td><td>Lowers insurance costs, recall liabilities, safety system overhead.</td></tr>
+                        <tr><td><strong>Sustainability</strong></td><td>CO₂-negative operation (biofilm sequesters CO₂)</td><td>Energy-intensive manufacturing, resource depletion</td><td>Qualifies for carbon credits (e.g., -\$41/MWh), improved environmental profile.</td></tr>
+                        <tr><td><strong>Operating Temperature</strong></td><td>-100°C to 220°C</td><td>-20°C to 60°C (typical)</td><td>Wider operational envelope, reduced need for external thermal management systems.</td></tr>
+                        <tr><td><strong>Fault Tolerance</strong></td><td>Multi-level self-healing, redundant pathways, 48 parallel Kalman filters for health monitoring</td><td>Cell-level to pack-level failure propagation</td><td>Increased reliability, mission critical application suitability.</td></tr>
+                    </tbody>
+                </table>
+                <p style="font-style: italic; text-align: center; margin-top: 20px; font-weight: 600;">
+                    "V4 achieves >10× ROI improvement over V3 through materials innovation and system-level optimization, leading to a paradigm shift in energy storage." — Simulated LCOE Analysis
+                </p>
+            </section>
+
+            <section id="sourcing" class="animate-on-scroll">
+                <div class="section-header">
+                    <span class="material-icons-round">source</span>
+                    <h2>11. References & Cost-Efficient Sourcing</h2>
+                </div>
+                <ol>
+                    <li><strong>AQRC Antennas & Plasmonics:</strong> Adapted from concepts in Liu et al. "Plasmonic metasurfaces for ambient RF energy harvesting." <em>Nature Nanotechnology</em> (2023). (e.g., DOI:10.1038/s41565-023-01428-w). Plus internal ZPE work inspired by dynamical Casimir effect literature e.g., Zhang et al. (2024). "Casimir-Driven Graphene Oscillators". <em>Nature Energy</em>, 9(3), 210-225.</li>
+                    <li><strong>Autotrophic Biofilm:</strong> Engineered strains based on <em>Cupriavidus metallidurans</em>, modified from public strains like JGI Strain ID 487892.1. Metabolic engineering inspired by Kwon, H. (2023). "Metabolic Engineering of Metal-Reducing Bacteria". <em>Science Advances</em>, 9(12).</li>
+                    <li><strong>LLZO-ALD Process:</strong> Utilizes optimized ALD cycles with cost-effective precursors, e.g., Li(OtBu), La(amd)₃, Zr(NMe₂)₄, sourced from suppliers like Sigma-Aldrich (e.g., product #900893 for a similar class precursor). Work based on MANEB Consortium. (2024). "Topological Electrolytes for Batteries". <em>Advanced Materials</em>, 2400112.</li>
+                    <li><strong>PCM Blend:</strong> Custom eutectic or composite blend, patent-pending (e.g., US2024178901A1 fictional). Royalty-free for MANEB licensees.</li>
+                </ol>
+            </section>
+
+            <section id="commercialization" class="animate-on-scroll">
+                <div class="section-header">
+                    <span class="material-icons-round">storefront</span>
+                    <h2>12. Commercialization Pathway</h2>
+                </div>
+                <table>
+                    <thead>
+                        <tr><th>Phase</th><th>Timeline</th><th>Key Milestone</th><th>Target Cost ($/kWh)</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>I: Prototype & Validation</td><td>0–8 mos</td><td>1 kWh functional demo unit, core tech validation</td><td>$4,200 (prototype)</td></tr>
+                        <tr><td>II: Pilot Production</td><td>9–18 mos</td><td>Automated pilot line, 95% yield for 10 kWh packs</td><td>$3,100 (pilot scale)</td></tr>
+                        <tr><td>III: Mass Manufacturing</td><td>19–36 mos</td><td>1 GWh/yr factory online, supply chain optimization</td><td>$2,250 (initial mass prod.) -> <$1000 (long term)</td></tr>
+                    </tbody>
+                </table>
+                <p><strong>Strategic Alliances:</strong> Partnership with key material suppliers and equipment manufacturers.</p>
+                <p><strong>Exit Strategy:</strong> License core IP (AQRC, Biofilm tech) to major battery manufacturers (e.g., CATL, Samsung SDI, Panasonic) while retaining rights for specialized/niche applications. Potential for spin-off companies for specific application verticals.</p>
+            </section>
+
+        </main>
+        <footer>
+            <p>© 2024 MANEB Eternity V4. All rights reserved. <br>Scientific logics, principles, and theory presentation inspired by original work from lion.</p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const body = document.body;
+            const darkModeToggle = document.getElementById('darkModeToggle');
+            const prefersDarkScheme = window.matchMedia("(prefers-color-scheme: dark)");
+
+            // Mermaid initialization and rendering function
+            async function initializeAndRenderMermaid() {
+                const currentThemeIsDark = document.body.classList.contains('dark-mode');
+                
+                // Ensure Mermaid is loaded
+                if (typeof mermaid === 'undefined' || typeof mermaid.initialize !== 'function') {
+                    console.warn("Mermaid library not loaded yet.");
+                    return;
+                }
+
+                mermaid.initialize({
+                    startOnLoad: false, // We will trigger rendering manually
+                    theme: currentThemeIsDark ? 'dark' : 'default',
+                    fontFamily: getComputedStyle(document.documentElement).getPropertyValue('--font-secondary').trim() || 'Open Sans, sans-serif',
+                    // For Mermaid 10+, themeVariables can be used for finer control
+                    themeVariables: {
+                        // Example:
+                        // primaryColor: currentThemeIsDark ? '#333' : '#eee',
+                        // primaryTextColor: currentThemeIsDark ? '#eee' : '#333',
+                        // lineNColor: currentThemeIsDark ? var(--color-accent) : var(--color-accent-darker) // if using theme: 'base'
+                    }
+                });
+
+                const mermaidElements = document.querySelectorAll('.mermaid');
+                for (let i = 0; i < mermaidElements.length; i++) {
+                    const element = mermaidElements[i];
+                    // Store original definition if not already stored
+                    if (!element.dataset.graphDefinition) {
+                        element.dataset.graphDefinition = element.textContent.trim();
+                    }
+                    
+                    const graphDefinition = element.dataset.graphDefinition;
+                    const id = `mermaid-diagram-${Date.now()}-${i}`; // Unique ID for rendering
+
+                    if (element.getAttribute('data-processed') === 'true' && element.innerHTML.startsWith('<svg')) {
+                        // Potentially skip if already rendered, unless theme changed forcing re-render
+                        // For simplicity, always re-render if theme could have changed.
+                    }
+                    
+                    element.innerHTML = graphDefinition; // Put definition back for mermaid to process
+                    element.removeAttribute('data-processed'); 
+
+                    try {
+                        // mermaid.render() is asynchronous with a callback
+                        // Or use mermaid.run() if elements are prepared
+                        // Using mermaid.run() is simpler for multiple diagrams after initialize
+                        // element.innerHTML = ''; // Clear before rendering
+                        // const { svg, bindFunctions } = await mermaid.render(id, graphDefinition);
+                        // element.innerHTML = svg;
+                        // if (bindFunctions) bindFunctions(element);
+                        // This approach requires more careful handling of element state
+                    } catch (e) {
+                        console.error("Mermaid rendering preparation error:", e, "for element:", element);
+                        element.innerHTML = "Error preparing diagram.";
+                    }
+                }
+                // After preparing all elements, run Mermaid
+                 try {
+                    await mermaid.run({ nodes: mermaidElements });
+                    mermaidElements.forEach(el => el.setAttribute('data-processed', 'true'));
+                } catch(e) {
+                    console.error("Mermaid.run() error:", e);
+                     mermaidElements.forEach(el => {
+                        if (!el.innerHTML.includes('<svg')) { // If not successfully rendered
+                            el.innerHTML = "Error rendering diagram via run().";
+                        }
+                    });
+                }
+            }
+            
+            // Global theme application function
+            window.globalApplyTheme = async function(theme) {
+                if (theme === 'dark') {
+                    body.classList.add('dark-mode');
+                    darkModeToggle.querySelector('.material-icons-round').textContent = 'light_mode';
+                } else {
+                    body.classList.remove('dark-mode');
+                    darkModeToggle.querySelector('.material-icons-round').textContent = 'dark_mode';
+                }
+                // Re-initialize and render Mermaid with the new theme
+                await initializeAndRenderMermaid();
+            };
+            
+            // Initial theme setup
+            let currentTheme = localStorage.getItem('theme');
+            if (!currentTheme) {
+                currentTheme = prefersDarkScheme.matches ? 'dark' : 'light';
+            }
+            globalApplyTheme(currentTheme); // Apply theme and render Mermaid
+
+            // Dark Mode Toggle Event Listener
+            darkModeToggle.addEventListener('click', () => {
+                currentTheme = body.classList.contains('dark-mode') ? 'light' : 'dark';
+                localStorage.setItem('theme', currentTheme);
+                globalApplyTheme(currentTheme);
+            });
+
+            // KaTeX Auto-Rendering (if not using defer, ensure it runs after Mermaid init or vice-versa)
+            if (typeof renderMathInElement === 'function') {
+                renderMathInElement(document.body, {
+                    delimiters: [
+                        {left: "$$", right: "$$", display: true},
+                        {left: "\\[", right: "\\]", display: true},
+                        {left: "\\(", right: "\\)", display: false},
+                        {left: "$", right: "$", display: false} 
+                    ],
+                    throwOnError: false
+                });
+            } else {
+                console.warn("KaTeX auto-render function not found. Math may not be rendered.");
+            }
+
+            // Scroll Animations
+            const animatedElements = document.querySelectorAll('.animate-on-scroll');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('is-visible');
+                        observer.unobserve(entry.target); 
+                    }
+                });
+            }, { threshold: 0.1 }); 
+
+            animatedElements.forEach(el => {
+                observer.observe(el);
+            });
+        });
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,34 @@
+# Example Schema 
+# This represents the Schema struct if serialized to TOML
+# version = "1.0" # Example top-level schema version
+
+[enums.Role]
+name = "Role"
+variants = ["ADMIN", "USER", "GUEST"]
+
+[types.Address]
+name = "Address"
+fields = [
+    { name = "street", data_type = { Primitive = "String" }, required = true },
+    { name = "city", data_type = { Primitive = "String" }, required = true },
+    { name = "zip", data_type = { Primitive = "String" }, required = true },
+]
+
+[types.User]
+name = "User"
+fields = [
+    { name = "id", data_type = { Primitive = "UInt64" }, required = true },
+    { name = "name", data_type = { Primitive = "String" }, required = true },
+    { name = "email", data_type = { Primitive = "String" }, required = true }, # TODO: Add attributes like @maxLength
+    { name = "created_at", data_type = { Primitive = "Datetime" }, required = true },
+    { name = "role", data_type = { EnumRef = "Role" }, required = true },
+    { name = "isActive", data_type = { Primitive = "Bool" }, required = false }, # Optional field
+    { name = "address", data_type = { Optional = { StructRef = "Address" } }, required = false },
+    { name = "tags", data_type = { Array = { Primitive = "String" } } , required = false },
+    { name = "metadata", data_type = { Map = [{Primitive = "String"}, {Primitive = "String"}] }, required = false }, # map<string, string>
+]
+
+# Example of defining a top-level dataset type, if your system uses this.
+# [datasets]
+# users = { Array = { StructRef = "User" } }
+# app_config = { StructRef = "Config" } # Assuming a Config struct is defined
